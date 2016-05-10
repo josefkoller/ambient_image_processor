@@ -167,6 +167,10 @@ private:
     int selectedProfileLineIndex();
     void paintSelectedProfileLineInImage();
 
+    int selectedReferenceROI();
+    void paintSelectedReferenceROI();
+    void updateReferenceROI();
+
     void displayOriginAndSpacing();
     void setInputRanges();
 
@@ -203,6 +207,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
 
 private:
     std::thread* worker_thread;
@@ -224,12 +229,29 @@ private slots:
 
     void on_pushButton_2_clicked();
 
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_4_clicked();
+
+    void on_referenceROIsListWidget_currentRowChanged(int currentRow);
+
+    void on_referenceROIsListWidget_itemSelectionChanged();
+
+    void on_pushButton_6_clicked();
+
 private:
     QLabel* inner_image_frame;
     QImage* q_image;
     MultiScaleRetinex multi_scale_retinex;
 protected:
     bool eventFilter(QObject *target, QEvent *event);
+
+private:
+    bool adding_reference_roi;
+    QList<QVector<QPoint>> reference_rois;
+
+    std::vector<ITKImageProcessor::ReferenceROIStatistic> reference_rois_statistic;
+
 };
 
 #endif // IMAGEWIDGET_H

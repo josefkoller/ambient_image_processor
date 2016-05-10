@@ -147,6 +147,19 @@ private:
          ComplexImageType::Pointer& fft_gradient_h,
          ComplexImageType::Pointer& fft_gradient_v);
 
+public:
+
+    struct ReferenceROIStatistic
+    {
+        float median_value;
+        int x;
+        int y;
+    };
+
+    static ImageType::Pointer splineFit(ImageType::Pointer image, uint spline_order,
+                                 uint spline_levels, uint spline_control_points,
+                                 std::vector<ReferenceROIStatistic> nodes,
+                                        ImageType::Pointer& field_image);
 };
 
 #endif // ITKIMAGEPROCESSOR_H
