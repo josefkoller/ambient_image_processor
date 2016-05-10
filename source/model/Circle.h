@@ -5,14 +5,16 @@
 class Circle
 {
 public:
-    Circle(float inner_radius, float outer_radius, float factor) :
-        inner_radius(inner_radius), outer_radius(outer_radius), factor(factor)
+    Circle(float x, float y, float inner_radius, float outer_radius, float factor) :
+        x(x), y(y), inner_radius(inner_radius), outer_radius(outer_radius), factor(factor)
     {
     }
 
     float inner_radius;
     float outer_radius;
     float factor;
+    float x;
+    float y;
 };
 
 #endif // CIRCLE_H

@@ -22,8 +22,8 @@ CircleImage::CircleImage(Circle circle, uint width, uint height) :
     for(uint x = 0; x < width; x++)
         for(uint y = 0; y < height; y++)
         {
-            float xf = ((float)x) / width * 2.0f - 1.0f;
-            float yf = ((float)y) / height * 2.0f - 1.0f;
+            float xf = ((float)x) / width * 2.0f - 1.0f + circle.x;
+            float yf = ((float)y) / height * 2.0f - 1.0f + circle.y;
             float radius = sqrt(xf*xf + yf*yf);
             uint index = y*width + x;
 
