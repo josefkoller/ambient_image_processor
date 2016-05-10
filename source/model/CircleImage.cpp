@@ -16,6 +16,9 @@ CircleImage::CircleImage(Circle circle, uint width, uint height) :
     std::cout << "outer: " << circle.outer_radius << std::endl;
     */
 
+    const float max_distance = (circle.outer_radius - circle.inner_radius) * 0.5f;
+    const float intensity_per_distance = (circle.factor - 1.0f) / max_distance;
+
     for(uint x = 0; x < width; x++)
         for(uint y = 0; y < height; y++)
         {
@@ -24,8 +27,17 @@ CircleImage::CircleImage(Circle circle, uint width, uint height) :
             float radius = sqrt(xf*xf + yf*yf);
             uint index = y*width + x;
 
-            this->pixels[index] = (radius > circle.inner_radius &&
-               radius < circle.outer_radius) ? circle.factor : 1.0f;
+            if(radius <= circle.inner_radius || radius >= circle.outer_radius)
+            {
+                this->pixels[index] = 1.0f;
+                continue;
+            }
+
+            float inner_distance = std::abs(circle.inner_radius - radius);
+            float outer_distance = std::abs(circle.outer_radius - radius);
+            float distance = std::min(inner_distance, outer_distance);
+
+            this->pixels[index] = distance * intensity_per_distance + 1.0f;
         }
 }
 
