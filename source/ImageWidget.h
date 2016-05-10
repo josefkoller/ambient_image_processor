@@ -252,6 +252,8 @@ private:
 
     std::vector<ITKImageProcessor::ReferenceROIStatistic> reference_rois_statistic;
 
+public:
+    void setReferenceROIs(QList<QVector<QPoint>> reference_rois);
 };
 
 #endif // IMAGEWIDGET_H

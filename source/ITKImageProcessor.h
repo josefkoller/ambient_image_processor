@@ -160,6 +160,8 @@ public:
                                  uint spline_levels, uint spline_control_points,
                                  std::vector<ReferenceROIStatistic> nodes,
                                         ImageType::Pointer& field_image);
+
+    static void printMetric(std::vector<ReferenceROIStatistic> rois);
 };
 
 #endif // ITKIMAGEPROCESSOR_H

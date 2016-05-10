@@ -1220,4 +1220,28 @@ void ImageWidget::on_pushButton_6_clicked()
 
     ImageWidget* target_widget2 = this->output_widget2 == nullptr ? this : this->output_widget2;
     target_widget2->setImage(field_image);
+
+    ITKImageProcessor::printMetric(this->reference_rois_statistic);
+    target_widget->setReferenceROIs(this->reference_rois);
+}
+
+
+void ImageWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
+{
+    this->ui->referenceROIsListWidget->clear();
+    this->reference_rois_statistic.clear();
+
+    this->reference_rois = reference_rois;
+
+    for(int i = 0; i < reference_rois.size(); i++)
+    {
+        QString item = "ROI" + QString::number(i);
+        this->ui->referenceROIsListWidget->addItem(item);
+        this->ui->referenceROIsListWidget->setCurrentRow(i);
+        this->reference_rois_statistic.push_back(ITKImageProcessor::ReferenceROIStatistic());
+
+        updateReferenceROI();
+    }
+
+    ITKImageProcessor::printMetric(this->reference_rois_statistic);
 }

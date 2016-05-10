@@ -1481,7 +1481,6 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::splineFit(
         std::vector<ReferenceROIStatistic> nodes,
         ImageType::Pointer& field_image)
 {
-
     typedef itk::Vector<ImageType::PixelType, 1> ScalarType;
     typedef itk::PointSet<ScalarType, ImageType::ImageDimension> PointSet;
     PointSet::Pointer fieldPoints = PointSet::New();
@@ -1574,5 +1573,28 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::splineFit(
     ImageType::Pointer corrected_image = divide_filter->GetOutput();
     corrected_image->DisconnectPipeline();
 
+
     return corrected_image;
+}
+
+
+void ITKImageProcessor::printMetric(std::vector<ReferenceROIStatistic> rois)
+{
+    std::vector<float> v;
+    std::for_each (std::begin(rois), std::end(rois), [&](const ReferenceROIStatistic roi) {
+        v.push_back(roi.median_value);
+    });
+
+    double sum = std::accumulate(std::begin(v), std::end(v), 0.0);
+    double m =  sum / v.size();
+
+    double accum = 0.0;
+    std::for_each (std::begin(v), std::end(v), [&](const double d) {
+        accum += (d - m) * (d - m);
+    });
+
+    double stdev = sqrt(accum / (v.size()-1));
+
+    std::cout << "mean: " << m << std::endl;
+    std::cout << "standard deviation: " << stdev << std::endl;
 }
