@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>8</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -260,7 +260,7 @@
            <item>
             <widget class="QGroupBox" name="statistic_box">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -444,7 +444,7 @@
           <attribute name="title">
            <string>Window</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <layout class="QVBoxLayout" name="verticalLayout_17">
            <item>
             <widget class="QGroupBox" name="window_box">
              <property name="sizePolicy">

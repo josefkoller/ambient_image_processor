@@ -1181,7 +1181,11 @@ void ImageWidget::on_referenceROIsListWidget_itemSelectionChanged()
 void ImageWidget::on_pushButton_6_clicked()
 {
     if(this->reference_rois_statistic.size() == 0)
+    {
+        this->handleStatusTextChange("add some rois first");
         return;
+    }
+
 
     uint spline_order = this->ui->splineOrderSpinbox->value();
     uint spline_levels = this->ui->splineLevelsSpinbox->value();
