@@ -10,8 +10,6 @@
 
 #include "cuda/CudaImageProcessor.h"
 
-#include "model/itk/Optimizer.h"
-
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
@@ -984,7 +982,8 @@ void ImageWidget::showImageOnly()
 void ImageWidget::setMinimumSizeToImage()
 {
     const int border = 50;
-    this->ui->widget->setMinimumSize(this->image->GetLargestPossibleRegion().GetSize()[0] + border*2, this->image->GetLargestPossibleRegion().GetSize()[1]+border*2);
+    this->ui->image_frame->setMinimumSize(this->image->GetLargestPossibleRegion().GetSize()[0] + border*2,
+            this->image->GetLargestPossibleRegion().GetSize()[1]+border*2);
 }
 
 void ImageWidget::hidePixelValueAtCursor()
@@ -1085,22 +1084,6 @@ void ImageWidget::on_thresholdButton_clicked()
 void ImageWidget::on_addScaleButton_clicked()
 {
     this->multi_scale_retinex.addScaleTo(this->ui->multiScaleRetinexScalesFrame);
-
-}
-
-void ImageWidget::on_pushButton_2_clicked()
-{
-    auto iteration_count = this->ui->iterationCountSpinbox->value();
-
-    Image::Pointer field_image = NULL;
-    Optimizer optimizer = Optimizer();
-    auto output_image = optimizer.run(this->image, iteration_count, field_image);
-
-    ImageWidget* target_widget = this->output_widget == nullptr ? this : this->output_widget;
-    target_widget->setImage(output_image);
-
-    ImageWidget* target_widget2 = this->output_widget2 == nullptr ? this : this->output_widget2;
-    target_widget2->setImage(field_image);
 
 }
 

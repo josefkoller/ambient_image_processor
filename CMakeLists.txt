@@ -1,4 +1,4 @@
-project(modelfit)
+project(ambient)
 
 cmake_minimum_required(VERSION 2.8.11)
 
@@ -49,11 +49,6 @@ SET(SOURCE_CPP_FILES
   source/segmentation/RegionGrowingSegmentationProcessor.cpp
   source/retinex/MultiScaleRetinexScale.cpp
   source/retinex/MultiScaleRetinex.cpp
-  source/model/Circle.cpp
-  source/model/CircleFactory.cpp
-  source/model/CircleImage.cpp
-  source/model/itk/ITKCircleImage.cpp
-  source/model/itk/Optimizer.cpp
 )
 
 SET(SOURCE_H_FILES
@@ -73,11 +68,6 @@ SET(SOURCE_H_FILES
   source/segmentation/RegionGrowingSegmentationProcessor.h
   source/retinex/MultiScaleRetinexScale.h
   source/retinex/MultiScaleRetinex.h
-  source/model/Circle.h
-  source/model/CircleFactory.h
-  source/model/CircleImage.h
-  source/model/itk/ITKCircleImage.h
-  source/model/itk/Optimizer.h
 )
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})

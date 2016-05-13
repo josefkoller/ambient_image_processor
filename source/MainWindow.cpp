@@ -18,16 +18,13 @@ MainWindow::MainWindow(std::string image_path) :
     {
         ImageType::Pointer input_image = ITKImageProcessor::read(image_path);
         this->ui->image_widget->setImage(input_image);
-        this->ui->image_widget->showSliceControl();
-
-     //   this->ui->output_widget->showImageOnly();
-        this->ui->image_widget->setOutputWidget(this->ui->output_widget);
-        this->ui->output_widget->connectSliceControlTo(this->ui->image_widget);
-        this->ui->output_widget->connectProfileLinesTo(this->ui->image_widget);
-        this->ui->output_widget->setPage(0);
-
-        this->ui->image_widget->setOutputWidget2(this->ui->output_widget2);
     }
+
+   // this->ui->image_widget->showSliceControl();
+    this->ui->image_widget->setOutputWidget(this->ui->output_widget);
+    this->ui->output_widget->connectSliceControlTo(this->ui->image_widget);
+    this->ui->output_widget->connectProfileLinesTo(this->ui->image_widget);
+    this->ui->output_widget->setPage(0);
 }
 
 MainWindow::~MainWindow()
