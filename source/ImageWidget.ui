@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>12</number>
+          <number>13</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -1174,6 +1174,16 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="tab_8">
+          <attribute name="title">
+           <string>TGV</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <widget class="TGVWidget" name="tgv_widget" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -1212,6 +1222,12 @@
    <class>DeshadeSegmentedWidget</class>
    <extends>QWidget</extends>
    <header location="global">deshade_segmented/DeshadeSegmentedWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TGVWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">thrust_tgv/TGVWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

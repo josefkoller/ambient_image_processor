@@ -103,6 +103,13 @@ ImageWidget::ImageWidget(QWidget *parent) :
         this->output_widget->setImage(shading);
         this->output_widget2->setImage(reflectance);
     });
+
+    this->ui->tgv_widget->setSourceImageFetcher([this]() {
+        return ITKImageProcessor::cloneImage(this->image);
+    });
+    this->ui->tgv_widget->setResultProcessor([this](Image::Pointer result) {
+        this->output_widget->setImage(result);
+    });
 }
 
 ImageWidget::~ImageWidget()

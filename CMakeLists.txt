@@ -14,7 +14,13 @@ find_package(CUDA REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-SET( CUDA_PROPAGATE_HOST_FLAGS OFF ) # do not use c++11 in cuda
+SET( CUDA_PROPAGATE_HOST_FLAGS OFF )
+set(CUDA_NVCC_FLAGS "--std=c++11;--gpu-architecture=compute_50;--gpu-code=sm_50")
+#set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_50,code=sm_50")
+set(CUDA_SEPARABLE_COMPILATION ON)
+set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+set(CUDA_VERBOSE_BUILD ON)
+
 
 find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})
@@ -72,6 +78,7 @@ SET(SOURCE_H_FILES
 
 include(source/non_local_gradient/CMakeLists.txt)
 include(source/deshade_segmented/CMakeLists.txt)
+include(source/thrust_tgv/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
