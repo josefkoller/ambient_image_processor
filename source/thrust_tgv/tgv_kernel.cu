@@ -22,19 +22,17 @@ Image* filter(Image* f,
   const float sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
   float tau = 1.0f / sqrt_8;
   float sigma = tau;
-  const float gamma = 0.7f * lambda;  // algorithm paramteter
-  float theta = 0.0f; // will be used later
+//  const float gamma = 0.7f * lambda;  // algorithm paramteter
+  float theta = 1.0f; // will be used later
 
-
-  Image* laplace_f = f->clone_uninitialized();
-  f->laplace(laplace_f);
-
+  /*
   Image* gradient_x_f = f->clone_uninitialized();
   f->forward_difference_x(gradient_x_f);
   Image* gradient_y_f = f->clone_uninitialized();
   f->forward_difference_y(gradient_y_f);
+  */
 
-  Image* u = f;
+  Image* u = f->clone();
   Image* p_x_temp = u->clone_uninitialized(); // memory allocation
   Image* p_y_temp = u->clone_uninitialized(); // memory allocation
   Image* p_x = u->clone_initialized(0); // memory allocation
@@ -42,17 +40,22 @@ Image* filter(Image* f,
   Image* p_xx_temp = u->clone_uninitialized(); // memory allocation
   Image* p_yy_temp = u->clone_uninitialized(); // memory allocation
   Image* divergence_p = u->clone_uninitialized(); // memory allocation
-  Image* u_step = u->clone_uninitialized(); // memory allocation
-  Image* u_candidate = u->clone_uninitialized(); // memory allocation
+  Image* u_bar = u->clone(); // memory allocation
+  Image* u_previous = u->clone_uninitialized(); // memory allocation
 
   Image* gradient_magnitude_u = u->clone_uninitialized();
   Image* gradient_x_difference = u->clone_uninitialized();
   Image* gradient_y_difference = u->clone_uninitialized();
   Image* gradient_difference_magnitude = u->clone_uninitialized();
+
+  f->scale(tau * lambda, f); // for later
+
   for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
   {
-      u->forward_difference_x(p_x_temp);
-      u->forward_difference_y(p_y_temp);
+      u_previous->setPixelDataOf(u);
+
+      u_bar->forward_difference_x(p_x_temp);
+      u_bar->forward_difference_y(p_y_temp);
 
       // begin computing energy...
       /* energy, matlab:
@@ -101,39 +104,31 @@ Image* filter(Image* f,
       // project/normalize p
       Image::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
 
-      // u update1...  matlab: u = old_u + tau * lambda * (-nabla_t * p * (1/lambda + 1)+ laplace_f);
+      // u update1...  matlab: u = old_u + tau * lambda * (-nabla_t * p * (1/lambda + 1)+ f);
       Image::divergence(p_x, p_y, p_xx_temp, p_yy_temp, divergence_p);
 
       thrust::transform(divergence_p->pixel_rows.begin(), divergence_p->pixel_rows.end(),
-                        laplace_f->pixel_rows.begin(), u_candidate->pixel_rows.begin(),
-                        MultiplyByConstantAndAddOperation<Pixel>(-(1.0f/lambda + 1.0f)) ); // minus goes here
-      thrust::transform(u_candidate->pixel_rows.begin(), u_candidate->pixel_rows.end(),
-                        u->pixel_rows.begin(), u_candidate->pixel_rows.begin(),
-                        MultiplyByConstantAndAddOperation<Pixel>(tau*lambda));
-
-      // step sizes update
-      theta = 1.0f / std::sqrt(1.0f + 2.0f * gamma * tau);
-      tau *= theta;
-      sigma /= theta;
-
-      thrust::transform(u_candidate->pixel_rows.begin(), u_candidate->pixel_rows.end(),
-                        u->pixel_rows.begin(), u_step->pixel_rows.begin(),
-                        thrust::minus<Pixel>());
-      // u update2
-      thrust::transform(u_step->pixel_rows.begin(), u_step->pixel_rows.end(),
                         u->pixel_rows.begin(), u->pixel_rows.begin(),
-                        MultiplyByConstantAndAddOperation<Pixel>(theta) );
+                        MultiplyByConstantAndAddOperation<Pixel>(-1) ); // minus goes here
+
+      u->add(f, u);
+      u->scale(1/(1 + tau*lambda), u);
+
+      thrust::transform(u->pixel_rows.begin(), u->pixel_rows.end(),
+                        u_previous->pixel_rows.begin(), u_bar->pixel_rows.begin(),
+                        MultiplyByConstantAndAddOperation<Pixel>(-1));
+      u_bar->scale(theta, u_bar);
+      u_bar->add(u, u_bar);
 
       std::cout << "iteration: " << (iteration_index+1) << "/" << iteration_count << std::endl;
   }
   delete gradient_difference_magnitude;
   delete gradient_x_difference;
   delete gradient_y_difference;
-  delete gradient_x_f;
-  delete gradient_y_f;
+//  delete gradient_x_f;
+//  delete gradient_y_f;
   delete gradient_magnitude_u;
 
-  delete laplace_f;
   delete p_x_temp;
   delete p_y_temp;
   delete p_x;
@@ -141,8 +136,8 @@ Image* filter(Image* f,
   delete p_xx_temp;
   delete p_yy_temp;
   delete divergence_p;
-  delete u_step;
-  delete u_candidate;
+  delete u_previous;
+  delete u_bar;
 
   return u;
 }

@@ -264,3 +264,17 @@ Image* Image::clone_initialized(const Pixel initial_constant_value)
     thrust::fill(image->pixel_rows.begin(), image->pixel_rows.end(), initial_constant_value);
     return image;
 }
+
+__host__ __device__
+Image* Image::clone()
+{
+    Image* clone = new Image(this->width, this->height);
+    thrust::copy(this->pixel_rows.begin(), this->pixel_rows.end(), clone->pixel_rows.begin());
+    return clone;
+}
+
+__host__ __device__
+void Image::setPixelDataOf(Image* image)
+{
+    thrust::copy(image->pixel_rows.begin(), image->pixel_rows.end(), this->pixel_rows.begin());
+}

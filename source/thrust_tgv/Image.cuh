@@ -70,6 +70,11 @@ struct Image
   Image* clone_uninitialized();
   __host__ __device__
   Image* clone_initialized(const Pixel initial_constant_value);
+  __host__ __device__
+  Image* clone();
+
+  __host__ __device__
+  void setPixelDataOf(Image* image);
 };
 
 #endif // IMAGE_H

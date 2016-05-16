@@ -3,7 +3,7 @@ project(ambient)
 cmake_minimum_required(VERSION 2.8.11)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS}")
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
@@ -21,6 +21,8 @@ set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(CUDA_VERBOSE_BUILD ON)
 
+#enable openmp
+#set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive -fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
 
 find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})

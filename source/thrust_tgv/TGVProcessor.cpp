@@ -52,5 +52,9 @@ TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2(itkImage::Pointer inpu
     Image* f = convert(input_image);
     Image* u = filter(f, lambda, iteration_count);
 
-    return convert(u);
+    delete f;
+
+    TGVProcessor::itkImage::Pointer result = convert(u);
+    delete u;
+    return result;
 }
