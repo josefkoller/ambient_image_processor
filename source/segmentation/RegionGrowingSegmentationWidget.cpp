@@ -8,12 +8,20 @@
 
 #include <itkCastImageFilter.h>
 
+#include "../non_local_gradient/NonLocalGradientProcessor.h"
+
+#include <QFileDialog>
+#include <QTextStream>
+
 RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RegionGrowingSegmentationWidget),
     is_adding_seed_point(false),
     source_image_widget(nullptr),
-    target_image_widget(nullptr)
+    target_image_widget(nullptr),
+    kernel_sigma_fetcher(nullptr),
+    kernel_size_fetcher(nullptr),
+    label_image(nullptr)
 {
     ui->setupUi(this);
 }
@@ -25,7 +33,20 @@ RegionGrowingSegmentationWidget::~RegionGrowingSegmentationWidget()
 
 void RegionGrowingSegmentationWidget::on_newSegmentButton_clicked()
 {
+    this->addSegment();
+}
+
+void RegionGrowingSegmentationWidget::addSegment(QString name)
+{
     RegionGrowingSegmentation::Segment segment = region_growing_segmentation.addSegment();
+
+    if(name != "")
+    {
+        segment.name = name.toStdString();
+        region_growing_segmentation.setSegmentName(
+                    region_growing_segmentation.getSegments().size() - 1, name.toStdString());
+    }
+
     this->ui->segmentsListWidget->addItem(QString::fromStdString(segment.name));
     QListWidgetItem* item = this->ui->segmentsListWidget->item(this->ui->segmentsListWidget->count()-1);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -183,6 +204,8 @@ void RegionGrowingSegmentationWidget::on_removeSeedButton_clicked()
 
 void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 {
+    if(this->kernel_sigma_fetcher == nullptr || this->kernel_size_fetcher == nullptr)
+        return;
     // input...
     typedef SegmentsToLabelImageConverter::LabelImage LabelImage;
     typedef ITKImageProcessor::ImageType SourceImage;
@@ -190,14 +213,21 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 
     float tolerance = this->ui->toleranceSpinbox->value();
 
+    float kernel_sigma = this->kernel_sigma_fetcher();
+    float kernel_size = this->kernel_size_fetcher();
+
+    NonLocalGradientProcessor::Image::Pointer gradient_image = NonLocalGradientProcessor::process(
+                source_image, kernel_size, kernel_sigma);
+
+
     // action...
-    LabelImage::Pointer output_labels = RegionGrowingSegmentationProcessor::process(
-                source_image, this->region_growing_segmentation.getSegments(), tolerance);
+    this->label_image = RegionGrowingSegmentationProcessor::process(
+                gradient_image, this->region_growing_segmentation.getSegments(), tolerance);
 
     // output...
     typedef itk::CastImageFilter<LabelImage, SourceImage> CastFilter;
     CastFilter::Pointer cast_filter = CastFilter::New();
-    cast_filter->SetInput(output_labels);
+    cast_filter->SetInput(this->label_image);
     cast_filter->Update();
     this->target_image_widget->setImage(cast_filter->GetOutput());
 
@@ -218,4 +248,104 @@ void RegionGrowingSegmentationWidget::setSourceImageWidget(ImageWidget* source_i
 void RegionGrowingSegmentationWidget::setTargetImageWidget(ImageWidget* target_image_widget)
 {
     this->target_image_widget = target_image_widget;
+}
+
+void RegionGrowingSegmentationWidget::setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher)
+{
+    this->kernel_sigma_fetcher = kernel_sigma_fetcher;
+}
+
+void RegionGrowingSegmentationWidget::setKernelSizeFetcher(
+        std::function<uint()> kernel_size_fetcher)
+{
+    this->kernel_size_fetcher = kernel_size_fetcher;
+}
+
+void RegionGrowingSegmentationWidget::on_saveParameterButton_clicked()
+{
+    QString file_path = QFileDialog::getSaveFileName(this, "Parameter File", "", "*.txt");
+
+    QString data = QString::number(this->ui->toleranceSpinbox->value()) + "\n";
+    auto segments = this->region_growing_segmentation.getSegmentObjects();
+    for(RegionGrowingSegmentation::Segment segment : segments)
+    {
+        data += QString::fromStdString(segment.name) + ":";
+        for(RegionGrowingSegmentation::Position seed_point : segment.seed_points)
+        {
+            data += QString::number(seed_point[0]) + "|" +
+                    QString::number(seed_point[1]) + ";";
+        }
+        data += "\n";
+    }
+
+    QFile file(file_path);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+        stream << data;
+    }
+}
+
+
+
+void RegionGrowingSegmentationWidget::on_load_ParameterButton_clicked()
+{
+    QString file_path = QFileDialog::getOpenFileName(this, "Parameter File", "", "*.txt");
+    QFile file(file_path);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+    QTextStream stream(&file);
+    QString data = stream.readAll();
+
+    QStringList elements = data.split("\n");
+    QString tolerance_text = elements[0];
+    this->ui->toleranceSpinbox->setValue(tolerance_text.toFloat());
+
+    this->region_growing_segmentation.clear();
+    this->ui->segmentsListWidget->clear();
+    this->ui->seedsListWidget->clear();
+
+    for(int i = 1; i < elements.length(); i++)
+    {
+        if(elements[i].trimmed() == "")
+            continue;
+
+        QStringList segment_elements = elements[i].split(":");
+        QString segment_name = segment_elements[0];
+
+        this->addSegment(segment_name);
+        uint segment_index = i - 1;
+
+        QStringList seed_points_elements = segment_elements[1].split(";");
+
+        for(int s = 0; s < seed_points_elements.length(); s++)
+        {
+            if(seed_points_elements[s].trimmed() == "")
+                continue;
+
+            QStringList seed_point_elements = seed_points_elements[s].split("|");
+            uint x = seed_point_elements[0].toInt();
+            uint y = seed_point_elements[1].toInt();
+            RegionGrowingSegmentation::Position seed_point;
+            seed_point[0] = x;
+            seed_point[1] = y;
+
+            this->region_growing_segmentation.addSeedPoint(segment_index, seed_point);
+        }
+    }
+
+    this->ui->segmentsListWidget->setCurrentRow(0);
+    this->refreshSeedPointGroupBoxTitle();
+    this->refreshSeedPointList();
+}
+
+RegionGrowingSegmentationProcessor::LabelImage::Pointer
+    RegionGrowingSegmentationWidget::getLabelImage() const
+{
+    return this->label_image;
+}
+
+std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegmentationWidget::getSegments() const
+{
+    return this->region_growing_segmentation.getSegments();
 }

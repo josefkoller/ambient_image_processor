@@ -29,6 +29,8 @@ public:
     void setSeedPointPosition(uint segment_index, uint seed_point_index, Position position);
     std::vector<Position> getSeedPointsOfSegment(uint segment_index) const;
     std::vector<std::vector<Position> > getSegments() const;
+    std::vector<Segment> getSegmentObjects() const;
+    void clear();
 };
 
 #endif // REGIONGROWINGSEGMENTATION_H

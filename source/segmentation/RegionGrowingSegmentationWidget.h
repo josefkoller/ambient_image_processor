@@ -6,6 +6,9 @@
 
 #include "segmentation/RegionGrowingSegmentation.h"
 #include "ImageWidget.h"
+#include "RegionGrowingSegmentationProcessor.h"
+
+#include <functional>
 
 namespace Ui {
 class RegionGrowingSegmentationWidget;
@@ -32,6 +35,9 @@ private:
     void refreshSeedPointList();
     void refreshSeedPointGroupBoxTitle();
     void stopAddingSeedPoint();
+
+
+    void addSegment(QString name = "");
 private slots:
     void on_newSegmentButton_clicked();
     void on_removeSegmentButton_clicked();
@@ -46,15 +52,30 @@ private slots:
 
     void on_performSegmentationButton_clicked();
 
+    void on_saveParameterButton_clicked();
+
+    void on_load_ParameterButton_clicked();
+
 signals:
     void statusTextChange(QString);
 
 private:
     ImageWidget* source_image_widget;
     ImageWidget* target_image_widget;
+
+    std::function<float()> kernel_sigma_fetcher;
+    std::function<uint()> kernel_size_fetcher;
+
+    RegionGrowingSegmentationProcessor::LabelImage::Pointer label_image;
 public:
     void setSourceImageWidget(ImageWidget* source_image_widget);
     void setTargetImageWidget(ImageWidget* target_image_widget);
+
+    void setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher);
+    void setKernelSizeFetcher(std::function<uint()> kernel_size_fetcher);
+
+    RegionGrowingSegmentationProcessor::LabelImage::Pointer getLabelImage() const;
+    std::vector<std::vector<RegionGrowingSegmentation::Position> > getSegments() const;
 };
 
 #endif // REGIONGROWINGSEGMENTATIONWIDGET_H

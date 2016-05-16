@@ -49,3 +49,13 @@ std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegm
     }
     return segments;
 }
+
+std::vector<RegionGrowingSegmentation::Segment> RegionGrowingSegmentation::getSegmentObjects() const
+{
+    return this->segments;
+}
+
+void RegionGrowingSegmentation::clear()
+{
+    this->segments.clear();
+}

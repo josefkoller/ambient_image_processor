@@ -3,7 +3,7 @@ project(ambient)
 cmake_minimum_required(VERSION 2.8.11)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS}")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
@@ -70,6 +70,9 @@ SET(SOURCE_H_FILES
   source/retinex/MultiScaleRetinex.h
 )
 
+include(source/non_local_gradient/CMakeLists.txt)
+include(source/deshade_segmented/CMakeLists.txt)
+
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
 SET(SOURCE_ALL_FILES
@@ -84,6 +87,8 @@ cuda_add_executable(ambient_application
   source/ambient_main.cpp
 #  source/cuda/CudaImage.cuh
   ${SOURCE_ALL_FILES}
+  ${CUDA_CPP_FILES}
+
   source/cuda/cuda_kernels.cu
 )
 

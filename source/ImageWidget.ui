@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>539</width>
-    <height>790</height>
+    <height>829</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>12</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -1154,6 +1154,26 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="tab_5">
+          <attribute name="title">
+           <string>Non-Local Gradient</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="NonLocalGradientWidget" name="non_local_gradient_widget" native="true"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_7">
+          <attribute name="title">
+           <string>Deshade Segmented</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="DeshadeSegmentedWidget" name="deshade_segmented_widget" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -1180,6 +1200,18 @@
    <class>RegionGrowingSegmentationWidget</class>
    <extends>QWidget</extends>
    <header location="global">segmentation/RegionGrowingSegmentationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>NonLocalGradientWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">non_local_gradient/NonLocalGradientWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DeshadeSegmentedWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">deshade_segmented/DeshadeSegmentedWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

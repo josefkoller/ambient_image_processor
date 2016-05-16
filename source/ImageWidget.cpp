@@ -20,13 +20,13 @@ ImageWidget::ImageWidget(QWidget *parent) :
     show_histogram(true),
     adding_profile_line(false),
     profile_line_parent(nullptr),
-    output_widget(nullptr),
+    output_widget(this),
     show_pixel_value_at_cursor(true),
     worker_thread(nullptr),
     inner_image_frame(nullptr),
     q_image(nullptr),
     image_save(nullptr),
-    output_widget2(nullptr),
+    output_widget2(this),
     adding_reference_roi(false)
 {
     ui->setupUi(this);
@@ -73,6 +73,36 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
     this->ui->region_growing_segmentation_widget->setSourceImageWidget(this);
     this->ui->region_growing_segmentation_widget->setTargetImageWidget(this);
+    this->ui->region_growing_segmentation_widget->setKernelSigmaFetcher([this]() {
+        return this->ui->non_local_gradient_widget->getKernelSigma();
+    });
+    this->ui->region_growing_segmentation_widget->setKernelSizeFetcher([this]() {
+        return this->ui->non_local_gradient_widget->getKernelSize();
+    });
+
+
+    this->ui->non_local_gradient_widget->setSourceImageFetcher([this](){
+        return ITKImageProcessor::cloneImage(this->image);
+    });
+    this->ui->non_local_gradient_widget->setResultProcessor( [this] (Image::Pointer image) {
+        this->output_widget->setImage(image);
+    });
+
+
+    this->ui->deshade_segmented_widget->setSourceImageFetcher([this]() {
+        return ITKImageProcessor::cloneImage(this->image);
+    });
+    this->ui->deshade_segmented_widget->setSegmentsFetcher([this]() {
+        return this->ui->region_growing_segmentation_widget->getSegments();
+    });
+    this->ui->deshade_segmented_widget->setLabelImageFetcher([this]() {
+        return this->ui->region_growing_segmentation_widget->getLabelImage();
+    });
+    this->ui->deshade_segmented_widget->setResultProcessor([this](
+      Image::Pointer shading, Image::Pointer reflectance) {
+        this->output_widget->setImage(shading);
+        this->output_widget2->setImage(reflectance);
+    });
 }
 
 ImageWidget::~ImageWidget()

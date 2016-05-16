@@ -7,15 +7,22 @@ class RegionGrowingSegmentationProcessor
 {
 private:
     RegionGrowingSegmentationProcessor();
+
 public:
 
     typedef ITKImageProcessor::ImageType SourceImage;
     typedef itk::Image<unsigned char, InputDimension> LabelImage;
 
     static LabelImage::Pointer process(
-            SourceImage::Pointer source_image,
+            SourceImage::Pointer gradient_image,
             std::vector<std::vector<SourceImage::IndexType> > input_segments,
             float tolerance);
+
+private:
+
+    static void grow(SourceImage::Pointer gradient_image,
+        LabelImage::Pointer output_labels, uint segment_index, SourceImage::IndexType index,
+        float tolerance);
 };
 
 #endif // REGIONGROWINGSEGMENTATIONPROCESSOR_H
