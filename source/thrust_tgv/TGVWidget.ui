@@ -34,6 +34,9 @@
            <property name="value">
             <double>2.000000000000000</double>
            </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
           </widget>
          </item>
         </layout>
