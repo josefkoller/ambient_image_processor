@@ -65,8 +65,7 @@ Image* filter(Image* f,
 
       thrust::transform(u->pixel_rows.begin(), u->pixel_rows.end(),
                         u_previous->pixel_rows.begin(), u_bar->pixel_rows.begin(),
-                        MultiplyByConstantAndAddOperation<Pixel>(-1));
-      u_bar->scale(theta, u_bar);
+                        MultiplyByConstantAndAddOperation<Pixel>(-theta));
       u_bar->add(u, u_bar);
 
       std::cout << "iteration: " << (iteration_index+1) << "/" << iteration_count << std::endl;
