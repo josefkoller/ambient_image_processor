@@ -10,15 +10,15 @@ private:
     NonLocalGradientProcessor();
 
 public:
-    typedef itk::Image<float> Image;
+    typedef itk::Image<double> Image;
 
     static Image::Pointer process(Image::Pointer source,
                                   uint kernel_size,
-                                  float kernel_sigma);
+                                  Image::PixelType kernel_sigma);
 private:
-    static float* createKernel(
+    static Image::PixelType* createKernel(
             uint kernel_size,
-            float kernel_sigma);
+            Image::PixelType kernel_sigma);
 };
 
 #endif // NONLOCALGRADIENTPROCESSOR_H

@@ -9,7 +9,7 @@ class DeshadeSegmentedProcessor
 private:
     DeshadeSegmentedProcessor();
 
-    typedef itk::Image<float> Image;
+    typedef itk::Image<double> Image;
     typedef Image::IndexType SeedPoint;
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;

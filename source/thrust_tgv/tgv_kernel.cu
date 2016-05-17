@@ -13,12 +13,27 @@
 #include "thrust_operators.cuh"
 
 template<typename PixelVector>
+void print(Image<PixelVector>* image, std::string title)
+{
+    std::cout << "image: " << title << std::endl;
+    for(int y = 0; y < image->height; y++)
+    {
+        for(int x = 0; x < image->width; x++)
+        {
+            std::cout << image->getPixel(x,y) << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
+
+template<typename PixelVector>
 __host__ __device__
 Image<PixelVector>* filter(Image<PixelVector>* f,
-    const float lambda,
+    const Pixel lambda,
     const unsigned int iteration_count)
 {
-    typedef Image<PixelVector> Image;
+    typedef Image<PixelVector> ThrustImage;
 
 
 #if THRUST_HOST_SYSTEM == THRUST_HOST_SYSTEM_OMP
@@ -27,25 +42,66 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 
   printf("TVL2, lambda=%f \n", lambda);
 
-  const float sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
-  float tau = 1.0f / sqrt_8;
-  float sigma = tau;
-//  const float gamma = 0.7f * lambda;  // algorithm paramteter
-  float theta = 1.0f; // will be used later
+/*
+  f = new ThrustImage(3,3);
+  f->setPixel(0, 0, 1);
+  f->setPixel(1, 0, 3);
+  f->setPixel(2, 0, 7);
 
-  Image* u = f->clone();
-  Image* p_x_temp = u->clone_uninitialized(); // memory allocation
-  Image* p_y_temp = u->clone_uninitialized(); // memory allocation
-  Image* p_x = u->clone_initialized(0); // memory allocation
-  Image* p_y = u->clone_initialized(0); // memory allocation
-  Image* p_xx_temp = u->clone_uninitialized(); // memory allocation
-  Image* p_yy_temp = u->clone_uninitialized(); // memory allocation
-  Image* divergence_p = u->clone_uninitialized(); // memory allocation
-  Image* u_bar = u->clone(); // memory allocation
-  Image* u_previous = u->clone_uninitialized(); // memory allocation
+  f->setPixel(0, 1, 15);
+  f->setPixel(1, 1, 25);
+  f->setPixel(2, 1, 42);
+
+  f->setPixel(0, 2, 85);
+  f->setPixel(1, 2, 166);
+  f->setPixel(2, 2, 512);
+*/
+
+
+
+
+
+
+
+
+  const Pixel sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
+  Pixel tau = 1.0f / sqrt_8;
+  Pixel sigma = tau;
+//  const Pixel gamma = 0.7f * lambda;  // algorithm paramteter
+  Pixel theta = 1.0f; // will be used later
+
+  ThrustImage* u = f->clone();
+  ThrustImage* p_x_temp = u->clone_uninitialized(); // memory allocation
+  ThrustImage* p_y_temp = u->clone_uninitialized(); // memory allocation
+  ThrustImage* p_x = u->clone_initialized(0); // memory allocation
+  ThrustImage* p_y = u->clone_initialized(0); // memory allocation
+  ThrustImage* p_xx_temp = u->clone_uninitialized(); // memory allocation
+  ThrustImage* p_yy_temp = u->clone_uninitialized(); // memory allocation
+  ThrustImage* divergence_p = u->clone_uninitialized(); // memory allocation
+  ThrustImage* u_bar = u->clone(); // memory allocation
+  ThrustImage* u_previous = u->clone_uninitialized(); // memory allocation
 
   for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
   {
+      /* matlab primal dual TVL2
+       *
+          u_old = u;
+
+          % dual update
+          p = p + sigma*nabla*u_bar;
+          norm_p = sqrt(p(1:N).^2 + p(N+1:2*N).^2);
+          p = p./max(1,[norm_p; norm_p]);
+
+          % primal update
+          u = u_old - tau * nabla_t * p;
+          u = (u + tau * lambda .* f)/(1 + tau * lambda);
+
+          % overrelaxation
+          u_bar = u + theta*(u - u_old);
+      *
+      */
+
+
       u_previous->set_pixel_data_of(u);
 
       u_bar->forward_difference_x(p_x_temp);
@@ -58,9 +114,9 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
                         p_y->pixel_rows.begin(), p_y_temp->pixel_rows.begin(),
                         MultiplyByConstantAndAddOperation<Pixel>(sigma) );
 
-      Image::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
+      ThrustImage::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
 
-      Image::divergence(p_x, p_y, p_xx_temp, p_yy_temp, divergence_p);
+      ThrustImage::divergence(p_x, p_y, p_xx_temp, p_yy_temp, divergence_p);
       thrust::transform(divergence_p->pixel_rows.begin(), divergence_p->pixel_rows.end(),
                         u->pixel_rows.begin(), u->pixel_rows.begin(),
                         MultiplyByConstantAndAddOperation<Pixel>(-tau) ); // minus goes here
@@ -76,7 +132,13 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
                         MultiplyByConstantAndAddOperation<Pixel>(-theta));
       u_bar->add(u, u_bar);
 
+
+
+
       printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
+
+
+//      print(u, "u");
   }
 
   delete p_x_temp;
@@ -93,12 +155,12 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 }
 
 Image<DevicePixelVector>* filterGPU(Image<DevicePixelVector>* f,
-    const float lambda, const unsigned int iteration_count)
+    const Pixel lambda, const unsigned int iteration_count)
 {
     return filter(f, lambda, iteration_count);
 }
 Image<HostPixelVector>* filterCPU(Image<HostPixelVector>* f,
-    const float lambda, const unsigned int iteration_count)
+    const Pixel lambda, const unsigned int iteration_count)
 {
     return filter(f, lambda, iteration_count);
 }

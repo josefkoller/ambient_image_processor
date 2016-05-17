@@ -15,9 +15,9 @@ const unsigned int InputDimension = 2;
 class ITKImageProcessor
 {
 public:
-    // MHA use float
+    // MHA use ImageType::PixelType
     // PNG unsigned char
-    typedef float PixelType;
+    typedef double PixelType;
     typedef itk::Image< PixelType, InputDimension >  ImageType;
     typedef itk::ImageFileReader<ImageType> ReaderType;
 
@@ -29,7 +29,7 @@ public:
     typedef itk::Image<itk::CovariantVector<std::complex<ImageType::PixelType>, InputDimension>,
             InputDimension> ComplexVectorImageType;
 
-    typedef float MaskPixelType;
+    typedef ImageType::PixelType MaskPixelType;
     typedef itk::Image< MaskPixelType, InputDimension > MaskImage;
 
     typedef unsigned short OutputPixel;
@@ -55,7 +55,7 @@ public:
 
 
     static ImageType::Pointer create_mask_by_threshold_and_erosition(
-            const ImageType::Pointer& image, float threshold_pixel_value, int erosition_iterations);
+            const ImageType::Pointer& image, ImageType::PixelType threshold_pixel_value, int erosition_iterations);
 
 
     static MaskImage::Pointer create_mask_by_maximum(
@@ -76,8 +76,8 @@ public:
                                            std::vector<double>& probabilities);
 
     static void find_min_max_pixel_value(const ImageType::Pointer& image,
-                                                float &min_pixel_value,
-                                                float &max_pixel_value);
+                                                ImageType::PixelType &min_pixel_value,
+                                                ImageType::PixelType &max_pixel_value);
 
     static void intensity_profile(const ImageType::Pointer & image,
                                   int point1_x, int point1_y,
@@ -109,8 +109,8 @@ public:
                                                 ImageType::Pointer& gradient_y,
                                                 ImageType::Pointer& laplace);
     static void removeSensorSensitivity(ImageType::Pointer f,
-                                        const float alpha,
-                                        const float beta,
+                                        const ImageType::PixelType alpha,
+                                        const ImageType::PixelType beta,
                                         const int pyramid_levels,
                                         const int iteration_count_factor,
                                         const bool with_max_contraint,
@@ -118,7 +118,7 @@ public:
                                         std::function<void(ImageType::Pointer,ImageType::Pointer)> finished_callback);
     static ImageType::Pointer gammaEnhancement(
                         ImageType::Pointer image,
-            ImageType::Pointer illumination, const float gamma);
+            ImageType::Pointer illumination, const ImageType::PixelType gamma);
     static ImageType::Pointer gradient_magnitude_image(ImageType::Pointer input);
 
     template<typename T>
@@ -127,8 +127,8 @@ public:
     static typename ImageType::Pointer cloneImage(const typename ImageType::Pointer image);
 
     static ImageType::Pointer bilateralFilter(ImageType::Pointer image,
-                                              float sigma_spatial_distance,
-                                              float sigma_intensity_distance,
+                                              ImageType::PixelType sigma_spatial_distance,
+                                              ImageType::PixelType sigma_intensity_distance,
                                               int kernel_size);
     static ImageType::Pointer threshold(ImageType::Pointer image,
                                         ImageType::PixelType lower_threshold_value,
@@ -151,7 +151,7 @@ public:
 
     struct ReferenceROIStatistic
     {
-        float median_value;
+        ImageType::PixelType median_value;
         int x;
         int y;
     };

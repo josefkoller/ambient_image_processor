@@ -18,7 +18,7 @@ public:
     explicit DeshadeSegmentedWidget(QWidget *parent = 0);
     ~DeshadeSegmentedWidget();
 
-    typedef itk::Image<float> Image;
+    typedef itk::Image<double> Image;
     typedef Image::IndexType SeedPoint;
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;

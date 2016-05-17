@@ -27,8 +27,8 @@
 
 #include <math.h>
 
-const float INSIDE_MASK_VALUE = 1;
-const float OUTSIDE_MASK_VALUE = 0;
+const ITKImageProcessor::ImageType::PixelType INSIDE_MASK_VALUE = 1;
+const ITKImageProcessor::ImageType::PixelType OUTSIDE_MASK_VALUE = 0;
 
 
 #include <itkGradientImageFilter.h>
@@ -113,7 +113,7 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::perform_masking(const I
     MeanValueFilter::Pointer input_mean_value_filter = MeanValueFilter::New();
     input_mean_value_filter->SetInput( image );
     input_mean_value_filter->Update();
-    float input_mean_value = input_mean_value_filter->GetMean();
+    ImageType::PixelType input_mean_value = input_mean_value_filter->GetMean();
 
     typedef itk::MultiplyImageFilter<ImageType, ImageType, ImageType> MultiplyFilter;
     MultiplyFilter::Pointer multiply_filter = MultiplyFilter::New();
@@ -133,7 +133,7 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
     StatisticsFilter::Pointer input_mean_value_filter = StatisticsFilter::New();
     input_mean_value_filter->SetInput( masked );
     input_mean_value_filter->Update();
-    float sum_intensity = input_mean_value_filter->GetSum();
+    ImageType::PixelType sum_intensity = input_mean_value_filter->GetSum();
 
     const ImageType::RegionType& region = masked->GetLargestPossibleRegion();
     const ImageType::SizeType& size = region.GetSize();
@@ -152,8 +152,8 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
             index[2] = z;
 
             itk::ImageRegionConstIterator<ImageType> mask_iterator(mask_image, region);
-            float sum_of_intensities = 0;
-            float sum_of_distances = 0;
+            ImageType::PixelType sum_of_intensities = 0;
+            ImageType::PixelType sum_of_distances = 0;
             uint count_of_voxels_inside_mask = 0;
             while(! mask_iterator.IsAtEnd())
             {
@@ -165,13 +165,13 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
                     const int y_diff = y - mask_index[1];
                     const int z_diff = z - mask_index[2];
 
-                    const float distance = sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff);
+                    const ImageType::PixelType distance = sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff);
 
                     if(distance > 1e-6)
                     {
                         sum_of_distances += distance;
 
-                        float masked_intensity = masked->GetPixel(mask_index);
+                        ImageType::PixelType masked_intensity = masked->GetPixel(mask_index);
                         sum_of_intensities += masked_intensity;
                         count_of_voxels_inside_mask++;
                     }
@@ -179,7 +179,7 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
                 ++mask_iterator;
             }
 
-            float bias = 0;
+            ImageType::PixelType bias = 0;
             itk::ImageRegionConstIterator<ImageType> mask_iterator2(mask_image, region);
             while(! mask_iterator2.IsAtEnd())
             {
@@ -191,8 +191,8 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
                     const int y_diff = y - mask_index[1];
                     const int z_diff = z - mask_index[2];
 
-                    const float distance = sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff);
-                    float masked_intensity = masked->GetPixel(mask_index);
+                    const ImageType::PixelType distance = sqrt(x_diff*x_diff + y_diff*y_diff + z_diff*z_diff);
+                    ImageType::PixelType masked_intensity = masked->GetPixel(mask_index);
 
                     if(distance > 1e-6)
                     {
@@ -201,9 +201,9 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bias_field(const ImageT
                             std::cout << "?";
                             exit(1);
                         }
-                        float distance_costs = distance / // average distance
+                        ImageType::PixelType distance_costs = distance / // average distance
                                 (sum_of_distances * count_of_voxels_inside_mask);
-                        float intensity_costs = masked_intensity / sum_of_intensities;
+                        ImageType::PixelType intensity_costs = masked_intensity / sum_of_intensities;
 
                         bias += distance_costs; // TODO: use intensity
                     }
@@ -238,7 +238,7 @@ ITKImageProcessor::MaskImage::Pointer ITKImageProcessor::create_mask_by_maximum(
 
     for(int z = 0; z < size[2]; z++)
     {
-        float maximum_pixel_value = 0;
+        ImageType::PixelType maximum_pixel_value = 0;
         ImageType::IndexType maximum_pixel_value_index;
         maximum_pixel_value_index[0] = 0;
         maximum_pixel_value_index[1] = 0;
@@ -261,7 +261,7 @@ ITKImageProcessor::MaskImage::Pointer ITKImageProcessor::create_mask_by_maximum(
                     continue;
                 }
 
-                float pixel_value = image->GetPixel(index);
+                ImageType::PixelType pixel_value = image->GetPixel(index);
                 if(pixel_value > maximum_pixel_value)
                 {
                     maximum_pixel_value = pixel_value;
@@ -281,7 +281,7 @@ ITKImageProcessor::MaskImage::Pointer ITKImageProcessor::create_mask_by_maximum(
 }
 
 ITKImageProcessor::ImageType::Pointer ITKImageProcessor::create_mask_by_threshold_and_erosition(
-        const ImageType::Pointer& image, float threshold_pixel_value, int erosition_iterations)
+        const ImageType::Pointer& image, ImageType::PixelType threshold_pixel_value, int erosition_iterations)
 {
     typedef itk::BinaryThresholdImageFilter<ImageType,ImageType> ThresholdFilter;
     ThresholdFilter::Pointer threshold_filter = ThresholdFilter::New();
@@ -472,7 +472,7 @@ void ITKImageProcessor::histogram_data(const ImageType::Pointer& image,
     const ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
     long pixel_count = size[0] * size[1] * size[2];
     long samples_per_bin = ceil(((double)pixel_count) / bin_count); */
-    float total_frequency = histogram->GetTotalFrequency();
+    ImageType::PixelType total_frequency = histogram->GetTotalFrequency();
 
     for(unsigned int i = 0; i < histogram->GetSize()[0]; i++)
     {
@@ -492,8 +492,8 @@ void ITKImageProcessor::histogram_data(const ImageType::Pointer& image,
 }
 
 void ITKImageProcessor::find_min_max_pixel_value(const ImageType::Pointer& image,
-                                            float &min_pixel_value,
-                                            float &max_pixel_value)
+                                            ImageType::PixelType &min_pixel_value,
+                                            ImageType::PixelType &max_pixel_value)
 {
     typedef itk::StatisticsImageFilter<ImageType> StatisticsFilter;
     StatisticsFilter::Pointer statistics_filter = StatisticsFilter::New();
@@ -783,7 +783,7 @@ ITKImageProcessor::laplace_operator_projected(ImageType::Pointer input)
             grad_y_value = 0;
         }
 
-        float grad_magnitude = sqrt(grad_x_value*grad_x_value +
+        ImageType::PixelType grad_magnitude = sqrt(grad_x_value*grad_x_value +
                                     grad_y_value*grad_y_value);
         if(grad_magnitude < 1)
         {
@@ -907,7 +907,7 @@ void ITKImageProcessor::gradients_projected_and_laplace(
             gradient_y_value = 0;
         }
 
-        float grad_magnitude = sqrt(gradient_x_value*gradient_x_value +
+        ImageType::PixelType grad_magnitude = sqrt(gradient_x_value*gradient_x_value +
                                     gradient_y_value*gradient_y_value);
         if(grad_magnitude < 1)
         {
@@ -991,18 +991,18 @@ void ITKImageProcessor::removeSensorSensitivity_FFTOperators(const ImageType::Si
     const int height = size[1];
     for(int y = 0; y < height; y++)
     {
-        const float k_y = y / ((float) height);
+        const ImageType::PixelType k_y = y / ((ImageType::PixelType) height);
 
         const ImageType::PixelType laplace_value_y = cos(k_y);
-        const ComplexImageType::PixelType fft_gradient_v_value = 1.0f - std::exp(-i * k_y);
+        const ComplexImageType::PixelType fft_gradient_v_value = 1.0 - std::exp(-i * k_y);
         for(int x = 0; x < width; x++)
         {
             ImageType::IndexType index; index[0] = x; index[1] = y;
-            const float k_x = x / ((float) width);
+            const ImageType::PixelType k_x = x / ((ImageType::PixelType) width);
 
             fft_laplace->SetPixel(index, 4 - 2 * (cos(k_x) + laplace_value_y));
             fft_gradient_v->SetPixel(index, fft_gradient_v_value);
-            fft_gradient_h->SetPixel(index, 1.0f - std::exp(-i * k_x));
+            fft_gradient_h->SetPixel(index, 1.0 - std::exp(-i * k_x));
         }
     }
 }
@@ -1055,7 +1055,7 @@ typename T2::PixelType ITKImageProcessor::SumAllPixels(const typename T2::Pointe
 
 ITKImageProcessor::ImageType::Pointer ITKImageProcessor::gammaEnhancement(
         ImageType::Pointer S1,
-        ImageType::Pointer L1, const float gamma)
+        ImageType::Pointer L1, const ImageType::PixelType gamma)
 {
     ImageType::Pointer S = clone<ImageType>(S1);
     ImageType::Pointer L = clone<ImageType>(L1);
@@ -1101,7 +1101,7 @@ void ITKImageProcessor::multiScaleRetinex(
         std::function<void(ImageType::Pointer)> finished_callback)
 {
     //normalize weights
-    float weight_sum = 0;
+    ImageType::PixelType weight_sum = 0;
     for(MultiScaleRetinex::Scale* scale : scales)
         weight_sum += scale->weight;
 
@@ -1168,8 +1168,8 @@ void ITKImageProcessor::multiScaleRetinex(
 
 void ITKImageProcessor::removeSensorSensitivity(
         ImageType::Pointer input_image0,
-        const float alpha,
-        const float beta,
+        const ImageType::PixelType alpha,
+        const ImageType::PixelType beta,
         const int pyramid_levels,
         const int iteration_count_factor,
         const bool with_max_contraint,
@@ -1427,8 +1427,8 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::gradient_magnitude_imag
 
 
 ITKImageProcessor::ImageType::Pointer ITKImageProcessor::bilateralFilter(ImageType::Pointer image,
-                                          float sigma_spatial_distance,
-                                          float sigma_intensity_distance,
+                                          ImageType::PixelType sigma_spatial_distance,
+                                          ImageType::PixelType sigma_intensity_distance,
                                           int kernel_size)
 {
     typedef itk::BilateralImageFilter<ImageType,ImageType> BilateralFilter;
@@ -1580,7 +1580,7 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::splineFit(
 
 void ITKImageProcessor::printMetric(std::vector<ReferenceROIStatistic> rois)
 {
-    std::vector<float> v;
+    std::vector<ImageType::PixelType> v;
     std::for_each (std::begin(rois), std::end(rois), [&](const ReferenceROIStatistic roi) {
         v.push_back(roi.median_value);
     });

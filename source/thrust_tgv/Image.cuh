@@ -24,7 +24,7 @@
 #include <algorithm>
 
 typedef unsigned int uint;
-typedef float Pixel;
+typedef double Pixel;
 
  __host__ __device__
 Pixel max_pixel(Pixel pixel1, Pixel pixel2);

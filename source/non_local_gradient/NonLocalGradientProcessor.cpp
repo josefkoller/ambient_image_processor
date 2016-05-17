@@ -4,21 +4,24 @@
 
 #include <iostream>
 
-extern "C" float* non_local_gradient_kernel_launch(float* source,
-    uint source_width, uint source_height, float* kernel, uint kernel_size);
+typedef NonLocalGradientProcessor::Image::PixelType FloatType;
+
+extern "C" FloatType* non_local_gradient_kernel_launch(
+        FloatType* source,
+    uint source_width, uint source_height, FloatType* kernel, uint kernel_size);
 
 NonLocalGradientProcessor::NonLocalGradientProcessor()
 {
 }
 
-float* NonLocalGradientProcessor::createKernel(
+NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKernel(
         uint kernel_size,
-        float kernel_sigma)
+        Image::PixelType kernel_sigma)
 {
-    float* kernel = new float[kernel_size * kernel_size];
+    Image::PixelType* kernel = new Image::PixelType[kernel_size * kernel_size];
     uint kernel_center = std::floor(kernel_size / 2.0f);
 
-    float kernel_value_sum = 0;
+    Image::PixelType kernel_value_sum = 0;
     for(uint y = 0; y < kernel_size; y++)
     {
         for(uint x = 0; x < kernel_size; x++)
@@ -26,8 +29,8 @@ float* NonLocalGradientProcessor::createKernel(
             uint xr = x - kernel_center;
             uint yr = y - kernel_center;
 
-            float radius = std::sqrt(xr*xr + yr*yr);
-            float value = std::exp(-radius*radius / kernel_sigma);
+            Image::PixelType radius = std::sqrt(xr*xr + yr*yr);
+            Image::PixelType value = std::exp(-radius*radius / kernel_sigma);
 
             uint i = x + y * kernel_size;
             kernel[i] = value;
@@ -40,7 +43,7 @@ float* NonLocalGradientProcessor::createKernel(
         for(uint x = 0; x < kernel_size; x++)
         {
             uint i = x + y * kernel_size;
-            float value = kernel[i];
+            Image::PixelType value = kernel[i];
             value /= kernel_value_sum;
 
 //            std::cout << "kernel value1: " << value << std::endl;
@@ -54,16 +57,16 @@ float* NonLocalGradientProcessor::createKernel(
 
 NonLocalGradientProcessor::Image::Pointer NonLocalGradientProcessor::process(Image::Pointer source,
                               uint kernel_size,
-                              float kernel_sigma)
+                              Image::PixelType kernel_sigma)
 {
-    float* source_data = source->GetBufferPointer();
-    float* kernel_data = createKernel(kernel_size, kernel_sigma);
+    Image::PixelType* source_data = source->GetBufferPointer();
+    Image::PixelType* kernel_data = createKernel(kernel_size, kernel_sigma);
 
     Image::SizeType source_size = source->GetLargestPossibleRegion().GetSize();
     uint source_width = source_size[0];
     uint source_height = source_size[1];
 
-    float* destination_data = non_local_gradient_kernel_launch(source_data,
+    Image::PixelType* destination_data = non_local_gradient_kernel_launch(source_data,
         source_width, source_height, kernel_data, kernel_size);
 
     delete[] kernel_data;

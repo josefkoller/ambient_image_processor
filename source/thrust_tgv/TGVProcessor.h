@@ -9,7 +9,7 @@ class TGVProcessor
 private:
     TGVProcessor();
 public:
-    typedef itk::Image<float> itkImage;
+    typedef itk::Image<Pixel> itkImage;
 private:
     template<typename ThrustImage>
     static ThrustImage* convert(itkImage::Pointer itk_image);
@@ -19,9 +19,9 @@ private:
 public:
 
     static itkImage::Pointer processTVL2GPU(itkImage::Pointer input_image,
-      const float lambda, const uint iteration_count);
+      const Pixel lambda, const uint iteration_count);
     static itkImage::Pointer processTVL2CPU(itkImage::Pointer input_image,
-      const float lambda, const uint iteration_count);
+      const Pixel lambda, const uint iteration_count);
 };
 
 #endif // TGVPROCESSOR_H
