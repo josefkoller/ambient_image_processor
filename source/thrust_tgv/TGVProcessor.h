@@ -4,14 +4,22 @@
 #include <itkImage.h>
 #include "Image.cuh"
 
-typedef std::function<void(uint iteration_index, uint iteration_count)> IterationFinished;
 
 class TGVProcessor
 {
 private:
     TGVProcessor();
+
 public:
     typedef itk::Image<Pixel> itkImage;
+
+    typedef std::function<void(uint iteration_index, uint iteration_count,
+                               HostImage* u)> HostIterationFinished;
+    typedef std::function<void(uint iteration_index, uint iteration_count,
+                               DeviceImage* u)> DeviceIterationFinished;
+
+    typedef std::function<void(uint iteration_index, uint iteration_count,
+                               itkImage::Pointer u)> IterationFinished;
 private:
     template<typename ThrustImage>
     static ThrustImage* convert(itkImage::Pointer itk_image);

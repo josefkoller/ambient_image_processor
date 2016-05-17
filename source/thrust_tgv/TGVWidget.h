@@ -7,6 +7,7 @@ namespace Ui {
 class TGVWidget;
 }
 
+#include <thread>
 #include "TGVProcessor.h"
 
 class TGVWidget : public QWidget
@@ -36,11 +37,18 @@ private:
     void perform(Processor processor);
 
 
-    IterationFinished iteration_finished_callback;
+    TGVProcessor::IterationFinished iteration_finished_callback;
+
+    std::thread* worker_thread;
 public:
     void setSourceImageFetcher(SourceImageFetcher source_image_fetcher);
     void setResultProcessor(ResultProcessor result_processor);
-    void setIterationFinishedCallback(IterationFinished iteration_finished_callback);
+    void setIterationFinishedCallback(TGVProcessor::IterationFinished iteration_finished_callback);
+
+signals:
+    void fireWorkerFinished();
+private slots:
+    void handleWorkerFinished();
 };
 
 #endif // TGVWIDGET_H

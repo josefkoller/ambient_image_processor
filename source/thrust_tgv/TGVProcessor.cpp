@@ -6,9 +6,9 @@
 
 
 DeviceImage* filterGPU(DeviceImage* f, const Pixel lambda, const uint iteration_count,
-                       IterationFinished iteration_finished_callback);
+                       TGVProcessor::DeviceIterationFinished iteration_finished_callback);
 HostImage* filterCPU(HostImage* f, const Pixel lambda, const uint iteration_count,
-                     IterationFinished iteration_finished_callback);
+                     TGVProcessor::HostIterationFinished iteration_finished_callback);
 
 TGVProcessor::TGVProcessor()
 {
@@ -56,7 +56,11 @@ TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2GPU(itkImage::Pointer i
    const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
 {
     DeviceImage* f = convert<DeviceImage>(input_image);
-    DeviceImage* u = filterGPU(f, lambda, iteration_count, iteration_finished_callback);
+    DeviceImage* u = filterGPU(f, lambda, iteration_count,
+        [iteration_finished_callback](uint index, uint count, DeviceImage* u) {
+            TGVProcessor::itkImage::Pointer itk_u = convert(u);
+            iteration_finished_callback(index, count, itk_u);
+    });
 
     delete f;
 
@@ -69,7 +73,11 @@ TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2CPU(itkImage::Pointer i
    const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
 {
     HostImage* f = convert<HostImage>(input_image);
-    HostImage* u = filterCPU(f, lambda, iteration_count, iteration_finished_callback);
+    HostImage* u = filterCPU(f, lambda, iteration_count,
+         [iteration_finished_callback](uint index, uint count, HostImage* u) {
+             TGVProcessor::itkImage::Pointer itk_u = convert(u);
+             iteration_finished_callback(index, count, itk_u);
+    });
 
     delete f;
 

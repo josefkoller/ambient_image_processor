@@ -26,14 +26,12 @@ void print(Image<PixelVector>* image, std::string title)
     }
 }
 
-typedef std::function<void(uint iteration_index, uint iteration_count)> IterationFinished;
-
 template<typename PixelVector>
 __host__ __device__
 Image<PixelVector>* filter(Image<PixelVector>* f,
     const Pixel lambda,
     const unsigned int iteration_count,
-    IterationFinished iteration_finished_callback
+    std::function<void(uint iteration_index, uint iteration_count, Image<PixelVector>*)> iteration_finished_callback
      )
 {
     typedef Image<PixelVector> ThrustImage;
@@ -135,7 +133,7 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
       printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
 
       if(iteration_finished_callback != nullptr)
-          iteration_finished_callback(iteration_index, iteration_count);
+          iteration_finished_callback(iteration_index, iteration_count, u);
 
 //      print(u, "u");
   }
@@ -153,15 +151,19 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
   return u;
 }
 
+
+
 Image<DevicePixelVector>* filterGPU(Image<DevicePixelVector>* f,
     const Pixel lambda, const unsigned int iteration_count,
-    IterationFinished iteration_finished_callback)
+    std::function<void(uint iteration_index, uint iteration_count, Image<DevicePixelVector>*)>
+                                    iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
+
 Image<HostPixelVector>* filterCPU(Image<HostPixelVector>* f,
     const Pixel lambda, const unsigned int iteration_count,
-    IterationFinished iteration_finished_callback)
+    std::function<void(uint iteration_index, uint iteration_count, Image<HostPixelVector>*)> iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
