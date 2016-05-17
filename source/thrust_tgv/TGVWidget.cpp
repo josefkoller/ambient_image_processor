@@ -23,7 +23,7 @@ void TGVWidget::on_perform_button_clicked()
 
     const float alpha0 = this->ui->alpha0_spinbox->value();
     const float alpha1 = this->ui->alpha1_spinbox->value();
-    const float lambda = this->ui->alpha1_spinbox->value();
+    const float lambda = this->ui->lambda_spinbox->value();
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
 
     TGVProcessor::itkImage::Pointer source_image = this->source_image_fetcher();

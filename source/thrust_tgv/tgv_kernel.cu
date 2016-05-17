@@ -19,6 +19,8 @@ Image* filter(Image* f,
   omp_set_num_threads(NUMBER_OF_THREADS);
 #endif
 
+  std::cout << "TVL2, lambda=" << lambda << std::endl;
+
   const float sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
   float tau = 1.0f / sqrt_8;
   float sigma = tau;
