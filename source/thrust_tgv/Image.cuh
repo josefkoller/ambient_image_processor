@@ -22,8 +22,8 @@
 
 typedef unsigned int uint;
 typedef float Pixel;
-//typedef thrust::device_vector<Pixel> PixelVector;
-typedef thrust::host_vector<Pixel> PixelVector;
+typedef thrust::device_vector<Pixel> PixelVector;
+//typedef thrust::host_vector<Pixel> PixelVector;
 
  __host__ __device__
 Pixel max_pixel(Pixel pixel1, Pixel pixel2);

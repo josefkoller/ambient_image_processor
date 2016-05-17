@@ -15,7 +15,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 SET( CUDA_PROPAGATE_HOST_FLAGS OFF )
-set(CUDA_NVCC_FLAGS "--std=c++11;--gpu-architecture=compute_50;--gpu-code=sm_50")
+set(CUDA_NVCC_FLAGS "--std=c++11")
+#set(CUDA_NVCC_FLAGS "--std=c++11;--gpu-architecture=compute_50;--gpu-code=sm_50")
 #set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_50,code=sm_50")
 set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
@@ -113,6 +114,8 @@ add_executable(linear_retinex_console
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
+add_definitions("-DVCL_CAN_STATIC_CONST_INIT_FLOAT=0")
+add_definitions("-DVCL_NEEDS_INLINE_INSTANTIATION=0")
 
 target_link_libraries(ambient_application
   Qt5::Core
