@@ -11,11 +11,16 @@ private:
 public:
     typedef itk::Image<float> itkImage;
 private:
-    static Image* convert(itkImage::Pointer itk_image);
-    static itkImage::Pointer convert(Image* image);
+    template<typename ThrustImage>
+    static ThrustImage* convert(itkImage::Pointer itk_image);
+
+    template<typename ThrustImage>
+    static itkImage::Pointer convert(ThrustImage* image);
 public:
 
-    static itkImage::Pointer processTVL2(itkImage::Pointer input_image,
+    static itkImage::Pointer processTVL2GPU(itkImage::Pointer input_image,
+      const float lambda, const uint iteration_count);
+    static itkImage::Pointer processTVL2CPU(itkImage::Pointer input_image,
       const float lambda, const uint iteration_count);
 };
 

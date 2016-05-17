@@ -4,17 +4,19 @@
 #include <itkImageRegionConstIteratorWithIndex.h>
 #include <itkImageRegionIteratorWithIndex.h>
 
-Image* filter(Image* f, const float lambda, const uint iteration_count);
+DeviceImage* filterGPU(DeviceImage* f, const float lambda, const uint iteration_count);
+HostImage* filterCPU(HostImage* f, const float lambda, const uint iteration_count);
 
 TGVProcessor::TGVProcessor()
 {
 }
 
-Image* TGVProcessor::convert(itkImage::Pointer itk_image)
+template<typename ThrustImage>
+ThrustImage* TGVProcessor::convert(itkImage::Pointer itk_image)
 {
     itkImage::SizeType size = itk_image->GetLargestPossibleRegion().GetSize();
 
-    Image* image = new Image(size[0], size[1]);
+    ThrustImage* image = new ThrustImage(size[0], size[1]);
 
     itk::ImageRegionConstIteratorWithIndex<itkImage> iterator(itk_image, itk_image->GetLargestPossibleRegion());
     while(!iterator.IsAtEnd())
@@ -26,7 +28,8 @@ Image* TGVProcessor::convert(itkImage::Pointer itk_image)
     return image;
 }
 
-TGVProcessor::itkImage::Pointer TGVProcessor::convert(Image* image)
+template<typename ThrustImage>
+TGVProcessor::itkImage::Pointer TGVProcessor::convert(ThrustImage* image)
 {
     itkImage::Pointer itk_image = itkImage::New();
 
@@ -46,11 +49,24 @@ TGVProcessor::itkImage::Pointer TGVProcessor::convert(Image* image)
     return itk_image;
 }
 
-TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2(itkImage::Pointer input_image,
+TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2GPU(itkImage::Pointer input_image,
    const float lambda, const uint iteration_count)
 {
-    Image* f = convert(input_image);
-    Image* u = filter(f, lambda, iteration_count);
+    DeviceImage* f = convert<DeviceImage>(input_image);
+    DeviceImage* u = filterGPU(f, lambda, iteration_count);
+
+    delete f;
+
+    TGVProcessor::itkImage::Pointer result = convert(u);
+    delete u;
+    return result;
+}
+
+TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2CPU(itkImage::Pointer input_image,
+   const float lambda, const uint iteration_count)
+{
+    HostImage* f = convert<HostImage>(input_image);
+    HostImage* u = filterCPU(f, lambda, iteration_count);
 
     delete f;
 

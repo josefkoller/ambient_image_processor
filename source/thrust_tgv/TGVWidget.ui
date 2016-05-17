@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>465</width>
-    <height>357</height>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,14 +28,14 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QDoubleSpinBox" name="lambda_spinbox">
+           <property name="maximum">
+            <double>99999.000000000000000</double>
+           </property>
            <property name="singleStep">
             <double>0.100000000000000</double>
            </property>
            <property name="value">
-            <double>2.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <number>99999</number>
+            <double>10.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -100,10 +100,23 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="perform_button">
-     <property name="text">
-      <string>Perform TGV1L2</string>
-     </property>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QPushButton" name="perform_button">
+        <property name="text">
+         <string>Perform TGV1L2 GPU</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="perform_button_cpu">
+        <property name="text">
+         <string>Perform TGV1L2 CPU</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

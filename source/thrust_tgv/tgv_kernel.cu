@@ -7,19 +7,25 @@
 #include <algorithm>
 #include <cuda.h>
 
+#include <stdio.h>
+
 #include "Image.cuh"
 #include "thrust_operators.cuh"
 
+template<typename PixelVector>
 __host__ __device__
-Image* filter(Image* f,
+Image<PixelVector>* filter(Image<PixelVector>* f,
     const float lambda,
     const unsigned int iteration_count)
 {
+    typedef Image<PixelVector> Image;
+
+
 #if THRUST_HOST_SYSTEM == THRUST_HOST_SYSTEM_OMP
   omp_set_num_threads(NUMBER_OF_THREADS);
 #endif
 
-  std::cout << "TVL2, lambda=" << lambda << std::endl;
+  printf("TVL2, lambda=%f \n", lambda);
 
   const float sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
   float tau = 1.0f / sqrt_8;
@@ -40,7 +46,7 @@ Image* filter(Image* f,
 
   for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
   {
-      u_previous->setPixelDataOf(u);
+      u_previous->set_pixel_data_of(u);
 
       u_bar->forward_difference_x(p_x_temp);
       u_bar->forward_difference_y(p_y_temp);
@@ -70,7 +76,7 @@ Image* filter(Image* f,
                         MultiplyByConstantAndAddOperation<Pixel>(-theta));
       u_bar->add(u, u_bar);
 
-      std::cout << "iteration: " << (iteration_index+1) << "/" << iteration_count << std::endl;
+      printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
   }
 
   delete p_x_temp;
@@ -85,5 +91,19 @@ Image* filter(Image* f,
 
   return u;
 }
+
+Image<DevicePixelVector>* filterGPU(Image<DevicePixelVector>* f,
+    const float lambda, const unsigned int iteration_count)
+{
+    return filter(f, lambda, iteration_count);
+}
+Image<HostPixelVector>* filterCPU(Image<HostPixelVector>* f,
+    const float lambda, const unsigned int iteration_count)
+{
+    return filter(f, lambda, iteration_count);
+}
+
+
+
 
 

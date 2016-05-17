@@ -22,12 +22,11 @@
 
 typedef unsigned int uint;
 typedef float Pixel;
-typedef thrust::device_vector<Pixel> PixelVector;
-//typedef thrust::host_vector<Pixel> PixelVector;
 
  __host__ __device__
 Pixel max_pixel(Pixel pixel1, Pixel pixel2);
 
+template<typename PixelVector>
 struct Image
 {
   PixelVector pixel_rows;
@@ -43,38 +42,45 @@ struct Image
   __host__ __device__
   Pixel getPixel(uint x, uint y);
   __host__ __device__
-  void backward_difference_x(Image* gradient_x);
+  void backward_difference_x(Image<PixelVector>* gradient_x);
   __host__ __device__
-  void forward_difference_x(Image* gradient_x);
+  void forward_difference_x(Image<PixelVector>* gradient_x);
   __host__ __device__
-  void backward_difference_y(Image* gradient_y);
+  void backward_difference_y(Image<PixelVector>* gradient_y);
   __host__ __device__
-  void forward_difference_y(Image* gradient_y);
+  void forward_difference_y(Image<PixelVector>* gradient_y);
   __host__ __device__
-  void laplace(Image* output_image);
+  void laplace(Image<PixelVector>* output_image);
   __host__ __device__
-  void square(Image* squared_image);
+  void square(Image<PixelVector>* squared_image);
   __host__ __device__
-  void square_root(Image* square_root_image);
+  void square_root(Image<PixelVector>* square_root_image);
   __host__ __device__
-  void scale(const Pixel constant_factor, Image* scaled_image);
+  void scale(const Pixel constant_factor, Image<PixelVector>* scaled_image);
   __host__ __device__
-  void add(Image* other, Image* output);
+  void add(Image<PixelVector>* other, Image<PixelVector>* output);
   __host__ __device__
-  static void projected_gradient(Image* gradient_x, Image* gradient_y,
-                                 Image* projected_gradient_x, Image* projected_gradient_y);
+  static void projected_gradient(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
+                                 Image<PixelVector>* projected_gradient_x, Image<PixelVector>* projected_gradient_y);
   __host__ __device__
-  static void divergence(Image* gradient_x, Image* gradient_y,
-                         Image* gradient_xx, Image* gradient_yy, Image* output);
+  static void divergence(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
+                         Image<PixelVector>* gradient_xx, Image<PixelVector>* gradient_yy,
+                         Image<PixelVector>* output);
   __host__ __device__
-  Image* clone_uninitialized();
+  Image<PixelVector>* clone_uninitialized();
   __host__ __device__
-  Image* clone_initialized(const Pixel initial_constant_value);
+  Image<PixelVector>* clone_initialized(const Pixel initial_constant_value);
   __host__ __device__
-  Image* clone();
+  Image<PixelVector>* clone();
 
   __host__ __device__
-  void setPixelDataOf(Image* image);
+  void set_pixel_data_of(Image<PixelVector>* image);
 };
+
+typedef thrust::device_vector<Pixel> DevicePixelVector;
+typedef thrust::host_vector<Pixel> HostPixelVector;
+typedef Image<DevicePixelVector> DeviceImage;
+typedef Image<HostPixelVector> HostImage;
+
 
 #endif // IMAGE_H

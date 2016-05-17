@@ -12,31 +12,40 @@
 
 // IMAGE FUNCTIONS...
 
+template<typename PixelVector>
 __host__ __device__
-Image::Image(uint width, uint height) : pixel_rows(PixelVector(width*height)),
+Image<PixelVector>::Image(uint width, uint height) : pixel_rows(PixelVector(width*height)),
     width(width), height(height), pixel_count(width*height)
 {
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::setPixel(uint x, uint y, Pixel pixel)
+void Image<PixelVector>::setPixel(uint x, uint y, Pixel pixel)
 {
     uint index = this->getIndex(x,y);
     this->pixel_rows[index] = pixel;
 }
+
+template<typename PixelVector>
 __host__ __device__
-uint Image::getIndex(uint x, uint y)
+uint Image<PixelVector>::getIndex(uint x, uint y)
 {
     return x + y * this->width;
 }
+
+template<typename PixelVector>
 __host__ __device__
-Pixel Image::getPixel(uint x, uint y)
+Pixel Image<PixelVector>::getPixel(uint x, uint y)
 {
     uint index = this->getIndex(x,y);
     return this->pixel_rows[index];
 }
 
+
+template<typename PixelVector>
 __host__ __device__
-void Image::backward_difference_x(Image* gradient_x)
+void Image<PixelVector>::backward_difference_x(Image<PixelVector>* gradient_x)
 {
   InverseMinus<Pixel> inverse_minus;
 
@@ -69,8 +78,10 @@ void Image::backward_difference_x(Image* gradient_x)
   }
 #endif
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::forward_difference_x(Image* gradient_x)
+void Image<PixelVector>::forward_difference_x(Image<PixelVector>* gradient_x)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_x->pixel_rows;
@@ -98,13 +109,16 @@ void Image::forward_difference_x(Image* gradient_x)
     }
 #endif
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::backward_difference_y(Image* gradient_y)
+void Image<PixelVector>::backward_difference_y(Image<PixelVector>* gradient_y)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_y->pixel_rows;
     const uint width = this->width;
 
+    typedef typename PixelVector::iterator iterator;
 
 #ifdef USE_OPEN_MP_FOR_LOOPS
     omp_set_num_threads(NUMBER_OF_THREADS);
@@ -119,8 +133,8 @@ void Image::backward_difference_y(Image* gradient_y)
             auto target_begin = gradient_data.begin() + column_index;
             auto target_end = gradient_data.end() + column_index;
 
-            strided_range<PixelVector::iterator> strided_data(begin, end, width);
-            strided_range<PixelVector::iterator> strided_gradient_data(target_begin,
+            strided_range<iterator> strided_data(begin, end, width);
+            strided_range<iterator> strided_gradient_data(target_begin,
                                                                        target_end, width);
 
             auto column_begin = strided_data.begin();
@@ -141,14 +155,19 @@ void Image::backward_difference_y(Image* gradient_y)
     }
 #endif
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::forward_difference_y(Image* gradient_y)
+void Image<PixelVector>::forward_difference_y(Image<PixelVector>* gradient_y)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_y->pixel_rows;
     const uint width = this->width;
 
-    PixelVector::iterator::difference_type striding = width;
+    typedef typename PixelVector::iterator::difference_type difference_type;
+    difference_type striding = width;
+
+    typedef typename PixelVector::reverse_iterator reverse_iterator;
 
 #ifdef USE_OPEN_MP_FOR_LOOPS
     omp_set_num_threads(NUMBER_OF_THREADS);
@@ -164,8 +183,8 @@ void Image::forward_difference_y(Image* gradient_y)
             auto target_end = gradient_data.rend() + column_index;
 
 
-            strided_range<PixelVector::reverse_iterator> strided_data(begin, end, striding);
-            strided_range<PixelVector::reverse_iterator> strided_gradient_data(target_begin,
+            strided_range<reverse_iterator> strided_data(begin, end, striding);
+            strided_range<reverse_iterator> strided_gradient_data(target_begin,
                                                                        target_end, width);
 
             auto column_begin = strided_data.begin();
@@ -184,13 +203,15 @@ void Image::forward_difference_y(Image* gradient_y)
     }
 #endif
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::laplace(Image* output_image)
+void Image<PixelVector>::laplace(Image<PixelVector>* output_image)
 {
-    Image* gradient_x = this->clone_uninitialized();
-    Image* gradient_y = this->clone_uninitialized();
-    Image* gradient_x_back = this->clone_uninitialized();
-    Image* gradient_y_back = this->clone_uninitialized();
+    Image<PixelVector>* gradient_x = this->clone_uninitialized();
+    Image<PixelVector>* gradient_y = this->clone_uninitialized();
+    Image<PixelVector>* gradient_x_back = this->clone_uninitialized();
+    Image<PixelVector>* gradient_y_back = this->clone_uninitialized();
 
     this->forward_difference_x(gradient_x);
     this->forward_difference_y(gradient_y);
@@ -205,34 +226,44 @@ void Image::laplace(Image* output_image)
     // matlab: laplace_f = -( nabla_t * (nabla * noise_image) );
     output_image->scale(-1, output_image);
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::square(Image* squared_image)
+void Image<PixelVector>::square(Image<PixelVector>* squared_image)
 {
     thrust::transform(this->pixel_rows.begin(), this->pixel_rows.end(),
                       squared_image->pixel_rows.begin(), SquareOperation<Pixel>());
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::square_root(Image* square_root_image)
+void Image<PixelVector>::square_root(Image<PixelVector>* square_root_image)
 {
     thrust::transform(this->pixel_rows.begin(), this->pixel_rows.end(),
                       square_root_image->pixel_rows.begin(), SquareRootOperation<Pixel>());
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::scale(const Pixel constant_factor, Image* scaled_image)
+void Image<PixelVector>::scale(const Pixel constant_factor, Image<PixelVector>* scaled_image)
 {
     thrust::transform(this->pixel_rows.begin(), this->pixel_rows.end(),
                       scaled_image->pixel_rows.begin(), MultiplyByConstant<Pixel>(constant_factor));
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::add(Image* other, Image* output)
+void Image<PixelVector>::add(Image<PixelVector>* other, Image<PixelVector>* output)
 {
     thrust::transform(this->pixel_rows.begin(), this->pixel_rows.end(),
                       other->pixel_rows.begin(), output->pixel_rows.begin(),
                       thrust::plus<Pixel>());
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::projected_gradient(Image* gradient_x, Image* gradient_y,
-                               Image* projected_gradient_x, Image* projected_gradient_y)
+void Image<PixelVector>::projected_gradient(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
+                               Image<PixelVector>* projected_gradient_x, Image<PixelVector>* projected_gradient_y)
 {
     thrust::transform(gradient_x->pixel_rows.begin(), gradient_x->pixel_rows.end(),
                       gradient_y->pixel_rows.begin(), projected_gradient_x->pixel_rows.begin(),
@@ -241,9 +272,11 @@ void Image::projected_gradient(Image* gradient_x, Image* gradient_y,
                       gradient_y->pixel_rows.begin(), projected_gradient_y->pixel_rows.begin(),
                       ProjectNormalizedGradientMagnitude2<Pixel>());
 }
+
+template<typename PixelVector>
 __host__ __device__
-void Image::divergence(Image* gradient_x, Image* gradient_y,
-                       Image* gradient_xx, Image* gradient_yy, Image* output)
+void Image<PixelVector>::divergence(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
+                       Image<PixelVector>* gradient_xx, Image<PixelVector>* gradient_yy, Image<PixelVector>* output)
 {
     gradient_x->backward_difference_x(gradient_xx);
     gradient_y->backward_difference_y(gradient_yy);
@@ -251,30 +284,88 @@ void Image::divergence(Image* gradient_x, Image* gradient_y,
     gradient_xx->add(gradient_yy, output);
 }
 
+
+template<typename PixelVector>
 __host__ __device__
-Image* Image::clone_uninitialized()
+Image<PixelVector>* Image<PixelVector>::clone_uninitialized()
 {
     return new Image(this->width, this->height);
 }
 
+
+template<typename PixelVector>
 __host__ __device__
-Image* Image::clone_initialized(const Pixel initial_constant_value)
+Image<PixelVector>* Image<PixelVector>::clone_initialized(const Pixel initial_constant_value)
 {
-    Image* image = new Image(this->width, this->height);
+    Image<PixelVector>* image = new Image(this->width, this->height);
     thrust::fill(image->pixel_rows.begin(), image->pixel_rows.end(), initial_constant_value);
     return image;
 }
 
+
+template<typename PixelVector>
 __host__ __device__
-Image* Image::clone()
+Image<PixelVector>* Image<PixelVector>::clone()
 {
-    Image* clone = new Image(this->width, this->height);
+    Image<PixelVector>* clone = new Image(this->width, this->height);
     thrust::copy(this->pixel_rows.begin(), this->pixel_rows.end(), clone->pixel_rows.begin());
     return clone;
 }
 
+
+template<typename PixelVector>
 __host__ __device__
-void Image::setPixelDataOf(Image* image)
+void Image<PixelVector>::set_pixel_data_of(Image<PixelVector>* image)
 {
     thrust::copy(image->pixel_rows.begin(), image->pixel_rows.end(), this->pixel_rows.begin());
 }
+
+// explicitly instantiate the template for DevicePixelVector
+template DeviceImage::Image(uint width, uint height);
+template void DeviceImage::setPixel(uint x, uint y, Pixel pixel);
+template Pixel DeviceImage::getPixel(uint x, uint y);
+template void DeviceImage::add(DeviceImage* other,
+                               DeviceImage* output);
+template void DeviceImage::scale(const Pixel constant_factor,
+                               DeviceImage* scaled_image);
+template void DeviceImage::divergence(DeviceImage* gradient_x, DeviceImage* gradient_y,
+                       DeviceImage* gradient_xx, DeviceImage* gradient_yy,
+                       DeviceImage* output);
+template void DeviceImage::projected_gradient(
+    DeviceImage* gradient_x,
+    DeviceImage* gradient_y,
+    DeviceImage* projected_gradient_x,
+    DeviceImage* projected_gradient_y);
+template void DeviceImage::backward_difference_x(DeviceImage* gradient_x);
+template void DeviceImage::forward_difference_x(DeviceImage* gradient_x);
+template void DeviceImage::backward_difference_y(DeviceImage* gradient_y);
+template void DeviceImage::forward_difference_y(DeviceImage* gradient_y);
+template void DeviceImage::set_pixel_data_of(DeviceImage* image);
+template DeviceImage* DeviceImage::clone_uninitialized();
+template DeviceImage* DeviceImage::clone_initialized(const Pixel initial_constant_value);
+template DeviceImage* DeviceImage::clone();
+
+// explicitly instantiate the template for HostPixelVector
+template HostImage::Image(uint width, uint height);
+template void HostImage::setPixel(uint x, uint y, Pixel pixel);
+template Pixel HostImage::getPixel(uint x, uint y);
+template void HostImage::add(HostImage* other,
+                               HostImage* output);
+template void HostImage::scale(const Pixel constant_factor,
+                               HostImage* scaled_image);
+template void HostImage::divergence(HostImage* gradient_x, HostImage* gradient_y,
+                       HostImage* gradient_xx, HostImage* gradient_yy,
+                       HostImage* output);
+template void HostImage::projected_gradient(
+    HostImage* gradient_x,
+    HostImage* gradient_y,
+    HostImage* projected_gradient_x,
+    HostImage* projected_gradient_y);
+template void HostImage::backward_difference_x(HostImage* gradient_x);
+template void HostImage::forward_difference_x(HostImage* gradient_x);
+template void HostImage::backward_difference_y(HostImage* gradient_y);
+template void HostImage::forward_difference_y(HostImage* gradient_y);
+template void HostImage::set_pixel_data_of(HostImage* image);
+template HostImage* HostImage::clone_uninitialized();
+template HostImage* HostImage::clone_initialized(const Pixel initial_constant_value);
+template HostImage* HostImage::clone();
