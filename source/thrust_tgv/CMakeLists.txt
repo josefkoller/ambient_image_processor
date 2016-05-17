@@ -20,3 +20,10 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/tgv_kernel.cu
   ${CMAKE_CURRENT_LIST_DIR}/Image.cu
   )
+
+cuda_add_executable(image_tests
+  ${CMAKE_CURRENT_LIST_DIR}/image_tests_console.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/Image.cuh
+  ${CMAKE_CURRENT_LIST_DIR}/Image.cu
+  ${CMAKE_CURRENT_LIST_DIR}/thrust_operators.cuh
+)

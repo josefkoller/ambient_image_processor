@@ -23,7 +23,7 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(CUDA_VERBOSE_BUILD ON)
 
 #enable openmp
-#set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive -fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
 
 find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})

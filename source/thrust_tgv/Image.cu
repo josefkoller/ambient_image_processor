@@ -9,7 +9,6 @@
   return pixel1 > pixel2 ? pixel1 : pixel2;
 }
 
-
 // IMAGE FUNCTIONS...
 
 template<typename PixelVector>

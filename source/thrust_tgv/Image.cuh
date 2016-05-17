@@ -2,12 +2,15 @@
 #define IMAGE_H
 
 
-#define NUMBER_OF_THREADS 4
+
 #define THRUST_DEVICE_SYSTEM THRUST_DEVICE_SYSTEM_CUDA
-// #define USE_OPEN_MP_FOR_LOOPS
+
+//#define USE_OPEN_MP_FOR_LOOPS
 #ifdef USE_OPEN_MP_FOR_LOOPS
+    #define NUMBER_OF_THREADS 4
     #include <omp.h>
 #endif
+
 //#define THRUST_HOST_SYSTEM THRUST_HOST_SYSTEM_OMP
 #if THRUST_HOST_SYSTEM == THRUST_HOST_SYSTEM_OMP
     #include <omp.h>
