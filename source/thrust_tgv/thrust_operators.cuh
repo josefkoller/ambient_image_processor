@@ -2,6 +2,12 @@
 #define thrust_operators_H
 
 template<typename Element>
+__host__ __device__ Element max_pixel(Element pixel1, Element pixel2)
+{
+ return pixel1 > pixel2 ? pixel1 : pixel2;
+}
+
+template<typename Element>
 struct SquareOperation
 {
     __host__ __device__ Element operator()(const Element& element) const
@@ -56,7 +62,7 @@ struct ProjectNormalizedGradientMagnitude1 : public thrust::binary_function<Elem
     Element operator()(Element& element1, Element& element2) const
     {
         const Element magnitude = std::sqrt(element1*element1 + element2*element2);
-        const Element normalization = max_pixel(magnitude, 1.0f);
+        const Element normalization = max_pixel<Element>(magnitude, 1.0);
         return element1 / normalization;
     }
 };
@@ -68,7 +74,7 @@ struct ProjectNormalizedGradientMagnitude2 : public thrust::binary_function<Elem
     Element operator()(Element& element1, Element& element2) const
     {
         const Element magnitude = std::sqrt(element1*element1 + element2*element2);
-        const Element normalization = max_pixel(magnitude, 1.0f);
+        const Element normalization = max_pixel<Element>(magnitude, 1.0f);
         return element2 / normalization;
     }
 };

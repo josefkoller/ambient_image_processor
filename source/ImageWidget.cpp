@@ -110,6 +110,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->ui->tgv_widget->setResultProcessor([this](Image::Pointer result) {
         this->output_widget->setImage(result);
     });
+    this->ui->tgv_widget->setIterationFinishedCallback([this](uint index, uint count) {
+        this->handleStatusTextChange(QString("iteration %1 / %2").arg(
+                                     QString::number(index),
+                                     QString::number(count)));
+    });
 }
 
 ImageWidget::~ImageWidget()

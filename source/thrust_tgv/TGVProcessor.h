@@ -4,6 +4,8 @@
 #include <itkImage.h>
 #include "Image.cuh"
 
+typedef std::function<void(uint iteration_index, uint iteration_count)> IterationFinished;
+
 class TGVProcessor
 {
 private:
@@ -19,9 +21,9 @@ private:
 public:
 
     static itkImage::Pointer processTVL2GPU(itkImage::Pointer input_image,
-      const Pixel lambda, const uint iteration_count);
+      const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback);
     static itkImage::Pointer processTVL2CPU(itkImage::Pointer input_image,
-      const Pixel lambda, const uint iteration_count);
+      const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback);
 };
 
 #endif // TGVPROCESSOR_H

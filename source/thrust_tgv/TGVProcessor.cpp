@@ -4,8 +4,11 @@
 #include <itkImageRegionConstIteratorWithIndex.h>
 #include <itkImageRegionIteratorWithIndex.h>
 
-DeviceImage* filterGPU(DeviceImage* f, const Pixel lambda, const uint iteration_count);
-HostImage* filterCPU(HostImage* f, const Pixel lambda, const uint iteration_count);
+
+DeviceImage* filterGPU(DeviceImage* f, const Pixel lambda, const uint iteration_count,
+                       IterationFinished iteration_finished_callback);
+HostImage* filterCPU(HostImage* f, const Pixel lambda, const uint iteration_count,
+                     IterationFinished iteration_finished_callback);
 
 TGVProcessor::TGVProcessor()
 {
@@ -50,10 +53,10 @@ TGVProcessor::itkImage::Pointer TGVProcessor::convert(ThrustImage* image)
 }
 
 TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2GPU(itkImage::Pointer input_image,
-   const Pixel lambda, const uint iteration_count)
+   const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
 {
     DeviceImage* f = convert<DeviceImage>(input_image);
-    DeviceImage* u = filterGPU(f, lambda, iteration_count);
+    DeviceImage* u = filterGPU(f, lambda, iteration_count, iteration_finished_callback);
 
     delete f;
 
@@ -63,10 +66,10 @@ TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2GPU(itkImage::Pointer i
 }
 
 TGVProcessor::itkImage::Pointer TGVProcessor::processTVL2CPU(itkImage::Pointer input_image,
-   const Pixel lambda, const uint iteration_count)
+   const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
 {
     HostImage* f = convert<HostImage>(input_image);
-    HostImage* u = filterCPU(f, lambda, iteration_count);
+    HostImage* u = filterCPU(f, lambda, iteration_count, iteration_finished_callback);
 
     delete f;
 

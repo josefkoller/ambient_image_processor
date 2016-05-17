@@ -26,12 +26,15 @@ void print(Image<PixelVector>* image, std::string title)
     }
 }
 
+typedef std::function<void(uint iteration_index, uint iteration_count)> IterationFinished;
 
 template<typename PixelVector>
 __host__ __device__
 Image<PixelVector>* filter(Image<PixelVector>* f,
     const Pixel lambda,
-    const unsigned int iteration_count)
+    const unsigned int iteration_count,
+    IterationFinished iteration_finished_callback
+     )
 {
     typedef Image<PixelVector> ThrustImage;
 
@@ -58,17 +61,11 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 */
 
 
-
-
-
-
-
-
-  const Pixel sqrt_8 = std::sqrt(8.0f); // algorithm paramteter
-  Pixel tau = 1.0f / sqrt_8;
+  const Pixel sqrt_8 = std::sqrt(8.0);
+  Pixel tau = 1.0 / sqrt_8;
   Pixel sigma = tau;
-//  const Pixel gamma = 0.7f * lambda;  // algorithm paramteter
-  Pixel theta = 1.0f; // will be used later
+
+  Pixel theta = 1.0; // will be used later
 
   ThrustImage* u = f->clone();
   ThrustImage* p_x_temp = u->clone_uninitialized(); // memory allocation
@@ -137,6 +134,8 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 
       printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
 
+      if(iteration_finished_callback != nullptr)
+          iteration_finished_callback(iteration_index, iteration_count);
 
 //      print(u, "u");
   }
@@ -155,14 +154,16 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 }
 
 Image<DevicePixelVector>* filterGPU(Image<DevicePixelVector>* f,
-    const Pixel lambda, const unsigned int iteration_count)
+    const Pixel lambda, const unsigned int iteration_count,
+    IterationFinished iteration_finished_callback)
 {
-    return filter(f, lambda, iteration_count);
+    return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
 Image<HostPixelVector>* filterCPU(Image<HostPixelVector>* f,
-    const Pixel lambda, const unsigned int iteration_count)
+    const Pixel lambda, const unsigned int iteration_count,
+    IterationFinished iteration_finished_callback)
 {
-    return filter(f, lambda, iteration_count);
+    return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
 
 

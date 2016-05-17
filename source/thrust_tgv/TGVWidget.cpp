@@ -5,7 +5,8 @@ TGVWidget::TGVWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TGVWidget),
     source_image_fetcher(nullptr),
-    result_processor(nullptr)
+    result_processor(nullptr),
+    iteration_finished_callback(nullptr)
 {
     ui->setupUi(this);
 }
@@ -46,19 +47,24 @@ void TGVWidget::setResultProcessor(ResultProcessor result_processor)
     this->result_processor = result_processor;
 }
 
+void TGVWidget::setIterationFinishedCallback(IterationFinished iteration_finished_callback)
+{
+    this->iteration_finished_callback = iteration_finished_callback;
+}
+
 void TGVWidget::on_perform_button_cpu_clicked()
 {
-    this->perform([](TGVProcessor::itkImage::Pointer source, float lambda, float alpha0, float alpha1,
+    this->perform([this](TGVProcessor::itkImage::Pointer source, float lambda, float alpha0, float alpha1,
                   uint iteration_count) {
-        return TGVProcessor::processTVL2CPU(source,lambda, iteration_count);
+        return TGVProcessor::processTVL2CPU(source,lambda, iteration_count, this->iteration_finished_callback);
     });
 }
 
 
 void TGVWidget::on_perform_button_clicked()
 {
-    this->perform([](TGVProcessor::itkImage::Pointer source, float lambda, float alpha0, float alpha1,
+    this->perform([this](TGVProcessor::itkImage::Pointer source, float lambda, float alpha0, float alpha1,
                   uint iteration_count) {
-        return TGVProcessor::processTVL2GPU(source,lambda, iteration_count);
+        return TGVProcessor::processTVL2GPU(source,lambda, iteration_count, this->iteration_finished_callback);
     });
 }

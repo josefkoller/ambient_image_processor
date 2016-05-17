@@ -34,9 +34,13 @@ private:
             TGVProcessor::itkImage::Pointer source, float lambda, float alpha0, float alpha1,
             uint iteration_count)> Processor;
     void perform(Processor processor);
+
+
+    IterationFinished iteration_finished_callback;
 public:
     void setSourceImageFetcher(SourceImageFetcher source_image_fetcher);
     void setResultProcessor(ResultProcessor result_processor);
+    void setIterationFinishedCallback(IterationFinished iteration_finished_callback);
 };
 
 #endif // TGVWIDGET_H

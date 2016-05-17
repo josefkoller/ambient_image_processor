@@ -4,10 +4,6 @@
 
 //#define THRUST_HOST_SYSTEM THRUST_HOST_SYSTEM_TBB
 
- __host__ __device__ Pixel max_pixel(Pixel pixel1, Pixel pixel2)
-{
-  return pixel1 > pixel2 ? pixel1 : pixel2;
-}
 
 // IMAGE FUNCTIONS...
 
@@ -261,15 +257,24 @@ void Image<PixelVector>::add(Image<PixelVector>* other, Image<PixelVector>* outp
 
 template<typename PixelVector>
 __host__ __device__
-void Image<PixelVector>::projected_gradient(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
-                               Image<PixelVector>* projected_gradient_x, Image<PixelVector>* projected_gradient_y)
+void Image<PixelVector>::projected_gradient(Image<PixelVector>* gradient_x,
+                                            Image<PixelVector>* gradient_y,
+                                            Image<PixelVector>* projected_gradient_x,
+                                            Image<PixelVector>* projected_gradient_y)
 {
     thrust::transform(gradient_x->pixel_rows.begin(), gradient_x->pixel_rows.end(),
                       gradient_y->pixel_rows.begin(), projected_gradient_x->pixel_rows.begin(),
                       ProjectNormalizedGradientMagnitude1<Pixel>());
+
+    thrust::transform(gradient_y->pixel_rows.begin(), gradient_y->pixel_rows.end(),
+                      gradient_x->pixel_rows.begin(), projected_gradient_y->pixel_rows.begin(),
+                      ProjectNormalizedGradientMagnitude1<Pixel>());
+    /*
+
     thrust::transform(gradient_x->pixel_rows.begin(), gradient_x->pixel_rows.end(),
                       gradient_y->pixel_rows.begin(), projected_gradient_y->pixel_rows.begin(),
                       ProjectNormalizedGradientMagnitude2<Pixel>());
+                      */
 }
 
 template<typename PixelVector>
