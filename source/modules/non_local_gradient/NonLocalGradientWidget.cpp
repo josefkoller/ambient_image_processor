@@ -1,7 +1,7 @@
 #include "NonLocalGradientWidget.h"
 #include "ui_NonLocalGradientWidget.h"
 
-NonLocalGradientWidget::NonLocalGradientWidget(ImageWidget *parent) :
+NonLocalGradientWidget::NonLocalGradientWidget(QWidget *parent) :
     BaseModuleWidget(parent),
     ui(new Ui::NonLocalGradientWidget)
 {

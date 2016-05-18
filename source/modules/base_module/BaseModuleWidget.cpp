@@ -1,6 +1,6 @@
 #include "BaseModuleWidget.h"
 
-BaseModuleWidget::BaseModuleWidget(ImageWidget *parent) :
+BaseModuleWidget::BaseModuleWidget(QWidget *parent) :
     QWidget(parent),
     source_image_fetcher(nullptr),
     result_processor(nullptr),

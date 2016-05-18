@@ -3,7 +3,7 @@
 
 #include "DeshadeSegmentedProcessor.h"
 
-DeshadeSegmentedWidget::DeshadeSegmentedWidget(ImageWidget *parent) :
+DeshadeSegmentedWidget::DeshadeSegmentedWidget(QWidget *parent) :
     BaseModuleWidget(parent),
     ui(new Ui::DeshadeSegmentedWidget),
     segment_fetcher(nullptr),

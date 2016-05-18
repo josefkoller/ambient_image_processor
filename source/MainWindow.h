@@ -25,8 +25,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    typedef ITKImageProcessor::ImageType ImageType;
-
     std::string source_image_path;
 };
 

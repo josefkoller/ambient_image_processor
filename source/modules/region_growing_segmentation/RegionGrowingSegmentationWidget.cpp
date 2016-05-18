@@ -13,7 +13,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(ImageWidget *parent) :
+RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QWidget *parent) :
     BaseModuleWidget(parent),
     ui(new Ui::RegionGrowingSegmentationWidget),
     is_adding_seed_point(false),

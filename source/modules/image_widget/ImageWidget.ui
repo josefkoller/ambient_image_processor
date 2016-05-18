@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>12</number>
+          <number>13</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">

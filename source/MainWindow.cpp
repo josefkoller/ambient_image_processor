@@ -1,11 +1,10 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-#include "ITKToQImageConverter.h"
-#include "ITKImageProcessor.h"
 #include <QDateTime>
-
 #include <QPainter>
+
+#include "ITKImage.h"
 
 MainWindow::MainWindow(std::string image_path) :
     QMainWindow(NULL),
@@ -16,8 +15,8 @@ MainWindow::MainWindow(std::string image_path) :
 
     if(QFile(QString::fromStdString(image_path)).exists())
     {
-        ImageType::Pointer input_image = ITKImageProcessor::read(image_path);
-        this->ui->image_widget->setImage(input_image);
+        ITKImage input_image = ITKImage::read(image_path);
+        this->ui->image_widget->setImage(input_image.getPointer());
     }
 
    // this->ui->image_widget->showSliceControl();

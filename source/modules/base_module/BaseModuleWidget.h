@@ -13,7 +13,7 @@ class BaseModuleWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BaseModuleWidget(ImageWidget *parent);
+    BaseModuleWidget(QWidget *parent);
 
     typedef std::function<void(ITKImage)> ResultProcessor;
     typedef std::function<ITKImage()> SourceImageFetcher;

@@ -16,7 +16,7 @@ class MultiScaleRetinexWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit MultiScaleRetinexWidget(ImageWidget *parent = 0);
+    explicit MultiScaleRetinexWidget(QWidget *parent = 0);
     ~MultiScaleRetinexWidget();
 
 private slots:
