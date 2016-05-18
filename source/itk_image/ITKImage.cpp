@@ -4,6 +4,7 @@
 #include <itkImageFileReader.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageFileWriter.h>
+#include <itkImageRegionIteratorWithIndex.h>
 
 #include <iostream>
 
@@ -22,6 +23,21 @@ ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image
     InnerITKImage::SizeType size = this->inner_image->GetLargestPossibleRegion().GetSize();
     this->width = size[0];
     this->height = size[1];
+}
+
+ITKImage::ITKImage(uint width, uint height, InnerITKImage::PixelType* data) : ITKImage(width, height)
+{
+    itk::ImageRegionIteratorWithIndex<InnerITKImage> iteration(this->inner_image,
+        this->inner_image->GetLargestPossibleRegion());
+    while(!iteration.IsAtEnd())
+    {
+        InnerITKImage::IndexType index = iteration.GetIndex();
+        int i = index[0] + index[1] * this->width;
+
+        iteration.Set(data[i]);
+
+        ++iteration;
+    }
 }
 
 ITKImage::InnerITKImage::Pointer ITKImage::getPointer() const

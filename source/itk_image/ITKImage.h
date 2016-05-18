@@ -20,6 +20,7 @@ private:
 public:
     ITKImage(uint width, uint height);
     ITKImage(InnerITKImage::Pointer inner_image);
+    ITKImage(uint width, uint height, InnerITKImage::PixelType* data);
 
     InnerITKImage::Pointer getPointer() const;
     InnerITKImage::Pointer clone() const;
