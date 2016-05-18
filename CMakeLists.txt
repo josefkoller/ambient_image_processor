@@ -82,6 +82,7 @@ SET(SOURCE_H_FILES
 include(source/non_local_gradient/CMakeLists.txt)
 include(source/deshade_segmented/CMakeLists.txt)
 include(source/thrust_tgv/CMakeLists.txt)
+include(source/itk_image/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

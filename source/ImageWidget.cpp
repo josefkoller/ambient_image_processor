@@ -104,6 +104,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
         this->output_widget2->setImage(reflectance);
     });
 
+    //this->ui->tgv_widget->registerModule(this);
     this->ui->tgv_widget->setSourceImageFetcher([this]() {
         return ITKImageProcessor::cloneImage(this->image);
     });
