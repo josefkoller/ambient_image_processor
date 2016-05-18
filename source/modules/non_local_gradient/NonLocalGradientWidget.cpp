@@ -2,10 +2,8 @@
 #include "ui_NonLocalGradientWidget.h"
 
 NonLocalGradientWidget::NonLocalGradientWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::NonLocalGradientWidget),
-    result_processor(nullptr),
-    source_image_fetcher(nullptr)
+    BaseModuleWidget(parent),
+    ui(new Ui::NonLocalGradientWidget)
 {
     ui->setupUi(this);
 }
@@ -29,25 +27,18 @@ void NonLocalGradientWidget::on_sigma_spinbox_valueChanged(double arg1)
 
 void NonLocalGradientWidget::on_perform_button_clicked()
 {
-    if(this->result_processor == nullptr || this->source_image_fetcher == nullptr)
-        return;
+    this->processInWorkerThread();
+}
 
+ITKImage NonLocalGradientWidget::processImage(ITKImage image)
+{
     uint kernel_size = this->ui->kernel_size_spinbox->value();
     float kernel_sigma = this->ui->sigma_spinbox->value();
 
-    NonLocalGradientProcessor::Image::Pointer result_image = NonLocalGradientProcessor::process(
-                this->source_image_fetcher(), kernel_size, kernel_sigma);
-    this->result_processor(result_image);
-}
+    ITKImage result_image = NonLocalGradientProcessor::process(
+                image, kernel_size, kernel_sigma);
 
-void NonLocalGradientWidget::setResultProcessor(ResultProcessor result_processor)
-{
-    this->result_processor = result_processor;
-}
-
-void NonLocalGradientWidget::setSourceImageFetcher(SourceImageFetcher source_image_fetcher)
-{
-    this->source_image_fetcher = source_image_fetcher;
+    return result_image;
 }
 
 float NonLocalGradientWidget::getKernelSigma() const

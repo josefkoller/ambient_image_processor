@@ -1,6 +1,7 @@
 #include "BaseModuleWidget.h"
 
-BaseModuleWidget::BaseModuleWidget() :
+BaseModuleWidget::BaseModuleWidget(ImageWidget *parent) :
+    QWidget(parent),
     source_image_fetcher(nullptr),
     result_processor(nullptr),
     worker_thread(nullptr)
@@ -65,3 +66,12 @@ void BaseModuleWidget::handleWorkerFinished()
     }
 }
 
+void BaseModuleWidget::registerModule(ImageWidget* image_widget)
+{
+    this->setSourceImageFetcher([image_widget](){
+        return ITKImage(image_widget->getImage());
+    });
+    this->setResultProcessor( [image_widget] (ITKImage image) {
+        emit image_widget->getOutputWidget()->fireImageChange(image.getPointer());
+    });
+}

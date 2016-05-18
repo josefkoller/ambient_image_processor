@@ -10,6 +10,8 @@
 
 #include <functional>
 
+#include "ITKImage.h"
+
 namespace Ui {
 class RegionGrowingSegmentationWidget;
 }

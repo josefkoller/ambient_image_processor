@@ -1,8 +1,7 @@
 #ifndef NONLOCALGRADIENTPROCESSOR_H
 #define NONLOCALGRADIENTPROCESSOR_H
 
-#include <itkImage.h>
-
+#include <ITKImage.h>
 
 class NonLocalGradientProcessor
 {
@@ -10,15 +9,14 @@ private:
     NonLocalGradientProcessor();
 
 public:
-    typedef itk::Image<double> Image;
 
-    static Image::Pointer process(Image::Pointer source,
+    static ITKImage process(ITKImage source,
                                   uint kernel_size,
-                                  Image::PixelType kernel_sigma);
+                                  ITKImage::PixelType kernel_sigma);
 private:
-    static Image::PixelType* createKernel(
+    static ITKImage::PixelType* createKernel(
             uint kernel_size,
-            Image::PixelType kernel_sigma);
+            ITKImage::PixelType kernel_sigma);
 };
 
 #endif // NONLOCALGRADIENTPROCESSOR_H

@@ -203,6 +203,9 @@ public:
     void setOutputWidget(ImageWidget* output_widget);
     void setOutputWidget2(ImageWidget* output_widget);
     void setOutputWidget3(ImageWidget* output_widget);
+
+    ImageWidget* getOutputWidget() const;
+
     void setPage(unsigned char page_index);
 protected:
     void paintEvent(QPaintEvent *);

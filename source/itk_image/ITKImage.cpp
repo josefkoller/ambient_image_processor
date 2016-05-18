@@ -18,11 +18,10 @@ ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
     this->inner_image->Allocate();
 }
 
-ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image)
+ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image),
+    width(inner_image->GetLargestPossibleRegion().GetSize()[0]),
+    height(inner_image->GetLargestPossibleRegion().GetSize()[1])
 {
-    InnerITKImage::SizeType size = this->inner_image->GetLargestPossibleRegion().GetSize();
-    this->width = size[0];
-    this->height = size[1];
 }
 
 ITKImage::ITKImage(uint width, uint height, InnerITKImage::PixelType* data) : ITKImage(width, height)

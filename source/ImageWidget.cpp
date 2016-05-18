@@ -80,14 +80,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
         return this->ui->non_local_gradient_widget->getKernelSize();
     });
 
-
-    this->ui->non_local_gradient_widget->setSourceImageFetcher([this](){
-        return ITKImageProcessor::cloneImage(this->image);
-    });
-    this->ui->non_local_gradient_widget->setResultProcessor( [this] (Image::Pointer image) {
-        this->output_widget->setImage(image);
-    });
-
+    auto module_widgets = this->findChildren<BaseModuleWidget*>();
+    for(auto module_widget : module_widgets)
+    {
+        module_widget->registerModule(this);
+    }
 
     this->ui->deshade_segmented_widget->setSourceImageFetcher([this]() {
         return ITKImageProcessor::cloneImage(this->image);
@@ -1044,6 +1041,11 @@ void ImageWidget::setOutputWidget(ImageWidget* output_widget)
 {
     this->output_widget = output_widget;
     this->ui->region_growing_segmentation_widget->setTargetImageWidget(output_widget);
+}
+
+ImageWidget* ImageWidget::getOutputWidget() const
+{
+    return this->output_widget;
 }
 
 void ImageWidget::setOutputWidget2(ImageWidget* output_widget)

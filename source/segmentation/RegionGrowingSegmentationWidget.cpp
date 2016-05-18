@@ -216,13 +216,13 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
     float kernel_sigma = this->kernel_sigma_fetcher();
     float kernel_size = this->kernel_size_fetcher();
 
-    NonLocalGradientProcessor::Image::Pointer gradient_image = NonLocalGradientProcessor::process(
+    ITKImage gradient_image = NonLocalGradientProcessor::process(
                 source_image, kernel_size, kernel_sigma);
 
 
     // action...
     this->label_image = RegionGrowingSegmentationProcessor::process(
-                gradient_image, this->region_growing_segmentation.getSegments(), tolerance);
+                gradient_image.getPointer(), this->region_growing_segmentation.getSegments(), tolerance);
 
     // output...
     typedef itk::CastImageFilter<LabelImage, SourceImage> CastFilter;

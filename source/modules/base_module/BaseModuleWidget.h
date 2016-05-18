@@ -4,7 +4,8 @@
 #include <functional>
 #include <thread>
 
-#include "../../itk_image/ITKImage.h"
+#include "ITKImage.h"
+#include "ImageWidget.h"
 
 #include <QWidget>
 
@@ -12,7 +13,7 @@ class BaseModuleWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BaseModuleWidget();
+    BaseModuleWidget(ImageWidget *parent);
 
     typedef std::function<void(ITKImage)> ResultProcessor;
     typedef std::function<ITKImage()> SourceImageFetcher;
@@ -32,6 +33,9 @@ private slots:
 protected:
     virtual ITKImage processImage(ITKImage image);
     void processInWorkerThread();
+
+public:
+    virtual void registerModule(ImageWidget* image_widget);
 };
 
 #endif // BASEMODULEWIDGET_H

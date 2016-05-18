@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-typedef NonLocalGradientProcessor::Image::PixelType FloatType;
-
 template<typename Pixel>
 Pixel* non_local_gradient_kernel_launch(
         Pixel* source, uint source_width, uint source_height, Pixel* kernel, uint kernel_size);
@@ -14,14 +12,14 @@ NonLocalGradientProcessor::NonLocalGradientProcessor()
 {
 }
 
-NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKernel(
+ITKImage::PixelType* NonLocalGradientProcessor::createKernel(
         uint kernel_size,
-        Image::PixelType kernel_sigma)
+        ITKImage::PixelType kernel_sigma)
 {
-    Image::PixelType* kernel = new Image::PixelType[kernel_size * kernel_size];
+    ITKImage::PixelType* kernel = new ITKImage::PixelType[kernel_size * kernel_size];
     uint kernel_center = std::floor(kernel_size / 2.0f);
 
-    Image::PixelType kernel_value_sum = 0;
+    ITKImage::PixelType kernel_value_sum = 0;
     for(uint y = 0; y < kernel_size; y++)
     {
         for(uint x = 0; x < kernel_size; x++)
@@ -29,8 +27,8 @@ NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKe
             uint xr = x - kernel_center;
             uint yr = y - kernel_center;
 
-            Image::PixelType radius = std::sqrt(xr*xr + yr*yr);
-            Image::PixelType value = std::exp(-radius*radius / kernel_sigma);
+            ITKImage::PixelType radius = std::sqrt(xr*xr + yr*yr);
+            ITKImage::PixelType value = std::exp(-radius*radius / kernel_sigma);
 
             uint i = x + y * kernel_size;
             kernel[i] = value;
@@ -43,7 +41,7 @@ NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKe
         for(uint x = 0; x < kernel_size; x++)
         {
             uint i = x + y * kernel_size;
-            Image::PixelType value = kernel[i];
+            ITKImage::PixelType value = kernel[i];
             value /= kernel_value_sum;
 
             //            std::cout << "kernel value1: " << value << std::endl;
@@ -55,36 +53,19 @@ NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKe
     return kernel;
 }
 
-NonLocalGradientProcessor::Image::Pointer NonLocalGradientProcessor::process(Image::Pointer source,
-                                                                             uint kernel_size,
-                                                                             Image::PixelType kernel_sigma)
+ITKImage NonLocalGradientProcessor::process(ITKImage source,
+                                                       uint kernel_size,
+                                                       ITKImage::PixelType kernel_sigma)
 {
-    Image::PixelType* source_data = source->GetBufferPointer();
-    Image::PixelType* kernel_data = createKernel(kernel_size, kernel_sigma);
+    ITKImage::PixelType* source_data = source.getPointer()->GetBufferPointer();
+    ITKImage::PixelType* kernel_data = createKernel(kernel_size, kernel_sigma);
 
-    Image::SizeType source_size = source->GetLargestPossibleRegion().GetSize();
-    uint source_width = source_size[0];
-    uint source_height = source_size[1];
-
-    Image::PixelType* destination_data = non_local_gradient_kernel_launch(source_data,
-                                                                          source_width, source_height, kernel_data, kernel_size);
+    ITKImage::PixelType* destination_data = non_local_gradient_kernel_launch(source_data,
+                 source.width, source.height, kernel_data, kernel_size);
 
     delete[] kernel_data;
 
-    Image::Pointer destination = Image::New();
-    destination->SetRegions(source_size);
-    destination->Allocate();
-    itk::ImageRegionIteratorWithIndex<Image> destination_iterator(destination,
-                                                                  destination->GetLargestPossibleRegion());
-    while(!destination_iterator.IsAtEnd())
-    {
-        Image::IndexType index = destination_iterator.GetIndex();
-        int i = index[0] + index[1] * source_width;
-
-        destination_iterator.Set(destination_data[i]);
-
-        ++destination_iterator;
-    }
+    ITKImage destination = ITKImage(source.width, source.height, destination_data);
 
     return destination;
 }

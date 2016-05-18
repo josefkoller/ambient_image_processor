@@ -12,10 +12,10 @@ public:
     typedef double PixelType;
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
-private:
-    uint width;
-    uint height;
 
+    const uint width;
+    const uint height;
+private:
     InnerITKImage::Pointer inner_image;
 public:
     ITKImage(uint width, uint height);
