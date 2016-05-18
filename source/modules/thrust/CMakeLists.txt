@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 set(THRUST_MODULE_SOURCE
-  ${CMAKE_CURRENT_LIST_DIR}/Image.cuh
+  ${CMAKE_CURRENT_LIST_DIR}/ThrustImage.cuh
   ${CMAKE_CURRENT_LIST_DIR}/thrust_operators.cuh
-  ${CMAKE_CURRENT_LIST_DIR}/Image.cu
+  ${CMAKE_CURRENT_LIST_DIR}/ThrustImage.cu
   )
 
 list(APPEND CUDA_CPP_FILES

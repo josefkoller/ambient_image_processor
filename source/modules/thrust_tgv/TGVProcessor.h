@@ -2,7 +2,7 @@
 #define TGVPROCESSOR_H
 
 #include <ITKImage.h>
-#include "Image.cuh"
+#include "ThrustImage.cuh"
 
 
 class TGVProcessor
@@ -13,9 +13,9 @@ private:
 public:
 
     typedef std::function<void(uint iteration_index, uint iteration_count,
-                               HostImage* u)> HostIterationFinished;
+                               HostThrustImage* u)> HostIterationFinished;
     typedef std::function<void(uint iteration_index, uint iteration_count,
-                               DeviceImage* u)> DeviceIterationFinished;
+                               DeviceThrustImage* u)> DeviceIterationFinished;
 
     typedef std::function<void(uint iteration_index, uint iteration_count,
                                ITKImage u)> IterationFinished;

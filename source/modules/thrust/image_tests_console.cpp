@@ -3,18 +3,18 @@
 #include <iostream>
 #include <string>
 
-#include "Image.cuh"
+#include "ThrustImage.cuh"
 
-typedef DeviceImage ThrustImage;
+typedef DeviceThrustImage ThrustThrustImage;
 
-void print(ThrustImage* image, std::string title)
+void print(ThrustThrustImage* ThrustImage, std::string title)
 {
-    std::cout << "image: " << title << std::endl;
-    for(int y = 0; y < image->height; y++)
+    std::cout << "ThrustImage: " << title << std::endl;
+    for(int y = 0; y < ThrustImage->height; y++)
     {
-        for(int x = 0; x < image->width; x++)
+        for(int x = 0; x < ThrustImage->width; x++)
         {
-            std::cout << image->getPixel(x,y) << "\t";
+            std::cout << ThrustImage->getPixel(x,y) << "\t";
         }
         std::cout << std::endl;
     }
@@ -22,33 +22,33 @@ void print(ThrustImage* image, std::string title)
 
 int main(int argc, char *argv[])
 {
-    ThrustImage* image1 = new ThrustImage(3,3);
-    image1->setPixel(0, 0, 1);
-    image1->setPixel(1, 0, 3);
-    image1->setPixel(2, 0, 7);
+    ThrustThrustImage* ThrustImage1 = new ThrustThrustImage(3,3);
+    ThrustImage1->setPixel(0, 0, 1);
+    ThrustImage1->setPixel(1, 0, 3);
+    ThrustImage1->setPixel(2, 0, 7);
 
-    image1->setPixel(0, 1, 15);
-    image1->setPixel(1, 1, 25);
-    image1->setPixel(2, 1, 42);
+    ThrustImage1->setPixel(0, 1, 15);
+    ThrustImage1->setPixel(1, 1, 25);
+    ThrustImage1->setPixel(2, 1, 42);
 
-    image1->setPixel(0, 2, 85);
-    image1->setPixel(1, 2, 166);
-    image1->setPixel(2, 2, 512);
+    ThrustImage1->setPixel(0, 2, 85);
+    ThrustImage1->setPixel(1, 2, 166);
+    ThrustImage1->setPixel(2, 2, 512);
 
-    print(image1, "image1");
+    print(ThrustImage1, "ThrustImage1");
 
-    ThrustImage* grad_x = image1->clone_uninitialized();
-    image1->forward_difference_x(grad_x);
+    ThrustThrustImage* grad_x = ThrustImage1->clone_uninitialized();
+    ThrustImage1->forward_difference_x(grad_x);
     print(grad_x, "grad_x");
 
-    ThrustImage* grad_y = image1->clone_uninitialized();
-    image1->forward_difference_y(grad_y);
+    ThrustThrustImage* grad_y = ThrustImage1->clone_uninitialized();
+    ThrustImage1->forward_difference_y(grad_y);
     print(grad_y, "grad_y");
 
-    ThrustImage* divergence = image1->clone_uninitialized();
-    ThrustImage* grad_xx = image1->clone_uninitialized();
-    ThrustImage* grad_yy = image1->clone_uninitialized();
-    ThrustImage::divergence(grad_x, grad_y, grad_xx, grad_yy, divergence);
+    ThrustThrustImage* divergence = ThrustImage1->clone_uninitialized();
+    ThrustThrustImage* grad_xx = ThrustImage1->clone_uninitialized();
+    ThrustThrustImage* grad_yy = ThrustImage1->clone_uninitialized();
+    ThrustThrustImage::divergence(grad_x, grad_y, grad_xx, grad_yy, divergence);
 
 
     print(grad_xx, "grad_xx");
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     delete divergence;
     delete grad_x;
     delete grad_y;
-    delete image1;
+    delete ThrustImage1;
 
     return 0;
 }

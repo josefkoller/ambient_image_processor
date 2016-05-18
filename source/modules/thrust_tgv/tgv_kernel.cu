@@ -8,18 +8,18 @@
 
 #include <stdio.h>
 
-#include "Image.cuh"
+#include "ThrustImage.cuh"
 #include "thrust_operators.cuh"
 
 template<typename PixelVector>
-void print(Image<PixelVector>* image, std::string title)
+void print(ThrustImage<PixelVector>* ThrustImage, std::string title)
 {
-    std::cout << "image: " << title << std::endl;
-    for(int y = 0; y < image->height; y++)
+    std::cout << "ThrustImage: " << title << std::endl;
+    for(int y = 0; y < ThrustImage->height; y++)
     {
-        for(int x = 0; x < image->width; x++)
+        for(int x = 0; x < ThrustImage->width; x++)
         {
-            std::cout << image->getPixel(x,y) << "\t";
+            std::cout << ThrustImage->getPixel(x,y) << "\t";
         }
         std::cout << std::endl;
     }
@@ -27,13 +27,13 @@ void print(Image<PixelVector>* image, std::string title)
 
 template<typename PixelVector>
 __host__ __device__
-Image<PixelVector>* filter(Image<PixelVector>* f,
+ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
     const Pixel lambda,
     const unsigned int iteration_count,
-    std::function<void(uint iteration_index, uint iteration_count, Image<PixelVector>*)> iteration_finished_callback
+    std::function<void(uint iteration_index, uint iteration_count, ThrustImage<PixelVector>*)> iteration_finished_callback
      )
 {
-    typedef Image<PixelVector> ThrustImage;
+    typedef ThrustImage<PixelVector> ThrustThrustImage;
 
 
 #if THRUST_HOST_SYSTEM == THRUST_HOST_SYSTEM_OMP
@@ -43,7 +43,7 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
   printf("TVL2, lambda=%f \n", lambda);
 
 /*
-  f = new ThrustImage(3,3);
+  f = new ThrustThrustImage(3,3);
   f->setPixel(0, 0, 1);
   f->setPixel(1, 0, 3);
   f->setPixel(2, 0, 7);
@@ -64,16 +64,16 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 
   Pixel theta = 1.0; // will be used later
 
-  ThrustImage* u = f->clone();
-  ThrustImage* p_x_temp = u->clone_uninitialized(); // memory allocation
-  ThrustImage* p_y_temp = u->clone_uninitialized(); // memory allocation
-  ThrustImage* p_x = u->clone_initialized(0); // memory allocation
-  ThrustImage* p_y = u->clone_initialized(0); // memory allocation
-  ThrustImage* divergence_p = u->clone_uninitialized(); // memory allocation
-  ThrustImage* u_bar = u->clone(); // memory allocation
-  ThrustImage* u_previous = u->clone_uninitialized(); // memory allocation
+  ThrustThrustImage* u = f->clone();
+  ThrustThrustImage* p_x_temp = u->clone_uninitialized(); // memory allocation
+  ThrustThrustImage* p_y_temp = u->clone_uninitialized(); // memory allocation
+  ThrustThrustImage* p_x = u->clone_initialized(0); // memory allocation
+  ThrustThrustImage* p_y = u->clone_initialized(0); // memory allocation
+  ThrustThrustImage* divergence_p = u->clone_uninitialized(); // memory allocation
+  ThrustThrustImage* u_bar = u->clone(); // memory allocation
+  ThrustThrustImage* u_previous = u->clone_uninitialized(); // memory allocation
 
-  ThrustImage* p_magnitude = u->clone_uninitialized(); // memory allocation
+  ThrustThrustImage* p_magnitude = u->clone_uninitialized(); // memory allocation
 
   for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
   {
@@ -108,7 +108,7 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
                         p_y->pixel_rows.begin(), p_y_temp->pixel_rows.begin(),
                         MultiplyByConstantAndAddOperation<Pixel>(sigma) );
 
-     // ThrustImage::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
+     // ThrustThrustImage::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
 
       thrust::transform(p_x_temp->pixel_rows.begin(), p_x_temp->pixel_rows.end(),
                         p_y_temp->pixel_rows.begin(), p_magnitude->pixel_rows.begin(),
@@ -125,7 +125,7 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
                         thrust::divides<Pixel>() );
 
 
-      ThrustImage::divergence(p_x, p_y, p_x_temp, p_y_temp, divergence_p);
+      ThrustThrustImage::divergence(p_x, p_y, p_x_temp, p_y_temp, divergence_p);
 
       divergence_p->scale(-tau, divergence_p);
       u->add(divergence_p, u);
@@ -184,17 +184,17 @@ Image<PixelVector>* filter(Image<PixelVector>* f,
 
 
 
-Image<DevicePixelVector>* filterGPU(Image<DevicePixelVector>* f,
+ThrustImage<DevicePixelVector>* filterGPU(ThrustImage<DevicePixelVector>* f,
     const Pixel lambda, const unsigned int iteration_count,
-    std::function<void(uint iteration_index, uint iteration_count, Image<DevicePixelVector>*)>
+    std::function<void(uint iteration_index, uint iteration_count, ThrustImage<DevicePixelVector>*)>
                                     iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
 
-Image<HostPixelVector>* filterCPU(Image<HostPixelVector>* f,
+ThrustImage<HostPixelVector>* filterCPU(ThrustImage<HostPixelVector>* f,
     const Pixel lambda, const unsigned int iteration_count,
-    std::function<void(uint iteration_index, uint iteration_count, Image<HostPixelVector>*)> iteration_finished_callback)
+    std::function<void(uint iteration_index, uint iteration_count, ThrustImage<HostPixelVector>*)> iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, iteration_finished_callback);
 }
