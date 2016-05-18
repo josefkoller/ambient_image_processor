@@ -959,46 +959,6 @@ void ImageWidget::on_toMaximumButton_clicked()
     }
 }
 
-void ImageWidget::on_calculate_button_clicked()
-{
-    if(this->image.IsNull())
-        return;
-
-    Image::Pointer image = this->image;
-
-    qint64 start_timestamp = QDateTime::currentMSecsSinceEpoch();
-    auto finished_callback = [this, start_timestamp, image] (
-            Image::Pointer reflectance)
-    {
-        qint64 finish_timestamp = QDateTime::currentMSecsSinceEpoch();
-        qint64 duration = finish_timestamp - start_timestamp;
-
-        QString text = "finished, duration: " + QString::number(duration) + "ms";
-        std::cout << text.toStdString() << std::endl << std::flush;
-        emit this->fireStatusTextChange(text);
-
-        ImageWidget* target_widget = this->output_widget == nullptr ? this : this->output_widget;
-        emit target_widget->fireImageChange(reflectance);
-
-    };
-
-    if(worker_thread != nullptr)
-    {
-        this->ui->status_bar->setText("wait for the current worker thread to end");
-        return;
-    }
-    this->worker_thread = new std::thread([=]() {
-
-        ITKImageProcessor::multiScaleRetinex( image,
-                                              this->multi_scale_retinex.scales,
-                                              finished_callback);
-
-        emit this->fireWorkerFinished();
-    });
-
-}
-
-
 
 void ImageWidget::showImageOnly()
 {
@@ -1115,11 +1075,6 @@ void ImageWidget::on_thresholdButton_clicked()
 
 }
 
-void ImageWidget::on_addScaleButton_clicked()
-{
-    this->multi_scale_retinex.addScaleTo(this->ui->multiScaleRetinexScalesFrame);
-
-}
 
 void ImageWidget::on_pushButton_3_clicked()
 {

@@ -8,8 +8,6 @@
 #include <vector>
 #include <complex>
 
-#include "retinex/MultiScaleRetinex.h"
-
 const unsigned int InputDimension = 2;
 
 class ITKImageProcessor
@@ -138,9 +136,6 @@ public:
     template<typename T2>
     static typename T2::PixelType SumAllPixels(const typename T2::Pointer image);
 
-    static void multiScaleRetinex(ImageType::Pointer image,
-            std::vector<MultiScaleRetinex::Scale*> scales,
-            std::function<void(ImageType::Pointer)> finished_callback);
 private:
     static void removeSensorSensitivity_FFTOperators(const ImageType::SizeType size,
          ImageType::Pointer& fft_laplace,

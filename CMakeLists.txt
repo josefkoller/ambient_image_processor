@@ -37,7 +37,6 @@ include_directories(source)
 SET(SOURCE_UI_FILES
   source/MainWindow.ui
   source/ImageWidget.ui
-  source/retinex/MultiScaleRetinexScale.ui
 )
 
 SET(SOURCE_CPP_FILES
@@ -46,10 +45,6 @@ SET(SOURCE_CPP_FILES
   source/ITKImageProcessor.cpp
   source/ImageWidget.cpp
   source/qcustomplot/qcustomplot.cpp
-  source/retinex/ShrinkFunctor.cpp
-  source/retinex/ShrinkFilter.cpp
-  source/retinex/MultiScaleRetinexScale.cpp
-  source/retinex/MultiScaleRetinex.cpp
 )
 
 SET(SOURCE_H_FILES
@@ -58,10 +53,6 @@ SET(SOURCE_H_FILES
   source/ITKImageProcessor.h
   source/ImageWidget.h
   source/qcustomplot/qcustomplot.h
-  source/retinex/ShrinkFunctor.h
-  source/retinex/ShrinkFilter.h
-  source/retinex/MultiScaleRetinexScale.h
-  source/retinex/MultiScaleRetinex.h
 )
 
 include(source/modules/itk/CMakeLists.txt)
@@ -71,6 +62,7 @@ include(source/modules/non_local_gradient/CMakeLists.txt)
 include(source/modules/thrust/CMakeLists.txt)
 include(source/modules/thrust_tgv/CMakeLists.txt)
 include(source/modules/region_growing_segmentation/CMakeLists.txt)
+include(source/modules/multiscale_retinex/CMakeLists.txt)
 
 include(source/deshade_segmented/CMakeLists.txt)
 
@@ -90,16 +82,6 @@ cuda_add_executable(ambient_application
   ${CUDA_CPP_FILES}
 )
 
-add_executable(linear_retinex_console
-  source/linear_retinex_console.cpp
-  source/ITKImageProcessor.h
-  source/ITKImageProcessor.cpp
-  source/retinex/ShrinkFilter.h
-  source/retinex/ShrinkFilter.cpp
-  source/retinex/ShrinkFunctor.h
-  source/retinex/ShrinkFunctor.cpp
-)
-
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 add_definitions("-DVCL_CAN_STATIC_CONST_INIT_FLOAT=0")
@@ -110,8 +92,4 @@ target_link_libraries(ambient_application
   Qt5::Widgets
   ${ITK_LIBRARIES}
   -lfftw3f
-)
-
-target_link_libraries(linear_retinex_console
-    ${ITK_LIBRARIES}
 )

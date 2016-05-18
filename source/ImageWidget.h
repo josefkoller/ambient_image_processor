@@ -11,8 +11,6 @@
 #include <functional>
 #include <thread>
 
-#include "retinex/MultiScaleRetinex.h"
-
 #include <QListWidgetItem>
 
 namespace Ui {
@@ -194,7 +192,6 @@ private slots:
     void on_slice_spinbox_valueChanged(int arg1);
     void on_fromMinimumButton_clicked();
     void on_toMaximumButton_clicked();
-    void on_calculate_button_clicked();
 
 public:
     void setMinimumSizeToImage();
@@ -228,8 +225,6 @@ private slots:
 
     void on_thresholdButton_clicked();
 
-    void on_addScaleButton_clicked();
-
     void on_pushButton_3_clicked();
 
     void on_pushButton_4_clicked();
@@ -243,7 +238,6 @@ private slots:
 private:
     QLabel* inner_image_frame;
     QImage* q_image;
-    MultiScaleRetinex multi_scale_retinex;
 protected:
     bool eventFilter(QObject *target, QEvent *event);
 
