@@ -22,6 +22,7 @@ ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image
     width(inner_image->GetLargestPossibleRegion().GetSize()[0]),
     height(inner_image->GetLargestPossibleRegion().GetSize()[1])
 {
+    inner_image->DisconnectPipeline();
 }
 
 ITKImage::ITKImage(uint width, uint height, InnerITKImage::PixelType* data) : ITKImage(width, height)
@@ -131,6 +132,11 @@ ITKImage::PixelType ITKImage::getPixel(uint x, uint y) const
     ITKImage::InnerITKImage::IndexType index;
     index[0] = x;
     index[1] = y;
+    return this->getPixel(index);
+}
+
+ITKImage::PixelType ITKImage::getPixel(InnerITKImage::IndexType index) const
+{
     return this->inner_image->GetPixel(index);
 }
 

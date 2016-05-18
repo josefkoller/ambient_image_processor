@@ -1,14 +1,14 @@
 #ifndef REGIONGROWINGSEGMENTATION_H
 #define REGIONGROWINGSEGMENTATION_H
 
-#include "../ITKImageProcessor.h"
+#include "ITKImage.h"
 
 class RegionGrowingSegmentation
 {
 public:
     RegionGrowingSegmentation();
 
-    typedef ITKImageProcessor::ImageType::IndexType Position;
+    typedef ITKImage::InnerITKImage::IndexType Position;
     typedef unsigned int uint;
 
     struct Segment

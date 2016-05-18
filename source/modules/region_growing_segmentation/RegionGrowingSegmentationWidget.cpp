@@ -14,11 +14,9 @@
 #include <QTextStream>
 
 RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QWidget *parent) :
-    QWidget(parent),
+    BaseModuleWidget(parent),
     ui(new Ui::RegionGrowingSegmentationWidget),
     is_adding_seed_point(false),
-    source_image_widget(nullptr),
-    target_image_widget(nullptr),
     kernel_sigma_fetcher(nullptr),
     kernel_size_fetcher(nullptr),
     label_image(nullptr)
@@ -204,12 +202,16 @@ void RegionGrowingSegmentationWidget::on_removeSeedButton_clicked()
 
 void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 {
+    this->processInWorkerThread();
+}
+
+ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
+{
     if(this->kernel_sigma_fetcher == nullptr || this->kernel_size_fetcher == nullptr)
         return;
+
     // input...
     typedef SegmentsToLabelImageConverter::LabelImage LabelImage;
-    typedef ITKImageProcessor::ImageType SourceImage;
-    SourceImage::Pointer source_image = this->source_image_widget->getImage();
 
     float tolerance = this->ui->toleranceSpinbox->value();
 
@@ -225,29 +227,13 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
                 gradient_image.getPointer(), this->region_growing_segmentation.getSegments(), tolerance);
 
     // output...
-    typedef itk::CastImageFilter<LabelImage, SourceImage> CastFilter;
+    typedef itk::CastImageFilter<LabelImage, ITKImage::InnerITKImage> CastFilter;
     CastFilter::Pointer cast_filter = CastFilter::New();
     cast_filter->SetInput(this->label_image);
     cast_filter->Update();
-    this->target_image_widget->setImage(cast_filter->GetOutput());
+    ITKImage::InnerITKImage::Pointer output_image = cast_filter->GetOutput();
 
-
-    /*
-    QuickView viewer;
-    viewer.AddImage(image.GetPointer());
-    viewer.AddImage(rescaleFilter->GetOutput());
-    viewer.Visualize();
-    */
-}
-
-void RegionGrowingSegmentationWidget::setSourceImageWidget(ImageWidget* source_image_widget)
-{
-    this->source_image_widget = source_image_widget;
-}
-
-void RegionGrowingSegmentationWidget::setTargetImageWidget(ImageWidget* target_image_widget)
-{
-    this->target_image_widget = target_image_widget;
+    return ITKImage(output_image);
 }
 
 void RegionGrowingSegmentationWidget::setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher)

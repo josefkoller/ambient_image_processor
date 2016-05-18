@@ -37,7 +37,6 @@ include_directories(source)
 SET(SOURCE_UI_FILES
   source/MainWindow.ui
   source/ImageWidget.ui
-  source/segmentation/RegionGrowingSegmentationWidget.ui
   source/retinex/MultiScaleRetinexScale.ui
 )
 
@@ -49,10 +48,6 @@ SET(SOURCE_CPP_FILES
   source/qcustomplot/qcustomplot.cpp
   source/retinex/ShrinkFunctor.cpp
   source/retinex/ShrinkFilter.cpp
-  source/segmentation/RegionGrowingSegmentation.cpp
-  source/segmentation/RegionGrowingSegmentationWidget.cpp
-  source/segmentation/SegmentsToLabelImageConverter.cpp
-  source/segmentation/RegionGrowingSegmentationProcessor.cpp
   source/retinex/MultiScaleRetinexScale.cpp
   source/retinex/MultiScaleRetinex.cpp
 )
@@ -65,10 +60,6 @@ SET(SOURCE_H_FILES
   source/qcustomplot/qcustomplot.h
   source/retinex/ShrinkFunctor.h
   source/retinex/ShrinkFilter.h
-  source/segmentation/RegionGrowingSegmentation.h
-  source/segmentation/RegionGrowingSegmentationWidget.h
-  source/segmentation/SegmentsToLabelImageConverter.h
-  source/segmentation/RegionGrowingSegmentationProcessor.h
   source/retinex/MultiScaleRetinexScale.h
   source/retinex/MultiScaleRetinex.h
 )
@@ -79,6 +70,7 @@ include(source/modules/cuda/CMakeLists.txt)
 include(source/modules/non_local_gradient/CMakeLists.txt)
 include(source/modules/thrust/CMakeLists.txt)
 include(source/modules/thrust_tgv/CMakeLists.txt)
+include(source/modules/region_growing_segmentation/CMakeLists.txt)
 
 include(source/deshade_segmented/CMakeLists.txt)
 

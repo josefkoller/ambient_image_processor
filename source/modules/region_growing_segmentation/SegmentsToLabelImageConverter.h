@@ -1,8 +1,10 @@
 #ifndef SEGMENTSTOLABELIMAGECONVERTER_H
 #define SEGMENTSTOLABELIMAGECONVERTER_H
 
-#include "../ITKImageProcessor.h"
 #include "RegionGrowingSegmentation.h"
+
+#include "ITKImage.h"
+#include "RegionGrowingSegmentationProcessor.h"
 
 class SegmentsToLabelImageConverter
 {
@@ -10,7 +12,7 @@ private:
     SegmentsToLabelImageConverter();
 public:
 
-    typedef itk::Image<unsigned char, InputDimension> LabelImage;
+    typedef RegionGrowingSegmentationProcessor::LabelImage LabelImage;
     typedef std::vector<RegionGrowingSegmentation::Segment> SegmentVector;
 
     static LabelImage::Pointer convert(SegmentVector segments, LabelImage::SizeType size);

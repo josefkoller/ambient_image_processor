@@ -36,6 +36,9 @@ public:
     void setPixel(uint x, uint y, PixelType value);
 
     void setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetcher);
+
+    PixelType getPixel(InnerITKImage::IndexType index) const;
+
 };
 
 #endif // ITKIMAGE_H

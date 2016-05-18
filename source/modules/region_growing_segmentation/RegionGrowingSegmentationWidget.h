@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QListWidgetItem>
 
-#include "segmentation/RegionGrowingSegmentation.h"
+#include "RegionGrowingSegmentation.h"
 #include "ImageWidget.h"
 #include "RegionGrowingSegmentationProcessor.h"
 
@@ -12,11 +12,13 @@
 
 #include "ITKImage.h"
 
+#include "BaseModuleWidget.h"
+
 namespace Ui {
 class RegionGrowingSegmentationWidget;
 }
 
-class RegionGrowingSegmentationWidget : public QWidget
+class RegionGrowingSegmentationWidget : public BaseModuleWidget
 {
     Q_OBJECT
 
@@ -62,22 +64,19 @@ signals:
     void statusTextChange(QString);
 
 private:
-    ImageWidget* source_image_widget;
-    ImageWidget* target_image_widget;
-
     std::function<float()> kernel_sigma_fetcher;
     std::function<uint()> kernel_size_fetcher;
 
     RegionGrowingSegmentationProcessor::LabelImage::Pointer label_image;
 public:
-    void setSourceImageWidget(ImageWidget* source_image_widget);
-    void setTargetImageWidget(ImageWidget* target_image_widget);
-
     void setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher);
     void setKernelSizeFetcher(std::function<uint()> kernel_size_fetcher);
 
     RegionGrowingSegmentationProcessor::LabelImage::Pointer getLabelImage() const;
     std::vector<std::vector<RegionGrowingSegmentation::Position> > getSegments() const;
+
+protected:
+    virtual ITKImage processImage(ITKImage image);
 };
 
 #endif // REGIONGROWINGSEGMENTATIONWIDGET_H

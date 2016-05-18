@@ -8,8 +8,6 @@
 #include <QFileDialog>
 #include <QDateTime>
 
-#include "cuda/CudaImageProcessor.h"
-
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
@@ -71,8 +69,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
             SIGNAL(statusTextChange(QString)),
             SLOT(handleStatusTextChange(QString)));
 
-    this->ui->region_growing_segmentation_widget->setSourceImageWidget(this);
-    this->ui->region_growing_segmentation_widget->setTargetImageWidget(this);
     this->ui->region_growing_segmentation_widget->setKernelSigmaFetcher([this]() {
         return this->ui->non_local_gradient_widget->getKernelSigma();
     });
@@ -1033,7 +1029,6 @@ void ImageWidget::showPixelValueAtCursor()
 void ImageWidget::setOutputWidget(ImageWidget* output_widget)
 {
     this->output_widget = output_widget;
-    this->ui->region_growing_segmentation_widget->setTargetImageWidget(output_widget);
 }
 
 ImageWidget* ImageWidget::getOutputWidget() const

@@ -10,21 +10,21 @@ RegionGrowingSegmentationProcessor::RegionGrowingSegmentationProcessor()
 
 
 RegionGrowingSegmentationProcessor::LabelImage::Pointer RegionGrowingSegmentationProcessor::process(
-    SourceImage::Pointer gradient_image,
-    std::vector<std::vector<SourceImage::IndexType> > input_segments,
+    const ITKImage& gradient_image,
+    std::vector<std::vector<Index> > input_segments,
     float tolerance)
 {
 
     LabelImage::Pointer output_labels = LabelImage::New();
-    output_labels->SetRegions(gradient_image->GetLargestPossibleRegion());
+    output_labels->SetRegions(gradient_image.getPointer()->GetLargestPossibleRegion());
     output_labels->Allocate();
     output_labels->FillBuffer(0);
 
     for(unsigned int segment_index = 0; segment_index <  input_segments.size(); segment_index++)
     {
-        std::vector<SourceImage::IndexType> seed_points = input_segments[segment_index];
+        std::vector<Index> seed_points = input_segments[segment_index];
 
-        for(SourceImage::IndexType seed_point : seed_points)
+        for(Index seed_point : seed_points)
         {
             grow(gradient_image, output_labels, segment_index+1, seed_point, tolerance);
         }
@@ -32,8 +32,10 @@ RegionGrowingSegmentationProcessor::LabelImage::Pointer RegionGrowingSegmentatio
     return output_labels;
 }
 
-void RegionGrowingSegmentationProcessor::grow(SourceImage::Pointer gradient_image,
-    LabelImage::Pointer output_labels, uint segment_index, SourceImage::IndexType index,
+void RegionGrowingSegmentationProcessor::grow(
+    const ITKImage& gradient_image,
+    LabelImage::Pointer output_labels, uint segment_index,
+    Index index,
     float tolerance)
 {
     if(! output_labels->GetLargestPossibleRegion().IsInside(index))
@@ -42,7 +44,7 @@ void RegionGrowingSegmentationProcessor::grow(SourceImage::Pointer gradient_imag
     if(output_labels->GetPixel(index) != 0)
         return; // already visited
 
-    if(gradient_image->GetPixel(index) < tolerance )
+    if(gradient_image.getPixel(index) < tolerance )
     {
         output_labels->SetPixel(index, segment_index);
 
