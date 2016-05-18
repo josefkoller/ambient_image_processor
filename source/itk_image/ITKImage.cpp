@@ -91,3 +91,8 @@ void ITKImage::write(std::string image_file_path)
     writer->SetInput(rescale_filter->GetOutput());
     writer->Update();
 }
+
+bool ITKImage::isNull() const
+{
+    return this->inner_image.IsNull();
+}
