@@ -2,13 +2,13 @@
 #define ITKIMAGE_H
 
 #include <itkImage.h>
-
+#include <string>
 
 class ITKImage
 {
 public:
     typedef unsigned int uint;
-    const uint ImageDimension = 2;
+    static const uint ImageDimension = 2;
     typedef double PixelType;
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
@@ -19,9 +19,13 @@ private:
     InnerITKImage::Pointer inner_image;
 public:
     ITKImage(uint width, uint height);
+    ITKImage(InnerITKImage::Pointer inner_image);
 
     InnerITKImage::Pointer getPointer() const;
     InnerITKImage::Pointer clone() const;
+
+    static ITKImage read(std::string image_file_path);
+    void write(std::string image_file_path);
 };
 
 #endif // ITKIMAGE_H
