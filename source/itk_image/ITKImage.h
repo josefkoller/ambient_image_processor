@@ -29,6 +29,13 @@ public:
     void write(std::string image_file_path);
 
     bool isNull() const;
+
+    void foreachPixel(std::function<void(uint x, uint y, PixelType pixel)> callback) const;
+
+    PixelType getPixel(uint x, uint y) const;
+    void setPixel(uint x, uint y, PixelType value);
+
+    void setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetcher);
 };
 
 #endif // ITKIMAGE_H

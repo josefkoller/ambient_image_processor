@@ -79,12 +79,14 @@ SET(SOURCE_H_FILES
   source/retinex/MultiScaleRetinex.h
 )
 
+include(source/itk_image/CMakeLists.txt)
 include(source/modules/base_module/CMakeLists.txt)
 include(source/modules/cuda/CMakeLists.txt)
 include(source/modules/non_local_gradient/CMakeLists.txt)
+include(source/modules/thrust/CMakeLists.txt)
+include(source/modules/thrust_tgv/CMakeLists.txt)
+
 include(source/deshade_segmented/CMakeLists.txt)
-include(source/thrust_tgv/CMakeLists.txt)
-include(source/itk_image/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

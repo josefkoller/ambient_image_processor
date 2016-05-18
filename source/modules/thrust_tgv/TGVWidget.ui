@@ -106,16 +106,35 @@
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
-       <widget class="QPushButton" name="perform_button">
-        <property name="text">
-         <string>Perform TGV1L2 GPU</string>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="title">
+         <string>Processor</string>
         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QRadioButton" name="gpu_radio_button">
+           <property name="text">
+            <string>GPU</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="cpu_radio_button">
+           <property name="text">
+            <string>CPU</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="perform_button_cpu">
+       <widget class="QPushButton" name="perform_button">
         <property name="text">
-         <string>Perform TGV1L2 CPU</string>
+         <string>Perform</string>
         </property>
        </widget>
       </item>

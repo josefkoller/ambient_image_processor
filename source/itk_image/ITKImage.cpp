@@ -111,3 +111,48 @@ bool ITKImage::isNull() const
 {
     return this->inner_image.IsNull();
 }
+
+void ITKImage::foreachPixel(std::function<void(uint x, uint y, PixelType pixel)> callback) const
+{
+    itk::ImageRegionConstIteratorWithIndex<InnerITKImage> iterator(
+                this->inner_image, this->inner_image->GetLargestPossibleRegion());
+    while(!iterator.IsAtEnd())
+    {
+        InnerITKImage::IndexType index = iterator.GetIndex();
+
+        callback(index[0], index[1], iterator.Get());
+
+        ++iterator;
+    }
+}
+
+ITKImage::PixelType ITKImage::getPixel(uint x, uint y) const
+{
+    ITKImage::InnerITKImage::IndexType index;
+    index[0] = x;
+    index[1] = y;
+    return this->inner_image->GetPixel(index);
+}
+
+void ITKImage::setPixel(uint x, uint y, PixelType value)
+{
+    ITKImage::InnerITKImage::IndexType index;
+    index[0] = x;
+    index[1] = y;
+    return this->inner_image->SetPixel(index, value);
+}
+
+void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetcher)
+{
+    itk::ImageRegionIteratorWithIndex<InnerITKImage> iterator(
+                this->inner_image, this->inner_image->GetLargestPossibleRegion());
+    while(!iterator.IsAtEnd())
+    {
+        InnerITKImage::IndexType index = iterator.GetIndex();
+
+        PixelType value = pixel_fetcher(index[0], index[1]);
+        iterator.Set(value);
+
+        ++iterator;
+    }
+}

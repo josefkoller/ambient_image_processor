@@ -101,18 +101,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
         this->output_widget2->setImage(reflectance);
     });
 
-    //this->ui->tgv_widget->registerModule(this);
-    this->ui->tgv_widget->setSourceImageFetcher([this]() {
-        return ITKImageProcessor::cloneImage(this->image);
-    });
-    this->ui->tgv_widget->setResultProcessor([this](Image::Pointer u) {
-        emit this->output_widget->fireImageChange(u);
-    });
-    this->ui->tgv_widget->setIterationFinishedCallback([this](uint index, uint count, Image::Pointer u) {
+    this->ui->tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
                                      QString::number(index+1),
                                      QString::number(count)));
-        emit this->output_widget->fireImageChange(u);
+        emit this->output_widget->fireImageChange(u.getPointer());
     });
 }
 
