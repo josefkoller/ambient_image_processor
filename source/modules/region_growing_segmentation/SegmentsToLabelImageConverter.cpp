@@ -6,7 +6,7 @@ SegmentsToLabelImageConverter::SegmentsToLabelImageConverter()
 }
 
 
-static SegmentsToLabelImageConverter::LabelImage::Pointer
+SegmentsToLabelImageConverter::LabelImage::Pointer
     SegmentsToLabelImageConverter::convert(SegmentVector segments, LabelImage::SizeType size)
 {
     LabelImage::Pointer label_image = LabelImage::New();

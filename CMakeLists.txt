@@ -23,7 +23,7 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(CUDA_VERBOSE_BUILD ON)
 
 #enable openmp
-set(CMAKE_CXX_FLAGS "-fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS "-fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
 
 find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})
@@ -36,27 +36,20 @@ include_directories(source)
 
 SET(SOURCE_UI_FILES
   source/MainWindow.ui
-  source/ImageWidget.ui
 )
 
 SET(SOURCE_CPP_FILES
   source/MainWindow.cpp
-  source/ITKToQImageConverter.cpp
-  source/ITKImageProcessor.cpp
-  source/ImageWidget.cpp
-  source/qcustomplot/qcustomplot.cpp
 )
 
 SET(SOURCE_H_FILES
   source/MainWindow.h
-  source/ITKToQImageConverter.h
-  source/ITKImageProcessor.h
-  source/ImageWidget.h
-  source/qcustomplot/qcustomplot.h
 )
 
 include(source/modules/itk/CMakeLists.txt)
+include(source/modules/image_widget/CMakeLists.txt)
 include(source/modules/base_module/CMakeLists.txt)
+include(source/modules/itk/CMakeLists.txt)
 include(source/modules/cuda/CMakeLists.txt)
 include(source/modules/non_local_gradient/CMakeLists.txt)
 include(source/modules/thrust/CMakeLists.txt)

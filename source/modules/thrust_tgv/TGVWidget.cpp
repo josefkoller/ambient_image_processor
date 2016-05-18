@@ -1,7 +1,7 @@
 #include "TGVWidget.h"
 #include "ui_TGVWidget.h"
 
-TGVWidget::TGVWidget(QWidget *parent) :
+TGVWidget::TGVWidget(ImageWidget *parent) :
     BaseModuleWidget(parent),
     ui(new Ui::TGVWidget)
 {

@@ -5,7 +5,7 @@
 //#define THRUST_HOST_SYSTEM THRUST_HOST_SYSTEM_TBB
 
 
-// ThrustImage FUNCTIONS...
+#pragma hd_warning_disable // calling a host function in a device...
 
 template<typename PixelVector>
 __host__ __device__

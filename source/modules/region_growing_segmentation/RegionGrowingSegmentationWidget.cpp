@@ -13,7 +13,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QWidget *parent) :
+RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(ImageWidget *parent) :
     BaseModuleWidget(parent),
     ui(new Ui::RegionGrowingSegmentationWidget),
     is_adding_seed_point(false),
@@ -208,7 +208,7 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
 {
     if(this->kernel_sigma_fetcher == nullptr || this->kernel_size_fetcher == nullptr)
-        return;
+        return ITKImage();
 
     // input...
     typedef SegmentsToLabelImageConverter::LabelImage LabelImage;

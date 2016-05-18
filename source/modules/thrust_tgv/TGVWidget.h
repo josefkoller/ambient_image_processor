@@ -17,7 +17,7 @@ class TGVWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit TGVWidget(QWidget *parent = 0);
+    explicit TGVWidget(ImageWidget *parent = 0);
     ~TGVWidget();
 
 private slots:
