@@ -47,9 +47,6 @@ SET(SOURCE_CPP_FILES
   source/ITKImageProcessor.cpp
   source/ImageWidget.cpp
   source/qcustomplot/qcustomplot.cpp
-  source/cuda/CudaImageProcessor.cpp
-  source/cuda/ITKRawImageConverter.cpp
-  source/cuda/RawImage.cpp
   source/retinex/ShrinkFunctor.cpp
   source/retinex/ShrinkFilter.cpp
   source/segmentation/RegionGrowingSegmentation.cpp
@@ -66,9 +63,6 @@ SET(SOURCE_H_FILES
   source/ITKImageProcessor.h
   source/ImageWidget.h
   source/qcustomplot/qcustomplot.h
-  source/cuda/CudaImageProcessor.h
-  source/cuda/ITKRawImageConverter.h
-  source/cuda/RawImage.h
   source/retinex/ShrinkFunctor.h
   source/retinex/ShrinkFilter.h
   source/segmentation/RegionGrowingSegmentation.h
@@ -100,11 +94,8 @@ message(STATUS "source files: ${SOURCE_ALL_FILES}")
 
 cuda_add_executable(ambient_application
   source/ambient_main.cpp
-#  source/cuda/CudaImage.cuh
   ${SOURCE_ALL_FILES}
   ${CUDA_CPP_FILES}
-
-  source/cuda/cuda_kernels.cu
 )
 
 add_executable(linear_retinex_console
