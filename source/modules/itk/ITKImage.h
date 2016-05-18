@@ -18,6 +18,7 @@ public:
 private:
     InnerITKImage::Pointer inner_image;
 public:
+    ITKImage();
     ITKImage(uint width, uint height);
     ITKImage(InnerITKImage::Pointer inner_image);
     ITKImage(uint width, uint height, InnerITKImage::PixelType* data);

@@ -8,6 +8,10 @@
 
 #include <iostream>
 
+ITKImage::ITKImage() : width(0), height(0), inner_image(nullptr)
+{
+}
+
 ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
 {
     this->inner_image = InnerITKImage::New();

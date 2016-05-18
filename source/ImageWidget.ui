@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>6</number>
+          <number>12</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -1182,12 +1182,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DeshadeSegmentedWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">deshade_segmented/DeshadeSegmentedWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>NonLocalGradientWidget</class>
    <extends>QWidget</extends>
    <header location="global">modules/non_local_gradient/NonLocalGradientWidget.h</header>
@@ -1209,6 +1203,12 @@
    <class>MultiScaleRetinexWidget</class>
    <extends>QWidget</extends>
    <header location="global">modules/multiscale_retinex/MultiScaleRetinexWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DeshadeSegmentedWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">modules/deshade_segmented/DeshadeSegmentedWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

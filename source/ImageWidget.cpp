@@ -65,16 +65,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     connect(this, SIGNAL(fireImageChange(Image::Pointer)),
             this, SLOT(handleImageChange(Image::Pointer)));
 
-    connect(this->ui->region_growing_segmentation_widget,
-            SIGNAL(statusTextChange(QString)),
-            SLOT(handleStatusTextChange(QString)));
 
-    this->ui->region_growing_segmentation_widget->setKernelSigmaFetcher([this]() {
-        return this->ui->non_local_gradient_widget->getKernelSigma();
-    });
-    this->ui->region_growing_segmentation_widget->setKernelSizeFetcher([this]() {
-        return this->ui->non_local_gradient_widget->getKernelSize();
-    });
 
     auto module_widgets = this->findChildren<BaseModuleWidget*>();
     for(auto module_widget : module_widgets)
@@ -82,19 +73,21 @@ ImageWidget::ImageWidget(QWidget *parent) :
         module_widget->registerModule(this);
     }
 
-    this->ui->deshade_segmented_widget->setSourceImageFetcher([this]() {
-        return ITKImageProcessor::cloneImage(this->image);
+    this->ui->region_growing_segmentation_widget->setKernelSigmaFetcher([this]() {
+        return this->ui->non_local_gradient_widget->getKernelSigma();
     });
+    this->ui->region_growing_segmentation_widget->setKernelSizeFetcher([this]() {
+        return this->ui->non_local_gradient_widget->getKernelSize();
+    });
+    connect(this->ui->region_growing_segmentation_widget,
+            SIGNAL(statusTextChange(QString)),
+            SLOT(handleStatusTextChange(QString)));
+
     this->ui->deshade_segmented_widget->setSegmentsFetcher([this]() {
         return this->ui->region_growing_segmentation_widget->getSegments();
     });
     this->ui->deshade_segmented_widget->setLabelImageFetcher([this]() {
         return this->ui->region_growing_segmentation_widget->getLabelImage();
-    });
-    this->ui->deshade_segmented_widget->setResultProcessor([this](
-      Image::Pointer shading, Image::Pointer reflectance) {
-        this->output_widget->setImage(shading);
-        this->output_widget2->setImage(reflectance);
     });
 
     this->ui->tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
@@ -971,6 +964,9 @@ void ImageWidget::showImageOnly()
 
 void ImageWidget::setMinimumSizeToImage()
 {
+    if(this->image.IsNull())
+        return;
+
     const int border = 50;
     this->ui->image_frame->setMinimumSize(this->image->GetLargestPossibleRegion().GetSize()[0] + border*2,
             this->image->GetLargestPossibleRegion().GetSize()[1]+border*2);

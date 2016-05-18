@@ -63,8 +63,7 @@ include(source/modules/thrust/CMakeLists.txt)
 include(source/modules/thrust_tgv/CMakeLists.txt)
 include(source/modules/region_growing_segmentation/CMakeLists.txt)
 include(source/modules/multiscale_retinex/CMakeLists.txt)
-
-include(source/deshade_segmented/CMakeLists.txt)
+include(source/modules/deshade_segmented/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
