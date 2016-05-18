@@ -79,7 +79,7 @@ SET(SOURCE_H_FILES
   source/retinex/MultiScaleRetinex.h
 )
 
-include(source/itk_image/CMakeLists.txt)
+include(source/modules/itk/CMakeLists.txt)
 include(source/modules/base_module/CMakeLists.txt)
 include(source/modules/cuda/CMakeLists.txt)
 include(source/modules/non_local_gradient/CMakeLists.txt)
