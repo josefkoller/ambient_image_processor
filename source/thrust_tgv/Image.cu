@@ -280,7 +280,8 @@ void Image<PixelVector>::projected_gradient(Image<PixelVector>* gradient_x,
 template<typename PixelVector>
 __host__ __device__
 void Image<PixelVector>::divergence(Image<PixelVector>* gradient_x, Image<PixelVector>* gradient_y,
-                       Image<PixelVector>* gradient_xx, Image<PixelVector>* gradient_yy, Image<PixelVector>* output)
+                       Image<PixelVector>* gradient_xx, Image<PixelVector>* gradient_yy,
+                       Image<PixelVector>* output)
 {
     gradient_x->backward_difference_x(gradient_xx);
     gradient_y->backward_difference_y(gradient_yy);

@@ -513,12 +513,16 @@ void ITKImageProcessor::intensity_profile(const ImageType::Pointer & image,
     ImageType::IndexType index1;
     index1[0] = point1_x;
     index1[1] = point1_y;
-    index1[2] = 0;
+
 
     ImageType::IndexType index2;
     index2[0] = point2_x;
     index2[1] = point2_y;
-    index2[2] = 0;
+
+    if(ImageType::ImageDimension > 2) {
+        index1[2] = 0;
+        index2[2] = 0;
+    }
 
     itk::LineConstIterator<ImageType> iterator(image, index1, index2);
     while(! iterator.IsAtEnd())

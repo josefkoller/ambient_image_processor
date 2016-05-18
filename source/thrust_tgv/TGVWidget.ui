@@ -35,7 +35,7 @@
             <double>0.100000000000000</double>
            </property>
            <property name="value">
-            <double>10.000000000000000</double>
+            <double>0.100000000000000</double>
            </property>
           </widget>
          </item>
@@ -50,11 +50,14 @@
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <widget class="QSpinBox" name="iteration_count_spinbox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
             <number>99999</number>
            </property>
            <property name="value">
-            <number>5000</number>
+            <number>50</number>
            </property>
            <property name="displayIntegerBase">
             <number>10</number>

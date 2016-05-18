@@ -1,6 +1,10 @@
 #ifndef thrust_operators_H
 #define thrust_operators_H
 
+
+#include <thrust/functional.h>
+#include <thrust/detail/minmax.h>
+
 template<typename Element>
 __host__ __device__ Element max_pixel(Element pixel1, Element pixel2)
 {
@@ -17,7 +21,7 @@ struct SquareOperation
 };
 
 template<typename Element>
-struct SquareRootOperation
+struct SquareRootOperation : public thrust::unary_function<Element, Element>
 {
     __host__ __device__ Element operator()(const Element& element) const
     {
@@ -56,6 +60,44 @@ struct MultiplyByConstantAndAddOperation  // Saxpy-Operation
 };
 
 template<typename Element>
+struct L1DataTermOperation : public thrust::binary_function<Element, Element, Element>
+{
+    const Element radius;
+
+    __host__ __device__
+    L1DataTermOperation(const Element radius) : radius(radius) {}
+
+    __host__ __device__
+    Element operator()(const Element& u, const Element& f) const
+    {
+        const Element difference = u - f;
+        if(difference > radius)
+            return u - radius;
+        else if(difference < -radius)
+            return u + radius;
+        return f;
+    }
+};
+
+template<typename Element>
+struct L2DataTermOperation : public thrust::binary_function<Element, Element, Element>
+{
+    const Element tau_lambda;
+    const Element factor;
+
+    __host__ __device__
+    L2DataTermOperation(const Element tau_lambda) : tau_lambda(tau_lambda) {
+        this->factor = 1.0 / (1.0 + tau_lambda);
+    }
+
+    __host__ __device__
+    Element operator()(const Element& u, const Element& f) const
+    {
+        return (u + this->tau_lambda * f) * this->factor;
+    }
+};
+
+template<typename Element>
 struct ProjectNormalizedGradientMagnitude1 : public thrust::binary_function<Element, Element, Element>
 {
     __host__ __device__
@@ -86,6 +128,22 @@ struct GradientMagnitude : public thrust::binary_function<Element, Element, Elem
     Element operator()(Element& element1, Element& element2) const
     {
         return std::sqrt(element1*element1 + element2*element2);
+    }
+};
+
+
+template<typename Element>
+struct MaxOperation : public thrust::unary_function<Element, Element>
+{
+    const Element maximum;
+
+    __host__ __device__
+    MaxOperation(const Element maximum) : maximum(maximum) {}
+
+    __host__ __device__ Element operator()(const Element& element) const
+    {
+        return thrust::max(element, maximum);
+       // return element > maximum ? element : maximum;
     }
 };
 
