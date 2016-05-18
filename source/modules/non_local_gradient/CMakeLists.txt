@@ -20,3 +20,5 @@ list(APPEND SOURCE_CPP_FILES
 list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/non_local_gradient_kernel.cu
   )
+
+include_directories(${CMAKE_CURRENT_LIST_DIR})

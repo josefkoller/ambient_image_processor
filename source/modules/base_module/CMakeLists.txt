@@ -8,3 +8,5 @@ list(APPEND SOURCE_H_FILES
 list(APPEND SOURCE_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/BaseModuleWidget.cpp
   )
+
+include_directories(${CMAKE_CURRENT_LIST_DIR})

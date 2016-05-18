@@ -6,9 +6,9 @@
 
 typedef NonLocalGradientProcessor::Image::PixelType FloatType;
 
-extern "C" FloatType* non_local_gradient_kernel_launch(
-        FloatType* source,
-    uint source_width, uint source_height, FloatType* kernel, uint kernel_size);
+template<typename Pixel>
+Pixel* non_local_gradient_kernel_launch(
+        Pixel* source, uint source_width, uint source_height, Pixel* kernel, uint kernel_size);
 
 NonLocalGradientProcessor::NonLocalGradientProcessor()
 {
@@ -46,7 +46,7 @@ NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKe
             Image::PixelType value = kernel[i];
             value /= kernel_value_sum;
 
-//            std::cout << "kernel value1: " << value << std::endl;
+            //            std::cout << "kernel value1: " << value << std::endl;
 
             kernel[i] = value;
         }
@@ -56,8 +56,8 @@ NonLocalGradientProcessor::Image::PixelType* NonLocalGradientProcessor::createKe
 }
 
 NonLocalGradientProcessor::Image::Pointer NonLocalGradientProcessor::process(Image::Pointer source,
-                              uint kernel_size,
-                              Image::PixelType kernel_sigma)
+                                                                             uint kernel_size,
+                                                                             Image::PixelType kernel_sigma)
 {
     Image::PixelType* source_data = source->GetBufferPointer();
     Image::PixelType* kernel_data = createKernel(kernel_size, kernel_sigma);
@@ -67,7 +67,7 @@ NonLocalGradientProcessor::Image::Pointer NonLocalGradientProcessor::process(Ima
     uint source_height = source_size[1];
 
     Image::PixelType* destination_data = non_local_gradient_kernel_launch(source_data,
-        source_width, source_height, kernel_data, kernel_size);
+                                                                          source_width, source_height, kernel_data, kernel_size);
 
     delete[] kernel_data;
 
@@ -75,7 +75,7 @@ NonLocalGradientProcessor::Image::Pointer NonLocalGradientProcessor::process(Ima
     destination->SetRegions(source_size);
     destination->Allocate();
     itk::ImageRegionIteratorWithIndex<Image> destination_iterator(destination,
-        destination->GetLargestPossibleRegion());
+                                                                  destination->GetLargestPossibleRegion());
     while(!destination_iterator.IsAtEnd())
     {
         Image::IndexType index = destination_iterator.GetIndex();

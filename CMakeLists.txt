@@ -81,7 +81,7 @@ SET(SOURCE_H_FILES
 
 include(source/modules/base_module/CMakeLists.txt)
 include(source/modules/cuda/CMakeLists.txt)
-include(source/non_local_gradient/CMakeLists.txt)
+include(source/modules/non_local_gradient/CMakeLists.txt)
 include(source/deshade_segmented/CMakeLists.txt)
 include(source/thrust_tgv/CMakeLists.txt)
 include(source/itk_image/CMakeLists.txt)

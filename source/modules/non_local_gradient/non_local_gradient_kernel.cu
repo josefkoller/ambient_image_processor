@@ -4,22 +4,12 @@
 
 #include <stdio.h>
 
-#define cudaCheckError(ans) { cudaAssert((ans), __FILE__, __LINE__); }
-inline void cudaAssert(cudaError_t error_code, const char *file, int line, bool abort=true)
-{
-   if (error_code != cudaSuccess)
-   {
-      printf("cuda error: %s %s %d\n", cudaGetErrorString(error_code), file, line);
-      if (abort)
-      {
-          exit(error_code);
-      }
-   }
-}
+#include "cuda_helper.cuh"
 
-__global__ void non_local_gradient_kernel(float* source,
-  uint source_width, uint source_height, float* kernel, uint kernel_size,
-  float* destination) {
+template<typename Pixel>
+__global__ void non_local_gradient_kernel(Pixel* source,
+  uint source_width, uint source_height, Pixel* kernel, uint kernel_size,
+  Pixel* destination) {
     const int index = blockDim.x * blockIdx.x + threadIdx.x;
 
     if(index >= source_width * source_height)
@@ -56,8 +46,9 @@ __global__ void non_local_gradient_kernel(float* source,
 }
 
 
-extern "C" float* non_local_gradient_kernel_launch(float* source,
-    uint source_width, uint source_height, float* kernel, uint kernel_size)
+template<typename Pixel>
+Pixel* non_local_gradient_kernel_launch(Pixel* source,
+    uint source_width, uint source_height, Pixel* kernel, uint kernel_size)
 {
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
@@ -71,13 +62,13 @@ extern "C" float* non_local_gradient_kernel_launch(float* source,
     printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
     printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
 
-    float* source_cuda, *kernel_cuda, *destination_cuda;
+    Pixel* source_cuda, *kernel_cuda, *destination_cuda;
 
-    size_t size = sizeof(float) * source_width*source_height;
+    size_t size = sizeof(Pixel) * source_width*source_height;
     cudaCheckError( cudaMalloc(&source_cuda, size) );
     cudaCheckError( cudaMemcpy(source_cuda, source, size, cudaMemcpyHostToDevice) );
 
-    size_t kernel_size_bytes = sizeof(float) * kernel_size*kernel_size;
+    size_t kernel_size_bytes = sizeof(Pixel) * kernel_size*kernel_size;
     cudaCheckError( cudaMalloc(&kernel_cuda, kernel_size_bytes) );
     cudaCheckError( cudaMemcpy(kernel_cuda, kernel, kernel_size_bytes, cudaMemcpyHostToDevice) );
 
@@ -89,7 +80,7 @@ extern "C" float* non_local_gradient_kernel_launch(float* source,
       destination_cuda);
     cudaCheckError( cudaDeviceSynchronize() );
 
-    float* destination = new float[source_width * source_height];
+    Pixel* destination = new Pixel[source_width * source_height];
     cudaCheckError( cudaMemcpy(destination, destination_cuda, size, cudaMemcpyDeviceToHost) );
     cudaCheckError( cudaDeviceSynchronize() );
 
@@ -99,3 +90,9 @@ extern "C" float* non_local_gradient_kernel_launch(float* source,
 
     return destination;
 }
+
+// generate the algorithm explicitly for...
+template float* non_local_gradient_kernel_launch<float>(float* source,
+    uint source_width, uint source_height, float* kernel, uint kernel_size);
+template double* non_local_gradient_kernel_launch<double>(double* source,
+    uint source_width, uint source_height, double* kernel, uint kernel_size);
