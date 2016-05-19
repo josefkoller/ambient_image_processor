@@ -23,7 +23,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     ui(new Ui::ImageWidget),
     image(nullptr),
     slice_index(0),
-    show_statistics(true),
     show_slice_control(false),
     show_histogram(true),
     output_widget(this),
@@ -37,7 +36,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->ui->statistic_box->setVisible(this->show_statistics);
     this->ui->slice_control->setVisible(this->show_slice_control);
     this->ui->histogram_box->setVisible(this->show_histogram);
 
@@ -144,11 +142,11 @@ void ImageWidget::setImage(const Image::Pointer& image)
     this->image = ITKImageProcessor::cloneImage(image);
 
     this->setInputRanges();
-    this->displayOriginAndSpacing();
     this->calculateHistogram();
-    this->statistics();
     this->setSliceIndex(0);
     this->setMinimumSizeToImage();
+
+    emit this->imageChanged(this->image);
 }
 
 uint ImageWidget::userSliceIndex() const
@@ -231,83 +229,11 @@ void ImageWidget::paintImage()
     paintSelectedReferenceROI();
 }
 
-void ImageWidget::statistics()
-{
-    if(this->image.IsNull())
-        return;
-
-    Image::RegionType region = this->image->GetLargestPossibleRegion();
-    Image::SizeType size = region.GetSize();
-
-    QString dimensions_info = "";
-    int voxel_count = 1;
-    for(int dimension = 0; dimension < size.GetSizeDimension(); dimension++)
-    {
-        dimensions_info += QString::number(size[dimension]);
-        voxel_count *= size[dimension];
-        if(dimension < size.GetSizeDimension() - 1)
-        {
-            dimensions_info += "x";
-        }
-    }
-    this->ui->dimensions_label->setText(dimensions_info);
-    this->ui->voxel_count_label->setText(QString::number(voxel_count));
-
-    typedef itk::StatisticsImageFilter<Image> StatisticsCalculator;
-    StatisticsCalculator::Pointer statistics_calculator = StatisticsCalculator::New();
-    statistics_calculator->SetInput(this->image);
-
-    int number_of_histogram_bins = ceil(sqrt(voxel_count));
-
-    statistics_calculator->Update();
-
-    this->ui->mean_label->setText(QString::number(
-      statistics_calculator->GetMean() ));
-    this->ui->standard_deviation_label->setText(QString::number(
-      statistics_calculator->GetSigma() ));
-    this->ui->variance_label->setText(QString::number(
-      statistics_calculator->GetVariance() ));
-
-    this->ui->standard_error_label->setText(QString::number(
-      statistics_calculator->GetVariance() /
-      statistics_calculator->GetMean() ));
-
-    this->ui->minimum_label->setText(QString::number(
-      statistics_calculator->GetMinimum()));
-    this->ui->maximum_label->setText(QString::number(
-      statistics_calculator->GetMaximum()));
-
-    this->ui->window_from_spinbox->setMinimum(statistics_calculator->GetMinimum());
-    this->ui->window_from_spinbox->setMaximum(statistics_calculator->GetMaximum());
-    this->ui->window_from_spinbox->setValue(statistics_calculator->GetMinimum());
-
-    this->ui->window_to_spinbox->setMinimum(statistics_calculator->GetMinimum());
-    this->ui->window_to_spinbox->setMaximum(statistics_calculator->GetMaximum());
-    this->ui->window_to_spinbox->setValue(statistics_calculator->GetMaximum());
-
-    this->ui->fromMinimumButton->setText("From Minimum: " + QString::number(
-                                             statistics_calculator->GetMinimum() ));
-    this->ui->toMaximumButton->setText("To Maximum: " + QString::number(
-                                             statistics_calculator->GetMaximum() ));
-}
-
 void ImageWidget::on_slice_slider_valueChanged(int user_slice_index)
 {
     this->setSliceIndex(user_slice_index);
 }
 
-void ImageWidget::showStatistics()
-{
-    this->show_statistics = true;
-    this->ui->statistic_box->setVisible(true);
-    this->statistics();
-}
-
-void ImageWidget::hideStatistics()
-{
-    this->show_statistics = false;
-    this->ui->statistic_box->setVisible(false);
-}
 
 void ImageWidget::showSliceControl()
 {
@@ -510,19 +436,6 @@ void ImageWidget::histogram_mouse_move(QMouseEvent* event)
     this->setPixelInfo(position, pixel_value);
 }
 
-
-void ImageWidget::info_box_toggled(bool show_info_box)
-{
-    if(show_info_box)
-    {
-        this->showStatistics();
-    }
-    else
-    {
-        this->hideStatistics();
-    }
-}
-
 void ImageWidget::on_histogram_box_outer_toggled(bool show)
 {
     if(show)
@@ -677,29 +590,6 @@ void ImageWidget::on_restore_original_button_clicked()
     this->restoreImageState();
 }
 
-
-void ImageWidget::displayOriginAndSpacing()
-{
-    if(this->image.IsNull())
-        return;
-
-    Image::PointType origin = this->image->GetOrigin();
-    QString origin_text = QString("%1 | %2 | %3").arg(
-            QString::number(origin[0], 'g', 3),
-            QString::number(origin[1], 'g', 3),
-            QString::number(origin[2], 'g', 3)
-                );
-    this->ui->origin_label->setText(origin_text);
-
-    Image::SpacingType spacing = this->image->GetSpacing();
-    QString spacing_text = QString("%1 | %2 | %3").arg(
-            QString::number(spacing[0], 'g', 3),
-            QString::number(spacing[1], 'g', 3),
-            QString::number(spacing[2], 'g', 3)
-                );
-    this->ui->spacing_label->setText(spacing_text);
-}
-
 void ImageWidget::on_load_button_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
@@ -823,7 +713,7 @@ void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
 void ImageWidget::on_fromMinimumButton_clicked()
 {
     bool ok;
-    float minimum_pixel_value = this->ui->minimum_label->text().toFloat(&ok);
+    float minimum_pixel_value = 0;// this->ui->minimum_label->text().toFloat(&ok);
     if(ok)
     {
         this->ui->window_from_spinbox->setValue(minimum_pixel_value);
@@ -836,7 +726,7 @@ void ImageWidget::on_fromMinimumButton_clicked()
 void ImageWidget::on_toMaximumButton_clicked()
 {
     bool ok;
-    float maximum_pixel_value = this->ui->maximum_label->text().toFloat(&ok);
+    float maximum_pixel_value = 123; //this->ui->maximum_label->text().toFloat(&ok);
     if(ok)
     {
         this->ui->window_to_spinbox->setValue(maximum_pixel_value);
@@ -850,7 +740,6 @@ void ImageWidget::on_toMaximumButton_clicked()
 void ImageWidget::showImageOnly()
 {
     this->hideHistogram();
-    this->hideStatistics();
     this->ui->load_save_panel->hide();
     this->ui->operations_panel->hide();
     this->setMinimumSizeToImage();

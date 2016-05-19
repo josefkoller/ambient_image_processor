@@ -36,8 +36,6 @@ public:
                 unsigned int shrink_factor_y,
                 unsigned int shrink_factor_z);
 
-    void showStatistics();
-    void hideStatistics();
     void showSliceControl();
     void showHistogram();
     void hideHistogram();
@@ -56,7 +54,6 @@ private slots:
     void on_update_window_spinbox_clicked();
 
     void histogram_mouse_move(QMouseEvent*);
-    void info_box_toggled(bool arg1);
 
 
     void on_histogram_box_outer_toggled(bool arg1);
@@ -87,7 +84,6 @@ private:
 
     bool show_pixel_value_at_cursor;
 
-    bool show_statistics;
     bool show_slice_control;
     bool show_histogram;
 
@@ -95,7 +91,6 @@ private:
     uint userSliceIndex() const;
 
     void paintImage();
-    void statistics();
     void calculateHistogram();
 
     void userWindow(Image::PixelType& window_from,
@@ -107,7 +102,6 @@ private:
     void paintSelectedReferenceROI();
     void updateReferenceROI();
 
-    void displayOriginAndSpacing();
     void setInputRanges();
 
     void paintSelectedProfileLineInImage();
@@ -148,6 +142,7 @@ signals:
     void fireWorkerFinished();
     void fireStatusTextChange(QString text);
     void fireImageChange(Image::Pointer image);
+    void imageChanged(Image::Pointer image);
 private slots:
     void handleWorkerFinished();
     void handleStatusTextChange(QString text);
