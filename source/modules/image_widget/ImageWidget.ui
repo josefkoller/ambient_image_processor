@@ -182,7 +182,7 @@
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>9</number>
+          <number>3</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -235,105 +235,7 @@
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QGroupBox" name="groupBox_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title">
-              <string>Shrink Factors</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_5">
-              <item row="0" column="0" colspan="2">
-               <widget class="QLabel" name="label_9">
-                <property name="text">
-                 <string>x:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QSpinBox" name="shrink_factor_z">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>999999</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" colspan="2">
-               <widget class="QLabel" name="label_13">
-                <property name="text">
-                 <string>y:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="2">
-               <widget class="QLabel" name="label_14">
-                <property name="text">
-                 <string>z:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QSpinBox" name="shrink_factor_x">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>999999</number>
-                </property>
-                <property name="value">
-                 <number>2</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QSpinBox" name="shrink_factor_y">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>999999</number>
-                </property>
-                <property name="value">
-                 <number>2</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="shrink_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Shrink</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="restore_original_button">
-             <property name="text">
-              <string>Restore Original</string>
-             </property>
-            </widget>
+            <widget class="ShrinkWidget" name="shrink_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -793,6 +695,12 @@
    <class>SplineInterpolationWidget</class>
    <extends>QWidget</extends>
    <header location="global">source/modules/spline_interpolation/SplineInterpolationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ShrinkWidget</class>
+   <extends>QWidget</extends>
+   <header>source/modules/shrink/ShrinkWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

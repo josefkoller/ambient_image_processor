@@ -7,7 +7,6 @@
 
 SplineInterpolationProcessor::SplineInterpolationProcessor()
 {
-
 }
 
 

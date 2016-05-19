@@ -1,9 +1,6 @@
 #include "ImageWidget.h"
 #include "ui_ImageWidget.h"
 
-#include <itkStatisticsImageFilter.h>
-#include <itkShrinkImageFilter.h>
-
 #include <QPainter>
 #include <QFileDialog>
 #include <QDateTime>
@@ -348,65 +345,6 @@ void ImageWidget::paintSelectedProfileLineInImage()
     inner_image_frame->setPixmap(image);
 }
 
-void ImageWidget::saveImageState()
-{
-    if(this->image.IsNull())
-        return;
-
-    if(this->image_save.IsNull())
-    {
-        std::cout << "cloning image state" << std::endl;
-        this->image_save = this->image; // saving only one time
-    }
-}
-
-void ImageWidget::restoreImageState()
-{
-    std::cout << "restoring the cloned image state" << std::endl;
-    this->setImage(this->image_save);
-
-}
-
-void ImageWidget::shrink(
-            unsigned int shrink_factor_x,
-            unsigned int shrink_factor_y,
-            unsigned int shrink_factor_z)
-{
-    if(this->image.IsNull())
-        return;
-
-    typedef itk::ShrinkImageFilter<Image, Image> Shrinker;
-    typename Shrinker::Pointer shrinker = Shrinker::New();
-    shrinker->SetInput( this->image );
-    shrinker->SetShrinkFactor(0, shrink_factor_x);
-    shrinker->SetShrinkFactor(1, shrink_factor_y);
-    shrinker->SetShrinkFactor(2, shrink_factor_z);
-
-    shrinker->Update();
-    this->setImage(shrinker->GetOutput());
-
-  //  this->image->SetOrigin( );
-  //  this->image->SetSpacing( );
-}
-
-void ImageWidget::on_shrink_button_clicked()
-{
-    if(this->image.IsNull())
-        return;
-
-    unsigned int shrink_factor_x = this->ui->shrink_factor_x->text().toUInt();
-    unsigned int shrink_factor_y = this->ui->shrink_factor_y->text().toUInt();
-    unsigned int shrink_factor_z = this->ui->shrink_factor_z->text().toUInt();
-
-    this->saveImageState();
-    this->shrink(shrink_factor_x, shrink_factor_y, shrink_factor_z);
-}
-
-void ImageWidget::on_restore_original_button_clicked()
-{
-    this->restoreImageState();
-}
-
 void ImageWidget::on_load_button_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
@@ -481,7 +419,6 @@ void ImageWidget::on_extract_button_clicked()
                 ui->from_z_spinbox->value(),
                 ui->to_z_spinbox->value()
                 );
-    this->saveImageState();
     this->setImage(extracted_volume);
 }
 
@@ -505,16 +442,6 @@ void ImageWidget::updateExtractedSizeLabel(int)
                 QString::number(size_z));
 
     this->ui->extracted_region_size_label->setText(size_text);
-}
-
-void ImageWidget::on_from_x_spinbox_editingFinished()
-{
-
-}
-
-void ImageWidget::on_restore_original_button_extract_clicked()
-{
-    this->restoreImageState();
 }
 
 void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)

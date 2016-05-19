@@ -30,11 +30,6 @@ public:
 
     void setImage(const Image::Pointer& image);
 
-    void saveImageState();
-    void restoreImageState();
-    void shrink(unsigned int shrink_factor_x,
-                unsigned int shrink_factor_y,
-                unsigned int shrink_factor_z);
 
     void showSliceControl();
 
@@ -45,17 +40,11 @@ public:
 private slots:
     void on_slice_slider_valueChanged(int value);
 
-    void on_shrink_button_clicked();
-
-    void on_restore_original_button_clicked();
-
     void on_load_button_clicked();
 
     void on_save_button_clicked();
 
     void on_extract_button_clicked();
-
-    void on_from_x_spinbox_editingFinished();
 
 public:
     Ui::ImageWidget *ui;
@@ -91,7 +80,6 @@ public:
     Image::Pointer getImage() { return this->image; }
 private slots:
     void updateExtractedSizeLabel(int);
-    void on_restore_original_button_extract_clicked();
     void on_slice_spinbox_valueChanged(int arg1);
 
 public:

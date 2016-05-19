@@ -63,6 +63,7 @@ include(source/modules/unsharp_masking/CMakeLists.txt)
 include(source/modules/image_information/CMakeLists.txt)
 include(source/modules/histogram/CMakeLists.txt)
 include(source/modules/spline_interpolation/CMakeLists.txt)
+include(source/modules/shrink/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
