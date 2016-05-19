@@ -8,6 +8,8 @@
 #include <QFileDialog>
 #include <QDateTime>
 
+#include "LineProfile.h"
+
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
@@ -16,8 +18,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     show_statistics(true),
     show_slice_control(false),
     show_histogram(true),
-    adding_profile_line(false),
-    profile_line_parent(nullptr),
     output_widget(this),
     show_pixel_value_at_cursor(true),
     worker_thread(nullptr),
@@ -36,10 +36,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->ui->histogram_widget->setMouseTracking(true);
     connect(this->ui->histogram_widget, &QCustomPlot::mouseMove,
             this, &ImageWidget::histogram_mouse_move);
-
-    this->ui->line_profile_widget->setMouseTracking(true);
-    connect(this->ui->line_profile_widget, &QCustomPlot::mouseMove,
-            this, &ImageWidget::line_profile_mouse_move);
 
     connect(this->ui->from_x_spinbox, SIGNAL(valueChanged(int)),
             this, SLOT(updateExtractedSizeLabel(int)));
@@ -70,6 +66,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto module_widgets = this->findChildren<BaseModuleWidget*>();
     for(auto module_widget : module_widgets)
     {
+        std::cout << "registering module: " << module_widget->metaObject()->className() << std::endl;
         module_widget->registerModule(this);
     }
 
@@ -115,7 +112,6 @@ void ImageWidget::setImage(const Image::Pointer& image)
     this->statistics();
     this->setSliceIndex(0);
     this->setMinimumSizeToImage();
-    this->paintSelectedProfileLine();
 }
 
 uint ImageWidget::userSliceIndex() const
@@ -193,7 +189,8 @@ void ImageWidget::paintImage()
         this->ui->image_frame->setMinimumSize(q_image->size());
     }
 
-    paintSelectedProfileLineInImage();
+    this->ui->line_profile_widget->paintSelectedProfileLine();
+    this->paintSelectedProfileLineInImage();
     paintSelectedReferenceROI();
 }
 
@@ -301,11 +298,7 @@ void ImageWidget::connectSliceControlTo(ImageWidget* other_image_widget)
 
 void ImageWidget::connectProfileLinesTo(ImageWidget* other_image_widget)
 {
-    this->profile_line_parent = other_image_widget;
-    connect(other_image_widget, &ImageWidget::profileLinesChanged,
-            this, &ImageWidget::connectedProfileLinesChanged);
-    connect(other_image_widget, &ImageWidget::selectedProfileLineIndexChanged,
-            this, &ImageWidget::connectedSelectedProfileLineIndexChanged);
+    this->ui->line_profile_widget->connectTo(other_image_widget->ui->line_profile_widget);
 }
 
 
@@ -406,29 +399,8 @@ void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
         this->ui->region_growing_segmentation_widget->addSeedPointAt(image_index);
     }
 
-    int index = this->selectedProfileLineIndex();
-    if( index == -1)
-    {
-        this->ui->status_bar->setText("add a profile line first and select it...");
-        return;
-    }
-    ProfileLine line = this->profile_lines.at(index);
-
-    bool is_left_button = mouse_event->button() == Qt::LeftButton;
-    if(is_left_button)
-    {
-        line.setPosition1(position);
-    }
-    else
-    {
-        line.setPosition2(position);
-    }
-    this->profile_lines[index] = line;
-    this->ui->line_profile_list_widget->item(index)->setText(line.text());
-    this->paintSelectedProfileLine();
-    this->repaint();
-
-    emit this->profileLinesChanged();
+    this->ui->line_profile_widget->mousePressedOnImage(
+                mouse_event->button(), position);
 }
 
 bool ImageWidget::eventFilter(QObject *target, QEvent *event)
@@ -501,16 +473,6 @@ void ImageWidget::histogram_mouse_move(QMouseEvent* event)
     this->setPixelInfo(position, pixel_value);
 }
 
-void ImageWidget::line_profile_mouse_move(QMouseEvent* event)
-{
-    if(this->image.IsNull())
-        return;
-
-    QPoint position = event->pos();
-    double pixel_value = this->ui->line_profile_widget->yAxis->pixelToCoord(position.y());
-
-    this->setPixelInfo(position, pixel_value);
-}
 
 void ImageWidget::info_box_toggled(bool show_info_box)
 {
@@ -535,75 +497,6 @@ void ImageWidget::on_histogram_box_outer_toggled(bool show)
         this->hideHistogram();
     }
 
-}
-
-void ImageWidget::on_add_profile_line_button_clicked()
-{
-    ProfileLine line;
-    this->profile_lines.push_back(line);
-    this->ui->line_profile_list_widget->addItem(line.text());
-    this->ui->line_profile_list_widget->item(
-                this->profile_lines.size() - 1)->setSelected(true);
-}
-
-void ImageWidget::paintSelectedProfileLine()
-{
-    if(this->image.IsNull())
-        return;
-
-    int selected_index = this->selectedProfileLineIndex();
-    if(selected_index == -1)
-    {
-        return;
-    }
-    ProfileLine line = this->profile_lines.at(selected_index);
-    if(!line.isSet())
-    {
-        return;
-    }
-
-    std::vector<double> intensities;
-    std::vector<double> distances;
-    ITKImageProcessor::intensity_profile(this->image,
-                                         line.position1().x(),
-                                         line.position1().y(),
-                                         line.position2().x(),
-                                         line.position2().y(),
-                                         intensities,
-                                         distances);
-    this->ui->line_profile_widget->clearGraphs();
-
-    QCPGraph *graph = this->ui->line_profile_widget->addGraph();
-
-    QVector<double> intensitiesQ = QVector<double>::fromStdVector(intensities);
-    QVector<double> distancesQ = QVector<double>::fromStdVector(distances);
-    graph->setData(distancesQ, intensitiesQ);
-
-    graph->setPen(QPen(Qt::blue));
-    graph->setLineStyle(QCPGraph::lsLine);
-    graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
-
-    this->ui->line_profile_widget->xAxis->setLabel("distance");
-    this->ui->line_profile_widget->yAxis->setLabel("intensity");
-
-    this->ui->line_profile_widget->rescaleAxes();
-    this->ui->line_profile_widget->replot();
-}
-
-void ImageWidget::on_line_profile_list_widget_itemSelectionChanged()
-{
-    this->paintSelectedProfileLine();
-    this->paintImage();
-    emit this->selectedProfileLineIndexChanged(this->getSelectedProfileLineIndex());
-}
-
-int ImageWidget::selectedProfileLineIndex()
-{
-    if(this->ui->line_profile_list_widget->selectionModel()->selectedIndexes().size() == 0)
-    {
-        return -1;
-    }
-    return this->ui->line_profile_list_widget->selectionModel()->selectedIndexes().at(0).row();
 }
 
 int ImageWidget::selectedReferenceROI()
@@ -658,12 +551,12 @@ void ImageWidget::paintSelectedProfileLineInImage()
     if(this->image.IsNull())
         return;
 
-    int selected_profile_line_index = this->selectedProfileLineIndex();
+    int selected_profile_line_index = this->ui->line_profile_widget->selectedProfileLineIndex();
     if(selected_profile_line_index == -1)
     {
         return;
     }
-    ProfileLine line = this->profile_lines.at(selected_profile_line_index);
+    LineProfile line = this->ui->line_profile_widget->getProfileLines().at(selected_profile_line_index);
     if(!line.isSet())
     {
         return;
@@ -889,42 +782,6 @@ void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
 }
 
 
-void ImageWidget::connectedProfileLinesChanged()
-{
-    if(this->profile_line_parent == nullptr)
-    {
-        return;
-    }
-
-    this->profile_lines = this->profile_line_parent->getProfileLines();
-    this->ui->line_profile_list_widget->clear();
-    int index = 0;
-    int selected_index = this->profile_line_parent->getSelectedProfileLineIndex();
-    for(ProfileLine line : this->profile_lines)
-    {
-        QListWidgetItem* item = new QListWidgetItem(line.text());
-        this->ui->line_profile_list_widget->addItem(item);
-        if(index++ == selected_index)
-        {
-            item->setSelected(true);
-        }
-    }
-    this->paintSelectedProfileLine();
-    this->paintImage(); // will call this->paintSelectedProfileLineInImage();
-}
-
-void ImageWidget::connectedSelectedProfileLineIndexChanged(int selected_index)
-{
-    if(selected_index > -1 &&
-            this->ui->line_profile_list_widget->model()->rowCount() > selected_index)
-    {
-        this->ui->line_profile_list_widget->item(selected_index)->setSelected(true);
-    }
-}
-int ImageWidget::getSelectedProfileLineIndex()
-{
-    return this->selectedProfileLineIndex();
-}
 
 void ImageWidget::on_fromMinimumButton_clicked()
 {
@@ -1071,12 +928,6 @@ void ImageWidget::on_thresholdButton_clicked()
 
 }
 
-
-void ImageWidget::on_pushButton_3_clicked()
-{
-
-}
-
 void ImageWidget::on_pushButton_4_clicked()
 {
     this->adding_reference_roi = true;
@@ -1216,4 +1067,9 @@ void ImageWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
     }
 
     ITKImageProcessor::printMetric(this->reference_rois_statistic);
+}
+
+void ImageWidget::handleRepaintImage()
+{
+    this->paintImage();
 }

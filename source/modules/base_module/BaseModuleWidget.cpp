@@ -9,17 +9,6 @@ BaseModuleWidget::BaseModuleWidget(QWidget *parent) :
     connect(this, SIGNAL(fireWorkerFinished()),this, SLOT(handleWorkerFinished()));
 }
 
-
-void BaseModuleWidget::setSourceImageFetcher(SourceImageFetcher source_image_fetcher)
-{
-    this->source_image_fetcher = source_image_fetcher;
-}
-
-void BaseModuleWidget::setResultProcessor(ResultProcessor result_processor)
-{
-    this->result_processor = result_processor;
-}
-
 void BaseModuleWidget::processInWorkerThread()
 {
     if(this->source_image_fetcher == nullptr) {
@@ -68,10 +57,26 @@ void BaseModuleWidget::handleWorkerFinished()
 
 void BaseModuleWidget::registerModule(ImageWidget* image_widget)
 {
-    this->setSourceImageFetcher([image_widget](){
+    this->source_image_fetcher = [image_widget](){
         return ITKImage(image_widget->getImage());
-    });
-    this->setResultProcessor( [image_widget] (ITKImage image) {
+    };
+    this->result_processor = [image_widget] (ITKImage image) {
         emit image_widget->getOutputWidget()->fireImageChange(image.getPointer());
-    });
+    };
+    this->status_text_processor = [image_widget] (QString text) {
+        emit image_widget->fireStatusTextChange(text);
+    };
+}
+
+ITKImage BaseModuleWidget::getSourceImage() const
+{
+    if(this->source_image_fetcher == nullptr)
+        return ITKImage();
+    return this->source_image_fetcher();
+}
+
+void BaseModuleWidget::setStatusText(QString text)
+{
+    if(this->status_text_processor != nullptr)
+        this->status_text_processor(text);
 }

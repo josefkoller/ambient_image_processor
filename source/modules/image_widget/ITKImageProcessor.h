@@ -77,11 +77,6 @@ public:
                                                 ImageType::PixelType &min_pixel_value,
                                                 ImageType::PixelType &max_pixel_value);
 
-    static void intensity_profile(const ImageType::Pointer & image,
-                                  int point1_x, int point1_y,
-                                  int point2_x, int point2_y,
-                                         std::vector<double>& intensities,
-                                         std::vector<double>& distances);
 
     struct SplineResolution
     {

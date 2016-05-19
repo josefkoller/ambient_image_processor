@@ -58,13 +58,8 @@ private slots:
     void histogram_mouse_move(QMouseEvent*);
     void info_box_toggled(bool arg1);
 
-    void line_profile_mouse_move(QMouseEvent*);
 
     void on_histogram_box_outer_toggled(bool arg1);
-
-    void on_add_profile_line_button_clicked();
-
-    void on_line_profile_list_widget_itemSelectionChanged();
 
     void on_shrink_button_clicked();
 
@@ -108,63 +103,6 @@ private:
 
     void setPixelInfo(QPoint position, double pixel_value);
 
-    struct ProfileLine {
-    private:
-        QPoint _position1;
-        QPoint _position2;
-        bool position1_is_set;
-        bool position2_is_set;
-    public:
-        ProfileLine() : position1_is_set(false), position2_is_set(false)
-        {}
-        void setPosition1(QPoint position1) {
-            this->_position1 = position1;
-            this->position1_is_set = true;
-        }
-        void setPosition2(QPoint position2) {
-            this->_position2 = position2;
-            this->position2_is_set = true;
-        }
-        QPoint position1()
-        {
-            return this->_position1;
-        }
-        QPoint position2()
-        {
-            return this->_position2;
-        }
-        bool isSet()
-        {
-            return this->position1_is_set && this->position2_is_set;
-        }
-
-        QString text()
-        {
-            if(this->isSet())
-            {
-                return QString("%1 | %2  -  %3 | %4").arg(
-                        QString::number(_position1.x()),
-                        QString::number(_position1.y()),
-                        QString::number(_position2.x()),
-                        QString::number(_position2.y()) );
-            }
-            if(this->position1_is_set)
-            {
-                return "only position1 set";
-            }
-            if(this->position2_is_set)
-            {
-                return "only position2 set";
-            }
-            return "empty line";
-        }
-    };
-    QList<ProfileLine> profile_lines;
-    bool adding_profile_line;
-    void paintSelectedProfileLine();
-    int selectedProfileLineIndex();
-    void paintSelectedProfileLineInImage();
-
     int selectedReferenceROI();
     void paintSelectedReferenceROI();
     void updateReferenceROI();
@@ -172,20 +110,14 @@ private:
     void displayOriginAndSpacing();
     void setInputRanges();
 
-    ImageWidget* profile_line_parent;
+    void paintSelectedProfileLineInImage();
 signals:
     void sliceIndexChanged(uint slice_index);
-    void profileLinesChanged();
-    void selectedProfileLineIndexChanged(int selected_index);
 public slots:
     void connectedSliceControlChanged(uint slice_index);
-    void connectedProfileLinesChanged();
-    void connectedSelectedProfileLineIndexChanged(int selected_index);
 
 public:
     Image::Pointer getImage() { return this->image; }
-    QList<ImageWidget::ProfileLine> getProfileLines() { return this->profile_lines; }
-    int getSelectedProfileLineIndex();
 private slots:
     void updateExtractedSizeLabel(int);
     void on_restore_original_button_extract_clicked();
@@ -225,8 +157,6 @@ private slots:
 
     void on_thresholdButton_clicked();
 
-    void on_pushButton_3_clicked();
-
     void on_pushButton_4_clicked();
 
     void on_referenceROIsListWidget_currentRowChanged(int currentRow);
@@ -249,6 +179,9 @@ private:
 
 public:
     void setReferenceROIs(QList<QVector<QPoint>> reference_rois);
+
+public slots:
+    void handleRepaintImage();
 };
 
 #endif // IMAGEWIDGET_H

@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>13</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -529,61 +529,7 @@
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QCustomPlot" name="line_profile_widget" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>200</height>
-              </size>
-             </property>
-             <property name="cursor">
-              <cursorShape>UpArrowCursor</cursorShape>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="line_profile_group">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title">
-              <string>Line Profile List</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_8">
-              <item>
-               <widget class="QListWidget" name="line_profile_list_widget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="add_profile_line_button">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Add Profile Line</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+            <widget class="LineProfileWidget" name="line_profile_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -1209,6 +1155,12 @@
    <class>DeshadeSegmentedWidget</class>
    <extends>QWidget</extends>
    <header location="global">modules/deshade_segmented/DeshadeSegmentedWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LineProfileWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">source/modules/line_profile/LineProfileWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

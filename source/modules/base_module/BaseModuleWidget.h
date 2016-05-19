@@ -17,9 +17,6 @@ public:
 
     typedef std::function<void(ITKImage)> ResultProcessor;
     typedef std::function<ITKImage()> SourceImageFetcher;
-
-    void setSourceImageFetcher(SourceImageFetcher source_image_fetcher);
-    void setResultProcessor(ResultProcessor result_processor);
 private:
     SourceImageFetcher source_image_fetcher;
     ResultProcessor result_processor;
@@ -34,6 +31,12 @@ protected:
     virtual ITKImage processImage(ITKImage image);
     void processInWorkerThread();
 
+    ITKImage getSourceImage() const;
+
+private:
+    std::function<void(QString)> status_text_processor;
+protected:
+    void setStatusText(QString text);
 public:
     virtual void registerModule(ImageWidget* image_widget);
 };

@@ -8,10 +8,6 @@
 
 #include <iostream>
 
-ITKImage::ITKImage() : width(0), height(0), inner_image(nullptr)
-{
-}
-
 ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
 {
     this->inner_image = InnerITKImage::New();
@@ -23,10 +19,15 @@ ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
 }
 
 ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image),
-    width(inner_image->GetLargestPossibleRegion().GetSize()[0]),
-    height(inner_image->GetLargestPossibleRegion().GetSize()[1])
+    width(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[0]),
+    height(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[1])
 {
-    inner_image->DisconnectPipeline();
+    if(inner_image.IsNotNull())
+        inner_image->DisconnectPipeline();
+}
+
+ITKImage::ITKImage() : ITKImage(nullptr)
+{
 }
 
 ITKImage::ITKImage(uint width, uint height, InnerITKImage::PixelType* data) : ITKImage(width, height)
