@@ -31,11 +31,11 @@ void LineProfileWidget::line_profile_mouse_move(QMouseEvent* event)
     double pixel_value = this->ui->custom_plot_widget->yAxis->pixelToCoord(position.y());
 
     QString text = QString("pixel value at ") +
-                           QString::number(position.x()) +
-                           " | " +
-                           QString::number(position.y()) +
-                           " = " +
-                           QString::number(pixel_value);
+            QString::number(position.x()) +
+            " | " +
+            QString::number(position.y()) +
+            " = " +
+            QString::number(pixel_value);
     this->setStatusText(text);
 }
 
@@ -60,12 +60,12 @@ void LineProfileWidget::paintSelectedProfileLine()
     std::vector<double> intensities;
     std::vector<double> distances;
     LineProfileProcessor::intensity_profile(image,
-                                         line.position1().x(),
-                                         line.position1().y(),
-                                         line.position2().x(),
-                                         line.position2().y(),
-                                         intensities,
-                                         distances);
+                                            line.position1().x(),
+                                            line.position1().y(),
+                                            line.position2().x(),
+                                            line.position2().y(),
+                                            intensities,
+                                            distances);
     this->ui->custom_plot_widget->clearGraphs();
 
     QCPGraph *graph = this->ui->custom_plot_widget->addGraph();
@@ -163,10 +163,6 @@ void LineProfileWidget::connectTo(LineProfileWidget *other)
             this, &LineProfileWidget::connectedProfileLinesChanged);
 }
 
-void LineProfileWidget::on_line_profile_list_widget_currentRowChanged(int currentRow)
-{
-}
-
 void LineProfileWidget::registerModule(ImageWidget* image_widget)
 {
     BaseModuleWidget::registerModule(image_widget);
@@ -175,12 +171,52 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
                   image_widget, &ImageWidget::handleRepaintImage);
 
     this->connect(image_widget, &ImageWidget::mousePressedOnImage,
-                this, &LineProfileWidget::mousePressedOnImage);
+                  this, &LineProfileWidget::mousePressedOnImage);
+
+    connect(image_widget, &ImageWidget::imageChanged,
+            this, [this] (ITKImage::InnerITKImage::Pointer itk_image) {
+        this->image = itk_image;
+    });
+
+    connect(image_widget, &ImageWidget::pixmapPainted,
+            this, &LineProfileWidget::paintSelectedProfileLineInImage);
 }
 
 void LineProfileWidget::on_line_profile_list_widget_itemSelectionChanged()
 {
- //   std::cout << "selected profile line: " << this->selectedProfileLineIndex() << std::endl;
+    //   std::cout << "selected profile line: " << this->selectedProfileLineIndex() << std::endl;
 
     emit this->profileLinesChanged();
+}
+
+
+void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
+{
+    if(this->image.IsNull())
+        return;
+
+    int selected_profile_line_index = this->selectedProfileLineIndex();
+    if(selected_profile_line_index == -1)
+    {
+        return;
+    }
+    LineProfile line = this->getProfileLines().at(selected_profile_line_index);
+    if(!line.isSet())
+    {
+        return;
+    }
+
+    QPainter painter(pixmap);
+
+    QPen pen(Qt::blue);
+    pen.setWidth(1);
+    painter.setPen(pen);
+    painter.drawLine(line.position1(), line.position2());
+
+    painter.setPen(QPen(Qt::red,2));
+    painter.drawPoint(line.position1());
+    painter.setPen(QPen(Qt::green,2));
+    painter.drawPoint(line.position2());
+
+    this->paintSelectedProfileLine();
 }

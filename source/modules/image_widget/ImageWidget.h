@@ -67,8 +67,6 @@ private:
 
 
     void setInputRanges();
-
-    void paintSelectedProfileLineInImage();
 signals:
     void sliceIndexChanged(uint slice_index);
 public slots:

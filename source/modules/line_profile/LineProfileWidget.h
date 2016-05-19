@@ -31,13 +31,14 @@ private:
 
     LineProfileWidget* profile_line_parent;
 
+    ITKImage::InnerITKImage::Pointer image;
 private slots:
     void line_profile_mouse_move(QMouseEvent*);
     void on_add_profile_line_button_clicked();
-    void on_line_profile_list_widget_currentRowChanged(int currentRow);
 
     void on_line_profile_list_widget_itemSelectionChanged();
 
+    void paintSelectedProfileLineInImage(QPixmap* pixmap);
 signals:
     void profileLinesChanged();
 public slots:

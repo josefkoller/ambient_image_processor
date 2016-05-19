@@ -13,6 +13,13 @@
 #include "MultiScaleRetinexWidget.h"
 #include "NonLocalGradientWidget.h"
 #include "RegionGrowingSegmentationWidget.h"
+#include "HistogramWidget.h"
+#include "ImageInformationWidget.h"
+#include "ShrinkWidget.h"
+#include "SplineInterpolationWidget.h"
+#include "ThresholdFilterWidget.h"
+#include "ExtractWidget.h"
+#include "BilateralFilterWidget.h"
 
 #include "QMenuBar"
 
@@ -197,9 +204,6 @@ void ImageWidget::paintImage(bool repaint)
         this->ui->image_frame->setMinimumSize(q_image->size());
 
     }
-
-    this->ui->line_profile_widget->paintSelectedProfileLine();
-    this->paintSelectedProfileLineInImage();
 }
 
 void ImageWidget::on_slice_slider_valueChanged(int user_slice_index)
@@ -296,40 +300,6 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
 }
 
 
-void ImageWidget::paintSelectedProfileLineInImage()
-{
-    if(this->image.IsNull())
-        return;
-
-    int selected_profile_line_index = this->ui->line_profile_widget->selectedProfileLineIndex();
-    if(selected_profile_line_index == -1)
-    {
-        return;
-    }
-    LineProfile line = this->ui->line_profile_widget->getProfileLines().at(selected_profile_line_index);
-    if(!line.isSet())
-    {
-        return;
-    }
-
-    if(inner_image_frame == nullptr)
-        return;
-
-    QPixmap image = QPixmap::fromImage(*q_image);
-    QPainter painter(&image);
-
-    QPen pen(Qt::blue);
-    pen.setWidth(1);
-    painter.setPen(pen);
-    painter.drawLine(line.position1(), line.position2());
-
-    painter.setPen(QPen(Qt::red,2));
-    painter.drawPoint(line.position1());
-    painter.setPen(QPen(Qt::green,2));
-    painter.drawPoint(line.position2());
-
-    inner_image_frame->setPixmap(image);
-}
 
 void ImageWidget::on_load_button_clicked()
 {
