@@ -176,7 +176,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>14</number>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
@@ -1105,6 +1105,16 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="tab_9">
+          <attribute name="title">
+           <string>Unsharp Masking</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="UnsharpMaskingWidget" name="unsharp_masking_widget" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -1161,6 +1171,12 @@
    <class>LineProfileWidget</class>
    <extends>QWidget</extends>
    <header location="global">source/modules/line_profile/LineProfileWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UnsharpMaskingWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">modules/unsharp_masking/UnsharpMaskingWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

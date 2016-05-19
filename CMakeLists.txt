@@ -59,6 +59,7 @@ include(source/modules/region_growing_segmentation/CMakeLists.txt)
 include(source/modules/multiscale_retinex/CMakeLists.txt)
 include(source/modules/deshade_segmented/CMakeLists.txt)
 include(source/modules/line_profile/CMakeLists.txt)
+include(source/modules/unsharp_masking/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
