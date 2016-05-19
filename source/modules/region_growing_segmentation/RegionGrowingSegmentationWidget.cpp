@@ -56,7 +56,7 @@ void RegionGrowingSegmentationWidget::on_removeSegmentButton_clicked()
     int segment_index = this->selectedRow(this->ui->segmentsListWidget);
     if(segment_index == -1)
     {
-        emit statusTextChange("No segment selected");
+        this->setStatusText("No segment selected");
         return;
     }
     this->region_growing_segmentation.removeSegment(segment_index);
@@ -78,19 +78,19 @@ void RegionGrowingSegmentationWidget::on_newSeedButton_clicked()
         // abort
         this->is_adding_seed_point = false;
         this->ui->newSeedButton->setFlat(false);
-        emit statusTextChange("aborted new seed point selection");
+        this->setStatusText("aborted new seed point selection");
         return;
     }
 
     int segment_index = this->selectedRow(this->ui->segmentsListWidget);
     if(segment_index == -1)
     {
-        emit statusTextChange("No segment selected");
+        this->setStatusText("No segment selected");
         return;
     }
     this->is_adding_seed_point = true;
     this->ui->newSeedButton->setFlat(true);
-    emit statusTextChange("Select the position of the new seed point");
+    this->setStatusText("Select the position of the new seed point");
 }
 
 bool RegionGrowingSegmentationWidget::isAddingSeedPoint() const
@@ -103,7 +103,7 @@ void RegionGrowingSegmentationWidget::addSeedPointAt(RegionGrowingSegmentation::
     int segment_index = this->selectedRow(this->ui->segmentsListWidget);
     if(segment_index == -1)
     {
-        emit statusTextChange("No segment selected");
+        this->setStatusText("No segment selected");
         return;
     }
     this->region_growing_segmentation.addSeedPoint(segment_index, position);
@@ -186,13 +186,13 @@ void RegionGrowingSegmentationWidget::on_removeSeedButton_clicked()
     int seed_index = this->selectedRow(this->ui->seedsListWidget);
     if(seed_index == -1)
     {
-        emit statusTextChange("No seed point selected");
+        this->setStatusText("No seed point selected");
         return;
     }
     int segment_index = this->selectedRow(this->ui->segmentsListWidget);
     if(segment_index == -1)
     {
-        emit statusTextChange("No segment selected");
+        this->setStatusText("No segment selected");
         return;
     }
     this->region_growing_segmentation.removeSeedPoint(segment_index, seed_index);

@@ -31,7 +31,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     show_slice_control(false),
     output_widget(this),
     show_pixel_value_at_cursor(true),
-    worker_thread(nullptr),
     inner_image_frame(nullptr),
     q_image(nullptr),
     image_save(nullptr),
@@ -41,9 +40,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
     this->ui->slice_control->setVisible(this->show_slice_control);
 
-
-    connect(this, SIGNAL(fireWorkerFinished()),
-            this, SLOT(handleWorkerFinished()));
     connect(this, SIGNAL(fireStatusTextChange(QString)),
             this, SLOT(handleStatusTextChange(QString)));
 
@@ -95,9 +91,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->ui->region_growing_segmentation_widget->setKernelSizeFetcher([this]() {
         return this->ui->non_local_gradient_widget->getKernelSize();
     });
-    connect(this->ui->region_growing_segmentation_widget,
-            SIGNAL(statusTextChange(QString)),
-            SLOT(handleStatusTextChange(QString)));
 
     this->ui->deshade_segmented_widget->setSegmentsFetcher([this]() {
         return this->ui->region_growing_segmentation_widget->getSegments();
@@ -403,17 +396,6 @@ void ImageWidget::paintEvent(QPaintEvent *paint_event)
 {
     QWidget::paintEvent(paint_event);
     this->paintImage();
-}
-
-
-void ImageWidget::handleWorkerFinished()
-{
-    if(this->worker_thread != nullptr)
-    {
-        this->worker_thread->join();
-        delete this->worker_thread;
-        this->worker_thread = nullptr;
-    }
 }
 
 void ImageWidget::handleStatusTextChange(QString text)

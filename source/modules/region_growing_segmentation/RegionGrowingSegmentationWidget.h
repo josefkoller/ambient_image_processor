@@ -60,9 +60,6 @@ private slots:
 
     void on_load_ParameterButton_clicked();
 
-signals:
-    void statusTextChange(QString);
-
 private:
     std::function<float()> kernel_sigma_fetcher;
     std::function<uint()> kernel_size_fetcher;

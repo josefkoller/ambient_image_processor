@@ -9,7 +9,6 @@
 #include "ITKToQImageConverter.h"
 
 #include <functional>
-#include <thread>
 
 #include <QListWidgetItem>
 
@@ -93,11 +92,7 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
 
-private:
-    std::thread* worker_thread;
-
 signals:
-    void fireWorkerFinished();
     void fireStatusTextChange(QString text);
     void fireImageChange(Image::Pointer image);
     void imageChanged(Image::Pointer image);
@@ -107,7 +102,6 @@ signals:
     void mouseReleasedOnImage();
 
 private slots:
-    void handleWorkerFinished();
     void handleStatusTextChange(QString text);
     void handleImageChange(Image::Pointer image);
 
