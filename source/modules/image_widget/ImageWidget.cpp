@@ -462,23 +462,6 @@ void ImageWidget::setPage(unsigned char page_index)
     this->ui->operations_panel->setCurrentIndex(page_index);
 }
 
-void ImageWidget::on_pushButton_clicked()
-{
-    if(this->image.IsNull())
-        return;
-
-    float sigma_spatial_distance = this->ui->sigmaSpatialDistanceSpinbox->value();
-    float sigma_intensity_distance = this->ui->sigmaIntensityDistanceSpinbox->value();
-    int kernel_size = this->ui->kernelSizeSpinbox->value();
-    Image::Pointer filtered_image = ITKImageProcessor::bilateralFilter( image,
-                                                sigma_spatial_distance,
-                                                sigma_intensity_distance,
-                                                kernel_size);
-
-    ImageWidget* target_widget = this->output_widget == nullptr ? this : this->output_widget;
-    target_widget->setImage(filtered_image);
-}
-
 void ImageWidget::on_thresholdButton_clicked()
 {
     if(this->image.IsNull())

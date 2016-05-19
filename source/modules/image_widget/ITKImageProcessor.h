@@ -109,10 +109,6 @@ public:
 
     static typename ImageType::Pointer cloneImage(const typename ImageType::Pointer image);
 
-    static ImageType::Pointer bilateralFilter(ImageType::Pointer image,
-                                              ImageType::PixelType sigma_spatial_distance,
-                                              ImageType::PixelType sigma_intensity_distance,
-                                              int kernel_size);
     static ImageType::Pointer threshold(ImageType::Pointer image,
                                         ImageType::PixelType lower_threshold_value,
                                         ImageType::PixelType upper_threshold_value,

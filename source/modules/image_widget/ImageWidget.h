@@ -113,8 +113,6 @@ private slots:
     void handleStatusTextChange(QString text);
     void handleImageChange(Image::Pointer image);
 
-    void on_pushButton_clicked();
-
     void on_thresholdButton_clicked();
 
 private:

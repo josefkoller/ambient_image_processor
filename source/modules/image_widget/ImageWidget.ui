@@ -182,7 +182,7 @@
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>7</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -275,71 +275,7 @@
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QGroupBox" name="groupBox_6">
-             <property name="title">
-              <string>Parameter</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <widget class="QGroupBox" name="groupBox_9">
-                <property name="title">
-                 <string>Kernel Size</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_9">
-                 <item>
-                  <widget class="QSpinBox" name="kernelSizeSpinbox">
-                   <property name="value">
-                    <number>16</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox_7">
-                <property name="title">
-                 <string>Sigma Spatial Distance</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_6">
-                 <item row="0" column="0">
-                  <widget class="QDoubleSpinBox" name="sigmaSpatialDistanceSpinbox">
-                   <property name="value">
-                    <double>0.010000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox_8">
-                <property name="title">
-                 <string>Sigma Intensity Distance</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_11">
-                 <item>
-                  <widget class="QDoubleSpinBox" name="sigmaIntensityDistanceSpinbox">
-                   <property name="maximum">
-                    <double>1000.000000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>50.000000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButton">
-             <property name="text">
-              <string>Perform</string>
-             </property>
-            </widget>
+            <widget class="BilateralFilterWidget" name="bilaterial_filter_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -559,6 +495,12 @@
    <class>ExtractWidget</class>
    <extends>QWidget</extends>
    <header>source/modules/extract/ExtractWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BilateralFilterWidget</class>
+   <extends>QWidget</extends>
+   <header>source/modules/bilateral_filter/BilateralFilterWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
