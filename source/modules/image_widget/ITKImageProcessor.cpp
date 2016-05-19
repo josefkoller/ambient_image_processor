@@ -1216,20 +1216,4 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::gradient_magnitude_imag
     return filter->GetOutput();
 }
 
-ITKImageProcessor::ImageType::Pointer ITKImageProcessor::threshold(
-        ImageType::Pointer image,
-        ImageType::PixelType lower_threshold_value,
-        ImageType::PixelType upper_threshold_value,
-        ImageType::PixelType outside_pixel_value)
-{
-
-    typedef itk::ThresholdImageFilter<ImageType> ThresholdImageFilter;
-    ThresholdImageFilter::Pointer filter = ThresholdImageFilter::New();
-    filter->SetInput(image);
-    filter->ThresholdOutside(lower_threshold_value, upper_threshold_value);
-    filter->SetOutsideValue(outside_pixel_value);
-    filter->Update();
-
-    return filter->GetOutput();
-}
 

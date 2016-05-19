@@ -109,10 +109,6 @@ public:
 
     static typename ImageType::Pointer cloneImage(const typename ImageType::Pointer image);
 
-    static ImageType::Pointer threshold(ImageType::Pointer image,
-                                        ImageType::PixelType lower_threshold_value,
-                                        ImageType::PixelType upper_threshold_value,
-                                        ImageType::PixelType outside_pixel_value);
 
     template<typename T2>
     static typename T2::PixelType SumAllPixels(const typename T2::Pointer image);

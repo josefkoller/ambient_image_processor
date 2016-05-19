@@ -462,25 +462,6 @@ void ImageWidget::setPage(unsigned char page_index)
     this->ui->operations_panel->setCurrentIndex(page_index);
 }
 
-void ImageWidget::on_thresholdButton_clicked()
-{
-    if(this->image.IsNull())
-        return;
-
-    Image::PixelType lower_threshold_value = this->ui->lowerThresholdSpinbox->value();
-    Image::PixelType upper_threshold_value = this->ui->upperThresholdSpinbox->value();
-    Image::PixelType outside_pixel_value = this->ui->outsideSpinbox->value();
-    Image::Pointer filtered_image = ITKImageProcessor::threshold(image,
-                                                lower_threshold_value,
-                                                upper_threshold_value,
-                                                outside_pixel_value);
-
-    ImageWidget* target_widget = this->output_widget == nullptr ? this : this->output_widget;
-    target_widget->setImage(filtered_image);
-
-
-}
-
 void ImageWidget::handleRepaintImage()
 {
     this->paintImage(true);

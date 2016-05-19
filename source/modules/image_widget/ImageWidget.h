@@ -113,8 +113,6 @@ private slots:
     void handleStatusTextChange(QString text);
     void handleImageChange(Image::Pointer image);
 
-    void on_thresholdButton_clicked();
-
 private:
     QLabel* inner_image_frame;
     QImage* q_image;
