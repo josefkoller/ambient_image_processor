@@ -1,10 +1,10 @@
  #include "ITKToQImageConverter.h"
 
 
+ITKToQImageConverter::ImageType::PixelType* ITKToQImageConverter::window_from = nullptr;
+ITKToQImageConverter::ImageType::PixelType* ITKToQImageConverter::window_to = nullptr;
 
-QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_index,
-                                     ImageType::PixelType window_from,
-                                     ImageType::PixelType window_to)
+QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_index)
 {
     ImageType::RegionType region = itk_image->GetLargestPossibleRegion();
     ImageType::SizeType size = region.GetSize();
@@ -46,8 +46,17 @@ QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_i
                 invalid_pixel = true;
             }
 
-
             QColor color(value, value, value);
+
+            if(window_from != nullptr && value < (*window_from * 255))
+            {
+                color = QColor(0, 51, 253);
+            }
+            if(window_to != nullptr && value > (*window_to * 255))
+            {
+                color = QColor(206, 0, 0);
+            }
+
             q_image->setPixel(x, y, color.rgb());
         }
     }
@@ -96,4 +105,16 @@ QImage ITKToQImageConverter::convert_mask(MaskImage::Pointer itk_image)
     return q_image;
 }
 
+void ITKToQImageConverter::setWindowFrom(ImageType::PixelType value)
+{
+    if(window_from == nullptr)
+        window_from = new ImageType::PixelType;
+    *window_from = value;
+}
 
+void ITKToQImageConverter::setWindowTo(ImageType::PixelType value)
+{
+    if(window_to == nullptr)
+        window_to = new ImageType::PixelType;
+    *window_to = value;
+}

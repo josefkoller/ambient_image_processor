@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QFileDialog>
 #include <QDateTime>
+#include <QMouseEvent>
 
 #include "LineProfile.h"
 
@@ -24,7 +25,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     image(nullptr),
     slice_index(0),
     show_slice_control(false),
-    show_histogram(true),
     output_widget(this),
     show_pixel_value_at_cursor(true),
     worker_thread(nullptr),
@@ -37,11 +37,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     ui->setupUi(this);
 
     this->ui->slice_control->setVisible(this->show_slice_control);
-    this->ui->histogram_box->setVisible(this->show_histogram);
-
-    this->ui->histogram_widget->setMouseTracking(true);
-    connect(this->ui->histogram_widget, &QCustomPlot::mouseMove,
-            this, &ImageWidget::histogram_mouse_move);
 
     connect(this->ui->from_x_spinbox, SIGNAL(valueChanged(int)),
             this, SLOT(updateExtractedSizeLabel(int)));
@@ -142,7 +137,6 @@ void ImageWidget::setImage(const Image::Pointer& image)
     this->image = ITKImageProcessor::cloneImage(image);
 
     this->setInputRanges();
-    this->calculateHistogram();
     this->setSliceIndex(0);
     this->setMinimumSizeToImage();
 
@@ -152,13 +146,6 @@ void ImageWidget::setImage(const Image::Pointer& image)
 uint ImageWidget::userSliceIndex() const
 {
     return this->ui->slice_slider->value();
-}
-
-void ImageWidget::userWindow(Image::PixelType& window_from,
-                             Image::PixelType& window_to)
-{
-    window_from = this->ui->window_from_spinbox->value();
-    window_to = this->ui->window_to_spinbox->value();
 }
 
 void ImageWidget::setSliceIndex(uint slice_index)
@@ -188,20 +175,20 @@ void ImageWidget::setSliceIndex(uint slice_index)
     emit this->sliceIndexChanged(slice_index);
 }
 
-void ImageWidget::paintImage()
+void ImageWidget::paintImage(bool repaint)
 {
     if(this->image.IsNull())
         return;
-    Image::PixelType window_from = 0;
-    Image::PixelType window_to = 0;
-    this->userWindow(window_from, window_to);
+
+    if(repaint && q_image != nullptr) {
+        delete q_image;
+        q_image = nullptr;
+    }
 
     if(q_image == nullptr)
     {
         q_image = ITKToQImageConverter::convert(this->image,
-                                                       this->slice_index,
-                                                       window_from,
-                                                       window_to);
+                                                       this->slice_index);
         if(inner_image_frame != nullptr)
             delete inner_image_frame;
         inner_image_frame = new QLabel(this->ui->image_frame);
@@ -241,18 +228,6 @@ void ImageWidget::showSliceControl()
     this->ui->slice_control->setVisible(true);
 }
 
-void ImageWidget::showHistogram()
-{
-    this->show_histogram = true;
-    this->calculateHistogram();
-    this->ui->histogram_box->setVisible(true);
-}
-void ImageWidget::hideHistogram()
-{
-    this->show_histogram = false;
-    this->ui->histogram_box->setVisible(false);
-}
-
 void ImageWidget::connectSliceControlTo(ImageWidget* other_image_widget)
 {
     connect(other_image_widget, &ImageWidget::sliceIndexChanged,
@@ -268,65 +243,6 @@ void ImageWidget::connectProfileLinesTo(ImageWidget* other_image_widget)
 void ImageWidget::connectedSliceControlChanged(uint slice_index)
 {
     this->setSliceIndex(slice_index);
-}
-
-void ImageWidget::calculateHistogram()
-{
-    if(this->image.IsNull())
-        return;
-
-    int bin_count = this->ui->histogram_bin_count_spinbox->value();
-
-    Image::PixelType window_from = 0;
-    Image::PixelType window_to = 0;
-    this->userWindow(window_from, window_to);
-
-    std::vector<double> intensities;
-    std::vector<double> probabilities;
-    ITKImageProcessor::histogram_data(this->image,
-                                      bin_count,
-                                      window_from, window_to,
-                                      intensities, probabilities);
-
-    this->ui->histogram_widget->xAxis->setLabel("intensity");
-    this->ui->histogram_widget->xAxis->setNumberPrecision(8);
-    this->ui->histogram_widget->xAxis->setOffset(0);
-    this->ui->histogram_widget->xAxis->setPadding(0);
-    this->ui->histogram_widget->xAxis->setAntialiased(true);
-
-    this->ui->histogram_widget->yAxis->setLabel("probability");
-    this->ui->histogram_widget->yAxis->setOffset(0);
-    this->ui->histogram_widget->yAxis->setPadding(0);
-    this->ui->histogram_widget->yAxis->setAntialiased(true);
-
-    this->ui->histogram_widget->clearGraphs();
-    QCPGraph* graph = this->ui->histogram_widget->addGraph();
-    graph->setPen(QPen(QColor(116,205,122)));
-    graph->setLineStyle(QCPGraph::lsStepCenter);
-    graph->setErrorType(QCPGraph::etValue);
-
-    QVector<double> intensitiesQ = QVector<double>::fromStdVector(intensities);
-    QVector<double> probabilitiesQ = QVector<double>::fromStdVector(probabilities);
-    graph->setData(intensitiesQ, probabilitiesQ);
-
-
-    this->ui->histogram_widget->rescaleAxes();
-    this->ui->histogram_widget->replot();
-}
-
-void ImageWidget::on_histogram_bin_count_spinbox_editingFinished()
-{
-}
-
-void ImageWidget::on_update_histogram_button_clicked()
-{
-    this->calculateHistogram();
-}
-
-void ImageWidget::on_update_window_spinbox_clicked()
-{
-    this->paintImage();
-    this->calculateHistogram();
 }
 
 void ImageWidget::mouseReleaseEvent(QMouseEvent *)
@@ -397,7 +313,13 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
 
         // showing pixel value...
         Image::PixelType pixel_value = this->image->GetPixel(index);
-        this->setPixelInfo(position, pixel_value);
+        QString text = QString("pixel value at ") +
+                               QString::number(position.x()) +
+                               " | " +
+                               QString::number(position.y()) +
+                               " = " +
+                               QString::number(pixel_value);
+        this->handleStatusTextChange(text);
 
         bool is_left_button = (mouse_event->buttons() & Qt::LeftButton == Qt::LeftButton);
 
@@ -412,41 +334,6 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
         }
     }
     return false; // always returning false, so the pixmap is painted
-}
-
-void ImageWidget::setPixelInfo(QPoint position, double pixel_value)
-{
-    QString text = QString("pixel value at ") +
-                           QString::number(position.x()) +
-                           " | " +
-                           QString::number(position.y()) +
-                           " = " +
-                           QString::number(pixel_value);
-    this->ui->status_bar->setText(text);
-}
-
-void ImageWidget::histogram_mouse_move(QMouseEvent* event)
-{
-    if(this->image.IsNull())
-        return;
-
-    QPoint position = event->pos();
-    double pixel_value = this->ui->histogram_widget->xAxis->pixelToCoord(position.x());
-
-    this->setPixelInfo(position, pixel_value);
-}
-
-void ImageWidget::on_histogram_box_outer_toggled(bool show)
-{
-    if(show)
-    {
-        this->showHistogram();
-    }
-    else
-    {
-        this->hideHistogram();
-    }
-
 }
 
 int ImageWidget::selectedReferenceROI()
@@ -708,38 +595,8 @@ void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
     }
 }
 
-
-
-void ImageWidget::on_fromMinimumButton_clicked()
-{
-    bool ok;
-    float minimum_pixel_value = 0;// this->ui->minimum_label->text().toFloat(&ok);
-    if(ok)
-    {
-        this->ui->window_from_spinbox->setValue(minimum_pixel_value);
-
-        this->paintImage();
-        this->calculateHistogram();
-    }
-}
-
-void ImageWidget::on_toMaximumButton_clicked()
-{
-    bool ok;
-    float maximum_pixel_value = 123; //this->ui->maximum_label->text().toFloat(&ok);
-    if(ok)
-    {
-        this->ui->window_to_spinbox->setValue(maximum_pixel_value);
-
-        this->paintImage();
-        this->calculateHistogram();
-    }
-}
-
-
 void ImageWidget::showImageOnly()
 {
-    this->hideHistogram();
     this->ui->load_save_panel->hide();
     this->ui->operations_panel->hide();
     this->setMinimumSizeToImage();
@@ -887,13 +744,8 @@ void ImageWidget::updateReferenceROI()
     // get mean/median of pixels which are inside the polygon
     QPolygon polygon(roi);
 
-    Image::PixelType window_from = 0;
-    Image::PixelType window_to = 0;
-    this->userWindow(window_from, window_to);
     QImage *data = ITKToQImageConverter::convert(this->image,
-                                                   this->slice_index,
-                                                   window_from,
-                                                   window_to);
+                                                   this->slice_index);
 
     QList<float> pixelsInside;
     for(int x = 0; x < data->width(); x++)
@@ -997,5 +849,5 @@ void ImageWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
 
 void ImageWidget::handleRepaintImage()
 {
-    this->paintImage();
+    this->paintImage(true);
 }

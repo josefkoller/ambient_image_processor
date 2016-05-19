@@ -440,55 +440,6 @@ ITKImageProcessor::ImageType::Pointer ITKImageProcessor::histogram(const ImageTy
     return histogram_to_image->GetOutput();
 }
 
-void ITKImageProcessor::histogram_data(const ImageType::Pointer& image,
-                                       int bin_count,
-                                       ImageType::PixelType window_from,
-                                       ImageType::PixelType window_to,
-                                       std::vector<double>& intensities,
-                                       std::vector<double>& probabilities)
-{
-    typedef itk::Statistics::ImageToHistogramFilter<ImageType> HistogramGenerator;
-    HistogramGenerator::Pointer histogram_generator = HistogramGenerator::New();
-
-    HistogramGenerator::HistogramSizeType number_of_bins(1);
-    number_of_bins[0] = bin_count;
-    histogram_generator->SetHistogramSize(number_of_bins);
-
-    histogram_generator->SetAutoMinimumMaximum(true);
- //   histogram_generator->SetHistogramBinMinimum(window_from);
- //   histogram_generator->SetHistogramBinMaximum(window_to);
-
-  //  histogram_generator->SetClipBinsAtEnds(true);
-    histogram_generator->SetMarginalScale(1);
-
-    histogram_generator->SetInput(image);
-    histogram_generator->Update();
-
-    const HistogramGenerator::HistogramType *histogram = histogram_generator->GetOutput();
-
-    /*
-    const ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
-    long pixel_count = size[0] * size[1] * size[2];
-    long samples_per_bin = ceil(((double)pixel_count) / bin_count); */
-    ImageType::PixelType total_frequency = histogram->GetTotalFrequency();
-
-    for(unsigned int i = 0; i < histogram->GetSize()[0]; i++)
-    {
-        double bin_min = histogram->GetBinMin(0, i);
-        double bin_max = histogram->GetBinMax(0, i);
-
-        if(bin_max < window_from || bin_min > window_to)
-        {
-            continue;
-        }
-        double intensity = bin_min + (bin_max - bin_min) * 0.5f;
-        double probability = histogram->GetFrequency(i) / total_frequency;
-
-        intensities.push_back(intensity);
-        probabilities.push_back(probability);
-    }
-}
-
 void ITKImageProcessor::find_min_max_pixel_value(const ImageType::Pointer& image,
                                             ImageType::PixelType &min_pixel_value,
                                             ImageType::PixelType &max_pixel_value)

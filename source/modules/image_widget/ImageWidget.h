@@ -37,8 +37,6 @@ public:
                 unsigned int shrink_factor_z);
 
     void showSliceControl();
-    void showHistogram();
-    void hideHistogram();
 
     void showImageOnly();
 
@@ -46,17 +44,6 @@ public:
     void connectProfileLinesTo(ImageWidget* other_image_widget);
 private slots:
     void on_slice_slider_valueChanged(int value);
-
-    void on_histogram_bin_count_spinbox_editingFinished();
-
-    void on_update_histogram_button_clicked();
-
-    void on_update_window_spinbox_clicked();
-
-    void histogram_mouse_move(QMouseEvent*);
-
-
-    void on_histogram_box_outer_toggled(bool arg1);
 
     void on_shrink_button_clicked();
 
@@ -85,18 +72,11 @@ private:
     bool show_pixel_value_at_cursor;
 
     bool show_slice_control;
-    bool show_histogram;
 
     void setSliceIndex(uint slice_index);
     uint userSliceIndex() const;
 
-    void paintImage();
-    void calculateHistogram();
-
-    void userWindow(Image::PixelType& window_from,
-                    Image::PixelType& window_to);
-
-    void setPixelInfo(QPoint position, double pixel_value);
+    void paintImage(bool repaint = false);
 
     int selectedReferenceROI();
     void paintSelectedReferenceROI();
@@ -116,8 +96,6 @@ private slots:
     void updateExtractedSizeLabel(int);
     void on_restore_original_button_extract_clicked();
     void on_slice_spinbox_valueChanged(int arg1);
-    void on_fromMinimumButton_clicked();
-    void on_toMaximumButton_clicked();
 
 public:
     void setMinimumSizeToImage();

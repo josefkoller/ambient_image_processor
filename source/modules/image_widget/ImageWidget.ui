@@ -182,7 +182,7 @@
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -215,162 +215,7 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QGroupBox" name="histogram_box_outer">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="title">
-              <string>Histogram</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_5">
-              <item>
-               <widget class="QWidget" name="histogram_box" native="true">
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="0" column="0">
-                  <widget class="QCustomPlot" name="histogram_widget" native="true">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="cursor">
-                    <cursorShape>UpArrowCursor</cursorShape>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1" alignment="Qt::AlignRight|Qt::AlignTop">
-                  <widget class="QGroupBox" name="groupBox">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="title">
-                    <string>Bin Count</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_2">
-                    <item>
-                     <widget class="QSpinBox" name="histogram_bin_count_spinbox">
-                      <property name="maximum">
-                       <number>100000</number>
-                      </property>
-                      <property name="value">
-                       <number>128</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="update_histogram_button">
-                      <property name="text">
-                       <string>Calculate</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="window_tab">
-          <attribute name="title">
-           <string>Window</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_17">
-           <item>
-            <widget class="QGroupBox" name="window_box">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title">
-              <string>Window</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="1">
-               <widget class="QDoubleSpinBox" name="window_from_spinbox">
-                <property name="decimals">
-                 <number>6</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_11">
-                <property name="text">
-                 <string>From:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_12">
-                <property name="text">
-                 <string>To:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QDoubleSpinBox" name="window_to_spinbox">
-                <property name="decimals">
-                 <number>6</number>
-                </property>
-                <property name="maximum">
-                 <double>5000.000000000000000</double>
-                </property>
-                <property name="value">
-                 <double>4095.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" colspan="2">
-               <widget class="QPushButton" name="update_window_spinbox">
-                <property name="text">
-                 <string>Update Window</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="fromMinimumButton">
-                <property name="text">
-                 <string>From Minimum</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="toMaximumButton">
-                <property name="text">
-                 <string>To Maximum</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+            <widget class="HistogramWidget" name="histogram_widget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -983,12 +828,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header location="global">qcustomplot/qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>NonLocalGradientWidget</class>
    <extends>QWidget</extends>
    <header location="global">modules/non_local_gradient/NonLocalGradientWidget.h</header>
@@ -1034,6 +873,12 @@
    <class>ImageInformationWidget</class>
    <extends>QWidget</extends>
    <header location="global">modules/image_information/ImageInformationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HistogramWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">source/modules/histogram/HistogramWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -66,12 +66,6 @@ public:
 
     static ImageType::Pointer histogram(const ImageType::Pointer& image);
 
-    static void histogram_data(const ImageType::Pointer& image,
-                                           int bin_count,
-                                           ImageType::PixelType window_from,
-                                           ImageType::PixelType window_to,
-                                           std::vector<double>& intensities,
-                                           std::vector<double>& probabilities);
 
     static void find_min_max_pixel_value(const ImageType::Pointer& image,
                                                 ImageType::PixelType &min_pixel_value,
