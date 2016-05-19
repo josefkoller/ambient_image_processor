@@ -10,6 +10,14 @@
 
 #include "LineProfile.h"
 
+#include "LineProfileWidget.h"
+#include "UnsharpMaskingWidget.h"
+#include "MultiScaleRetinexWidget.h"
+#include "NonLocalGradientWidget.h"
+#include "RegionGrowingSegmentationWidget.h"
+
+#include "QMenuBar"
+
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
@@ -62,6 +70,35 @@ ImageWidget::ImageWidget(QWidget *parent) :
             this, SLOT(handleImageChange(Image::Pointer)));
 
 
+    /*
+    this->ui->operations_panel->setVisible(false);
+
+
+    QMap<QString, BaseModuleWidget*> modules;
+    modules.insert("Line Profile", new LineProfileWidget(this));
+    modules.insert("Multiscale Retinex", new MultiScaleRetinexWidget(this));
+    modules.insert("Non-local Gradient", new NonLocalGradientWidget(this));
+    modules.insert("Region Growing Segmentation", new RegionGrowingSegmentationWidget(this));
+
+    auto module_parent = this->ui->tabWidget;
+    for(auto module_iterator = modules.begin(); module_iterator != modules.end(); ++module_iterator)
+    {
+        module_parent->addTab(module_iterator.value(), module_iterator.key());
+    }
+
+    QMenuBar* menu_bar = new QMenuBar();
+    QMenu *file_menu = new QMenu("File");
+    QAction* load_action = file_menu->addAction("Load");
+    this->connect(load_action, &QAction::triggered, this, [load_action, this]() {
+        this->on_load_button_clicked();
+    });
+    file_menu->addAction("Save");
+    menu_bar->addMenu(file_menu);
+
+    this->layout()->setMenuBar(menu_bar);
+
+    this->ui->stackedWidget->setCurrentIndex(2);
+*/
 
     auto module_widgets = this->findChildren<BaseModuleWidget*>();
     for(auto module_widget : module_widgets)

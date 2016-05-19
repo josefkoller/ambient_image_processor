@@ -175,8 +175,29 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::North</enum>
+         </property>
+         <property name="tabShape">
+          <enum>QTabWidget::Rounded</enum>
+         </property>
          <property name="currentIndex">
-          <number>14</number>
+          <number>0</number>
+         </property>
+         <property name="elideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
+         <property name="documentMode">
+          <bool>true</bool>
+         </property>
+         <property name="tabsClosable">
+          <bool>false</bool>
+         </property>
+         <property name="movable">
+          <bool>true</bool>
+         </property>
+         <property name="tabBarAutoHide">
+          <bool>false</bool>
          </property>
          <widget class="QWidget" name="info_tab">
           <attribute name="title">
