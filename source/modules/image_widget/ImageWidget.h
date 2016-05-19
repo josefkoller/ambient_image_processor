@@ -78,9 +78,6 @@ private:
 
     void paintImage(bool repaint = false);
 
-    int selectedReferenceROI();
-    void paintSelectedReferenceROI();
-    void updateReferenceROI();
 
     void setInputRanges();
 
@@ -121,6 +118,11 @@ signals:
     void fireStatusTextChange(QString text);
     void fireImageChange(Image::Pointer image);
     void imageChanged(Image::Pointer image);
+    void pixmapPainted(QPixmap* q_image);
+    void mousePressedOnImage(Qt::MouseButton button, QPoint position);
+    void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
+    void mouseReleasedOnImage();
+
 private slots:
     void handleWorkerFinished();
     void handleStatusTextChange(QString text);
@@ -143,15 +145,6 @@ private:
     QImage* q_image;
 protected:
     bool eventFilter(QObject *target, QEvent *event);
-
-private:
-    bool adding_reference_roi;
-    QList<QVector<QPoint>> reference_rois;
-
-    std::vector<ITKImageProcessor::ReferenceROIStatistic> reference_rois_statistic;
-
-public:
-    void setReferenceROIs(QList<QVector<QPoint>> reference_rois);
 
 public slots:
     void handleRepaintImage();

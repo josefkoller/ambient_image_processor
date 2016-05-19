@@ -31,8 +31,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     inner_image_frame(nullptr),
     q_image(nullptr),
     image_save(nullptr),
-    output_widget2(this),
-    adding_reference_roi(false)
+    output_widget2(this)
 {
     ui->setupUi(this);
 
@@ -199,7 +198,11 @@ void ImageWidget::paintImage(bool repaint)
       //  frame->setMaximumSize(q_image.size());
       //  frame->setBaseSize(q_image.size());
       //  frame->setFixedSize(q_image.size());
-        inner_image_frame->setPixmap(QPixmap::fromImage(*q_image));
+
+        QPixmap pixmap = QPixmap::fromImage(*q_image);
+        emit this->pixmapPainted(&pixmap);  // other modules paint into it here
+        inner_image_frame->setPixmap(pixmap);
+
         inner_image_frame->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
         QVBoxLayout* layout = new QVBoxLayout();
@@ -209,11 +212,11 @@ void ImageWidget::paintImage(bool repaint)
         this->ui->image_frame->setLayout(layout);
         this->ui->image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->ui->image_frame->setMinimumSize(q_image->size());
+
     }
 
     this->ui->line_profile_widget->paintSelectedProfileLine();
     this->paintSelectedProfileLineInImage();
-    paintSelectedReferenceROI();
 }
 
 void ImageWidget::on_slice_slider_valueChanged(int user_slice_index)
@@ -247,39 +250,20 @@ void ImageWidget::connectedSliceControlChanged(uint slice_index)
 
 void ImageWidget::mouseReleaseEvent(QMouseEvent *)
 {
-    if(this->adding_reference_roi)
-    {
-        this->adding_reference_roi = false;
+    std::cout << "mouse released" << std::endl;
 
-        // add roi
-    }
+    emit this->mouseReleasedOnImage();
 }
 
 void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
 {
-    if(this->image.IsNull())
-        return;
-
-    if(this->inner_image_frame == nullptr || this->show_pixel_value_at_cursor == false ||
-            this->ui->operations_panel->isVisible() == false)
+    if(this->image.IsNull() || this->inner_image_frame == nullptr)
         return;
 
     QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
-    std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
+   // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
 
-
-    if(this->ui->region_growing_segmentation_widget->isAddingSeedPoint())
-    {
-        Image::IndexType image_index;
-        image_index[0] = position.x();
-        image_index[1] = position.y();
-        if(InputDimension > 2)
-            image_index[2] = this->slice_index;
-        this->ui->region_growing_segmentation_widget->addSeedPointAt(image_index);
-    }
-
-    this->ui->line_profile_widget->mousePressedOnImage(
-                mouse_event->button(), position);
+    emit this->mousePressedOnImage(mouse_event->button(), position);
 }
 
 bool ImageWidget::eventFilter(QObject *target, QEvent *event)
@@ -297,7 +281,8 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
             return false;
 
         QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
-       // std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
+
+        //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
 
         Image::SizeType size = this->image->GetLargestPossibleRegion().GetSize();
         if(position.x() < 0 || position.x() > size[0] ||
@@ -321,67 +306,12 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
                                QString::number(pixel_value);
         this->handleStatusTextChange(text);
 
-        bool is_left_button = (mouse_event->buttons() & Qt::LeftButton == Qt::LeftButton);
+        emit this->mouseMoveOnImage(mouse_event->buttons(), position);
 
-        int selected_roi_index = this->selectedReferenceROI();
-
-        if(this->adding_reference_roi &&
-                is_left_button &&
-                selected_roi_index > -1)
-        {
-            this->reference_rois[selected_roi_index].push_back(position);
-            this->updateReferenceROI();
-        }
     }
     return false; // always returning false, so the pixmap is painted
 }
 
-int ImageWidget::selectedReferenceROI()
-{
-    if(this->ui->referenceROIsListWidget->selectionModel()->selectedIndexes().size() == 0)
-    {
-        return -1;
-    }
-    return this->ui->referenceROIsListWidget->selectionModel()->selectedIndexes().at(0).row();
-}
-
-
-void ImageWidget::paintSelectedReferenceROI()
-{
-    if(this->image.IsNull())
-        return;
-
-    int index = this->selectedReferenceROI();
-    if(index == -1)
-    {
-        return;
-    }
-    QVector<QPoint> roi = this->reference_rois[index];
-
-    if(roi.size() == 0)
-        return;
-
-    if(inner_image_frame == nullptr)
-        return;
-
-    QPolygon polygon(roi);
-
-    QPixmap image = QPixmap::fromImage(*q_image);
-    QPainter painter(&image);
-
-    QPen pen(Qt::black);
-    pen.setWidth(1);
-    painter.setPen(pen);
-
-    QColor color(0,250,0,100);
-    QBrush brush(color);
-    painter.setBrush(brush);
-
-    painter.drawPolygon(polygon);
-
-    inner_image_frame->setPixmap(image);
-
-}
 
 void ImageWidget::paintSelectedProfileLineInImage()
 {
@@ -713,74 +643,8 @@ void ImageWidget::on_thresholdButton_clicked()
 
 void ImageWidget::on_pushButton_4_clicked()
 {
-    this->adding_reference_roi = true;
-
-    QVector<QPoint> roi;
-    reference_rois.push_back(roi);
-
-    uint index = reference_rois.size() - 1;
-
-    QString item = "ROI" + QString::number(index);
-    this->ui->referenceROIsListWidget->addItem(item);
-    this->ui->referenceROIsListWidget->setCurrentRow(index);
-
-    this->reference_rois_statistic.push_back(ITKImageProcessor::ReferenceROIStatistic());
 }
 
-void ImageWidget::updateReferenceROI()
-{
-    int index = this->selectedReferenceROI();
-    if(index == -1)
-        return;
-
-    if(inner_image_frame == nullptr)
-        return;
-
-    QVector<QPoint> roi = this->reference_rois[index];
-
-    if(roi.size() == 0)
-        return;
-
-    // get mean/median of pixels which are inside the polygon
-    QPolygon polygon(roi);
-
-    QImage *data = ITKToQImageConverter::convert(this->image,
-                                                   this->slice_index);
-
-    QList<float> pixelsInside;
-    for(int x = 0; x < data->width(); x++)
-    {
-        for(int y = 0; y < data->height(); y++)
-        {
-            QPoint point(x,y);
-            if(!polygon.containsPoint(point, Qt::OddEvenFill))
-                continue;
-
-            QColor color = QColor(data->pixel(x,y));
-            float pixel = color.red() / 255.0f;
-            pixelsInside.push_back(pixel);
-        }
-    }
-    if(pixelsInside.length() == 0)
-        return;
-
-    qSort(pixelsInside);
-    uint median_index = pixelsInside.length() / 2;
-    float median_value = pixelsInside[median_index];
-
-    QPoint center = polygon.boundingRect().center();
-
-    QString text = QString("Position: (%1, %2), Median: %3").arg(
-                QString::number(center.x()),
-                QString::number(center.y()),
-                QString::number(median_value));
-    this->ui->referenceROIsListWidget->item(index)->setText(text);
-
-    ITKImageProcessor::ReferenceROIStatistic& statistic = this->reference_rois_statistic[index];
-    statistic.median_value = median_value;
-    statistic.x = center.x();
-    statistic.y = center.y();
-}
 
 void ImageWidget::on_referenceROIsListWidget_currentRowChanged(int currentRow)
 {
@@ -794,58 +658,9 @@ void ImageWidget::on_referenceROIsListWidget_itemSelectionChanged()
 
 void ImageWidget::on_pushButton_6_clicked()
 {
-    if(this->reference_rois_statistic.size() == 0)
-    {
-        this->handleStatusTextChange("add some rois first");
-        return;
-    }
-
-
-    uint spline_order = this->ui->splineOrderSpinbox->value();
-    uint spline_levels = this->ui->splineLevelsSpinbox->value();
-    uint spline_control_points = this->ui->splineControlPoints->value();
-
-    if(spline_control_points <= spline_order)
-    {
-        this->handleStatusTextChange("need more control points than the spline order is");
-        return;
-    }
-
-    Image::Pointer field_image = nullptr;
-    Image::Pointer output_image = ITKImageProcessor::splineFit(
-                this->image, spline_order, spline_levels, spline_control_points,
-                this->reference_rois_statistic, field_image);
-
-    ImageWidget* target_widget = this->output_widget == nullptr ? this : this->output_widget;
-    target_widget->setImage(output_image);
-
-    ImageWidget* target_widget2 = this->output_widget2 == nullptr ? this : this->output_widget2;
-    target_widget2->setImage(field_image);
-
-    ITKImageProcessor::printMetric(this->reference_rois_statistic);
-    target_widget->setReferenceROIs(this->reference_rois);
 }
 
 
-void ImageWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
-{
-    this->ui->referenceROIsListWidget->clear();
-    this->reference_rois_statistic.clear();
-
-    this->reference_rois = reference_rois;
-
-    for(int i = 0; i < reference_rois.size(); i++)
-    {
-        QString item = "ROI" + QString::number(i);
-        this->ui->referenceROIsListWidget->addItem(item);
-        this->ui->referenceROIsListWidget->setCurrentRow(i);
-        this->reference_rois_statistic.push_back(ITKImageProcessor::ReferenceROIStatistic());
-
-        updateReferenceROI();
-    }
-
-    ITKImageProcessor::printMetric(this->reference_rois_statistic);
-}
 
 void ImageWidget::handleRepaintImage()
 {

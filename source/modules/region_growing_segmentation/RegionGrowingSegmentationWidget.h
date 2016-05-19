@@ -77,6 +77,12 @@ public:
 
 protected:
     virtual ITKImage processImage(ITKImage image);
+
+public:
+    void registerModule(ImageWidget* image_widget);
+
+private slots:
+    void mousePressedOnImage(Qt::MouseButton button, QPoint position);
 };
 
 #endif // REGIONGROWINGSEGMENTATIONWIDGET_H

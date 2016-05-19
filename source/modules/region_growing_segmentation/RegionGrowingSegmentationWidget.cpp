@@ -335,3 +335,26 @@ std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegm
 {
     return this->region_growing_segmentation.getSegments();
 }
+
+
+void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
+{
+    connect(image_widget, &ImageWidget::mousePressedOnImage,
+            this, &RegionGrowingSegmentationWidget::mousePressedOnImage);
+}
+
+void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button, QPoint position)
+{
+    if(this->isAddingSeedPoint())
+    {
+        ITKImage::InnerITKImage::IndexType image_index;
+        image_index[0] = position.x();
+        image_index[1] = position.y();
+    //    if(ITKImage::ImageDimension > 2)
+    // TODO slice_index to ITKImage?        image_index[2] = this->slice_index;
+
+        this->addSeedPointAt(image_index);
+    }
+
+}
+

@@ -165,9 +165,6 @@ void LineProfileWidget::connectTo(LineProfileWidget *other)
 
 void LineProfileWidget::on_line_profile_list_widget_currentRowChanged(int currentRow)
 {
-    std::cout << "selected profile line: " << this->selectedProfileLineIndex() << std::endl;
-
-    emit this->profileLinesChanged();
 }
 
 void LineProfileWidget::registerModule(ImageWidget* image_widget)
@@ -176,4 +173,14 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
 
     this->connect(this, &LineProfileWidget::profileLinesChanged,
                   image_widget, &ImageWidget::handleRepaintImage);
+
+    this->connect(image_widget, &ImageWidget::mousePressedOnImage,
+                this, &LineProfileWidget::mousePressedOnImage);
+}
+
+void LineProfileWidget::on_line_profile_list_widget_itemSelectionChanged()
+{
+ //   std::cout << "selected profile line: " << this->selectedProfileLineIndex() << std::endl;
+
+    emit this->profileLinesChanged();
 }
