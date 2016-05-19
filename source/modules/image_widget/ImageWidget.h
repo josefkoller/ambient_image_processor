@@ -44,8 +44,6 @@ private slots:
 
     void on_save_button_clicked();
 
-    void on_extract_button_clicked();
-
 public:
     Ui::ImageWidget *ui;
 private:
@@ -79,7 +77,6 @@ public slots:
 public:
     Image::Pointer getImage() { return this->image; }
 private slots:
-    void updateExtractedSizeLabel(int);
     void on_slice_spinbox_valueChanged(int arg1);
 
 public:
@@ -119,14 +116,6 @@ private slots:
     void on_pushButton_clicked();
 
     void on_thresholdButton_clicked();
-
-    void on_pushButton_4_clicked();
-
-    void on_referenceROIsListWidget_currentRowChanged(int currentRow);
-
-    void on_referenceROIsListWidget_itemSelectionChanged();
-
-    void on_pushButton_6_clicked();
 
 private:
     QLabel* inner_image_frame;

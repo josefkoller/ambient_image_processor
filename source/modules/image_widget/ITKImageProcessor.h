@@ -77,10 +77,6 @@ public:
         int x,y,z;
     };
 
-    static ImageType::Pointer extract_volume(ImageType::Pointer image,
-         unsigned int from_x, unsigned int to_x,
-         unsigned int from_y, unsigned int to_y,
-         unsigned int from_z, unsigned int to_z);
 
     static ImageType::Pointer backward_difference_x_0_at_boundary(
             ImageType::Pointer f);

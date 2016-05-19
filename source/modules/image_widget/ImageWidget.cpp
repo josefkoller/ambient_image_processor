@@ -34,20 +34,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
     this->ui->slice_control->setVisible(this->show_slice_control);
 
-    connect(this->ui->from_x_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
-    connect(this->ui->to_x_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
-
-    connect(this->ui->from_y_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
-    connect(this->ui->to_y_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
-
-    connect(this->ui->from_z_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
-    connect(this->ui->to_z_spinbox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateExtractedSizeLabel(int)));
 
     connect(this, SIGNAL(fireWorkerFinished()),
             this, SLOT(handleWorkerFinished()));
@@ -380,68 +366,12 @@ void ImageWidget::setInputRanges()
     this->ui->slice_slider->setMinimum(0); // first slice gets slice index 0
     this->ui->slice_spinbox->setMinimum(this->ui->slice_slider->minimum());
 
-    int max_z = 0;
     if(size.GetSizeDimension() >= 3)
     {
         this->ui->slice_slider->setMaximum(size[2] - 1);
         this->ui->slice_spinbox->setMaximum(this->ui->slice_slider->maximum());
-        max_z = size[2] - 1;
     }
-    int max_x = size[0] - 1;
-    int max_y = size[1] - 1;
-    this->ui->from_x_spinbox->setMaximum(max_x);
-    this->ui->from_y_spinbox->setMaximum(max_y);
-    this->ui->from_z_spinbox->setMaximum(max_z);
-    this->ui->from_x_spinbox->setValue(0);
-    this->ui->from_y_spinbox->setValue(0);
-    this->ui->from_z_spinbox->setValue(0);
-    this->ui->to_x_spinbox->setMaximum(max_x);
-    this->ui->to_y_spinbox->setMaximum(max_y);
-    this->ui->to_z_spinbox->setMaximum(max_z);
-    this->ui->to_x_spinbox->setValue(max_x);
-    this->ui->to_y_spinbox->setValue(max_y);
-    this->ui->to_z_spinbox->setValue(max_z);
-    this->updateExtractedSizeLabel(7);
 
-}
-
-void ImageWidget::on_extract_button_clicked()
-{
-    if(this->image.IsNull())
-        return;
-
-    Image::Pointer extracted_volume = ITKImageProcessor::extract_volume(
-                this->image,
-                ui->from_x_spinbox->value(),
-                ui->to_x_spinbox->value(),
-                ui->from_y_spinbox->value(),
-                ui->to_y_spinbox->value(),
-                ui->from_z_spinbox->value(),
-                ui->to_z_spinbox->value()
-                );
-    this->setImage(extracted_volume);
-}
-
-void ImageWidget::updateExtractedSizeLabel(int)
-{
-    int from_x = ui->from_x_spinbox->value();
-    int to_x = ui->to_x_spinbox->value();
-    int size_x = to_x - from_x + 1;
-
-    int from_y = ui->from_y_spinbox->value();
-    int to_y = ui->to_y_spinbox->value();
-    int size_y = to_y - from_y + 1;
-
-    int from_z = ui->from_z_spinbox->value();
-    int to_z = ui->to_z_spinbox->value();
-    int size_z = to_z - from_z + 1;
-
-    QString size_text = QString("%1x%2x%3").arg(
-                QString::number(size_x),
-                QString::number(size_y),
-                QString::number(size_z));
-
-    this->ui->extracted_region_size_label->setText(size_text);
 }
 
 void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
@@ -567,27 +497,6 @@ void ImageWidget::on_thresholdButton_clicked()
 
 
 }
-
-void ImageWidget::on_pushButton_4_clicked()
-{
-}
-
-
-void ImageWidget::on_referenceROIsListWidget_currentRowChanged(int currentRow)
-{
-}
-
-void ImageWidget::on_referenceROIsListWidget_itemSelectionChanged()
-{
-    this->repaint();
-
-}
-
-void ImageWidget::on_pushButton_6_clicked()
-{
-}
-
-
 
 void ImageWidget::handleRepaintImage()
 {
