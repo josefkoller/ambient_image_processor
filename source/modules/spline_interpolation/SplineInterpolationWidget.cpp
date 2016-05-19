@@ -37,11 +37,11 @@ ITKImage SplineInterpolationWidget::processImage(ITKImage image)
 
     typedef ITKImage::InnerITKImage Image;
     Image::Pointer field_image = nullptr;
-    Image::Pointer output_image = ITKImageProcessor::splineFit(
+    Image::Pointer output_image = SplineInterpolationProcessor::process(
                 image.getPointer(), spline_order, spline_levels, spline_control_points,
                 this->reference_rois_statistic, field_image);
 
-    ITKImageProcessor::printMetric(this->reference_rois_statistic);
+    SplineInterpolationProcessor::printMetric(this->reference_rois_statistic);
 //    target_widget->setReferenceROIs(this->reference_rois);
 
     return ITKImage(field_image);
@@ -59,12 +59,12 @@ void SplineInterpolationWidget::setReferenceROIs(QList<QVector<QPoint>> referenc
         QString item = "ROI" + QString::number(i);
         this->ui->referenceROIsListWidget->addItem(item);
         this->ui->referenceROIsListWidget->setCurrentRow(i);
-        this->reference_rois_statistic.push_back(ITKImageProcessor::ReferenceROIStatistic());
+        this->reference_rois_statistic.push_back(SplineInterpolationProcessor::ReferenceROIStatistic());
 
         updateReferenceROI();
     }
 
-    ITKImageProcessor::printMetric(this->reference_rois_statistic);
+    SplineInterpolationProcessor::printMetric(this->reference_rois_statistic);
 }
 
 void SplineInterpolationWidget::on_pushButton_6_clicked()
@@ -85,7 +85,7 @@ void SplineInterpolationWidget::on_add_reference_roi_button_clicked()
     this->ui->referenceROIsListWidget->addItem(item);
     this->ui->referenceROIsListWidget->setCurrentRow(index);
 
-    this->reference_rois_statistic.push_back(ITKImageProcessor::ReferenceROIStatistic());
+    this->reference_rois_statistic.push_back(SplineInterpolationProcessor::ReferenceROIStatistic());
 }
 
 int SplineInterpolationWidget::selectedReferenceROI()
@@ -199,7 +199,7 @@ void SplineInterpolationWidget::updateReferenceROI()
                 QString::number(median_value));
     this->ui->referenceROIsListWidget->item(index)->setText(text);
 
-    ITKImageProcessor::ReferenceROIStatistic& statistic = this->reference_rois_statistic[index];
+    SplineInterpolationProcessor::ReferenceROIStatistic& statistic = this->reference_rois_statistic[index];
     statistic.median_value = median_value;
     statistic.x = center.x();
     statistic.y = center.y();

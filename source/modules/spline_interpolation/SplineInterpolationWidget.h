@@ -5,6 +5,9 @@
 
 #include "BaseModuleWidget.h"
 
+
+#include "SplineInterpolationProcessor.h"
+
 namespace Ui {
 class SplineInterpolationWidget;
 }
@@ -23,7 +26,7 @@ private:
     ITKImage::InnerITKImage::Pointer image;
     bool adding_reference_roi;
     QList<QVector<QPoint>> reference_rois;
-    std::vector<ITKImageProcessor::ReferenceROIStatistic> reference_rois_statistic;
+    std::vector<SplineInterpolationProcessor::ReferenceROIStatistic> reference_rois_statistic;
 
     int selectedReferenceROI();
     void paintSelectedReferenceROI(QPixmap* pixmap);
