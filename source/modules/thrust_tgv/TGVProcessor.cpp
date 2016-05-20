@@ -17,10 +17,10 @@ TGVProcessor::TGVProcessor()
 template<typename ThrustImage>
 ThrustImage* TGVProcessor::convert(ITKImage itk_image)
 {
-    ThrustImage* image = new ThrustImage(itk_image.width, itk_image.height);
+    ThrustImage* image = new ThrustImage(itk_image.width, itk_image.height, itk_image.depth);
 
-    itk_image.foreachPixel([image](uint x, uint y, ITKImage::PixelType pixel) {
-        image->setPixel(x,y,pixel);
+    itk_image.foreachPixel([image](uint x, uint y, uint z, ITKImage::PixelType pixel) {
+        image->setPixel(x,y,z, pixel);
     });
     return image;
 }
@@ -28,10 +28,10 @@ ThrustImage* TGVProcessor::convert(ITKImage itk_image)
 template<typename ThrustImage>
 ITKImage TGVProcessor::convert(ThrustImage* image)
 {
-    ITKImage itk_image = ITKImage(image->width, image->height);
+    ITKImage itk_image = ITKImage(image->width, image->height, image->depth);
 
-    itk_image.setEachPixel([&image](uint x, uint y) {
-        return image->getPixel(x,y);
+    itk_image.setEachPixel([&image](uint x, uint y, uint z) {
+        return image->getPixel(x,y,z);
     });
 
     return itk_image;

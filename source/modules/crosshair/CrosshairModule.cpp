@@ -20,18 +20,14 @@ void CrosshairModule::registerModule(ImageWidget* image_widget)
             this, &CrosshairModule::mouseMoveOnImage);
 }
 
-void CrosshairModule::mouseMoveOnImage(Qt::MouseButtons button, QPoint position)
+void CrosshairModule::mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index)
 {
-    if(position.x() < 0 || position.x() > this->image.width ||
-            position.y() < 0 || position.y() > this->image.height )
+    if(this->image.isNull() || ! this->image.contains(cursor_index))
         return;
 
-    // showing pixel value...
-    ITKImage::InnerITKImage::PixelType pixel_value = this->image.getPixel(position.x(), position.y());
+    ITKImage::InnerITKImage::PixelType pixel_value = this->image.getPixel(cursor_index);
     QString text = QString("pixel value at ") +
-            QString::number(position.x()) +
-            " | " +
-            QString::number(position.y()) +
+            ITKImage::indexToText(cursor_index) +
             " = " +
             QString::number(pixel_value);
     this->setStatusText(text);

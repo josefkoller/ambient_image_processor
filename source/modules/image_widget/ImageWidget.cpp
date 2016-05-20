@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QMouseEvent>
+#include <QMenuBar>
+#include <QWheelEvent>
 
 #include "LineProfileWidget.h"
 #include "UnsharpMaskingWidget.h"
@@ -23,7 +25,6 @@
 #include "CrosshairModule.h"
 #include "SliceControlWidget.h"
 
-#include "QMenuBar"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -111,7 +112,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     for(auto module : modules)
     {
         auto widget = dynamic_cast<BaseModuleWidget*>(module);
-        if(widget == nullptr)
+        if(widget == nullptr && widget != slice_control_widget)
             continue;
 
         QAction* module_action = tools_menu->addAction(module->getTitle());
@@ -238,10 +239,11 @@ void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
 
     QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
     // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
-
     uint slice_index = this->slice_control_widget->getVisibleSliceIndex();
 
     auto index = ITKImage::indexFromPoint(position, slice_index);
+    if(!this->image.contains(index))
+        return;
 
     emit this->mousePressedOnImage(mouse_event->button(), index);
 }
@@ -263,10 +265,20 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
         QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
 
         //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
-
-        emit this->mouseMoveOnImage(mouse_event->buttons(), position);
-
+        auto index = ITKImage::indexFromPoint(position,
+                                              this->slice_control_widget->getVisibleSliceIndex());
+        emit this->mouseMoveOnImage(mouse_event->buttons(), index);
     }
+
+    if(event->type() == QEvent::Wheel && target == inner_image_frame)
+    {
+        QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
+        if(wheel_event == nullptr)
+            return false;
+
+        emit this->mouseWheelOnImage(wheel_event->delta());
+    }
+
     return false; // always returning false, so the pixmap is painted
 }
 

@@ -34,8 +34,8 @@ private:
 private slots:
     void on_slice_slider_valueChanged(int slice_index);
     void on_slice_spinbox_valueChanged(int slice_index);
-    void on_slice_slider_sliderMoved(int position);
 
+    void mouseWheelOnImage(int delta);
 signals:
     void sliceIndexChanged(uint slice_index);
 public slots:

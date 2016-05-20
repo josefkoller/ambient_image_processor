@@ -11,10 +11,10 @@ private:
 public:
 
     static ITKImage process(ITKImage source,
-                                  uint kernel_size,
-                                  ITKImage::PixelType kernel_sigma);
+                            uint kernel_size,
+                            ITKImage::PixelType kernel_sigma);
 private:
-    static ITKImage::PixelType* createKernel(
+    static ITKImage createKernel(
             uint kernel_size,
             ITKImage::PixelType kernel_sigma);
 };

@@ -19,6 +19,7 @@ public:
 
     uint width;
     uint height;
+    uint depth;
 private:
     InnerITKImage::Pointer inner_image;
 public:
@@ -28,13 +29,14 @@ public:
     {
         this->width = image.width;
         this->height = image.height;
+        this->depth = image.depth;
         this->inner_image = image.inner_image;
         return *this;
     }
 
-    ITKImage(uint width, uint height);
+    ITKImage(uint width, uint height, uint depth);
     ITKImage(InnerITKImage::Pointer inner_image);
-    ITKImage(uint width, uint height, InnerITKImage::PixelType* data);
+    ITKImage(uint width, uint height, uint depth, InnerITKImage::PixelType* data);
 
     InnerITKImage::Pointer getPointer() const;
     ITKImage clone() const;
@@ -44,12 +46,12 @@ public:
 
     bool isNull() const;
 
-    void foreachPixel(std::function<void(uint x, uint y, PixelType pixel)> callback) const;
+    void foreachPixel(std::function<void(uint x, uint y, uint z, PixelType pixel)> callback) const;
 
-    PixelType getPixel(uint x, uint y) const;
-    void setPixel(uint x, uint y, PixelType value);
+    PixelType getPixel(uint x, uint y, uint z) const;
+    void setPixel(uint x, uint y, uint z, PixelType value);
 
-    void setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetcher);
+    void setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher);
 
     PixelType getPixel(InnerITKImage::IndexType index) const;
 
@@ -64,6 +66,11 @@ public:
     static Index indexFromPoint(QPoint point, uint slice_index);
     static QPoint pointFromIndex(Index index);
     static QString indexToText(Index index);
+
+    uint linearIndex(uint x, uint y, uint z) const;
+    bool contains(Index index) const;
+
+    PixelType* cloneToPixelArray() const;
 };
 
 #endif // ITKIMAGE_H

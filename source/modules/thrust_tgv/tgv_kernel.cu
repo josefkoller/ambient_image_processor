@@ -15,13 +15,16 @@ template<typename PixelVector>
 void print(ThrustImage<PixelVector>* ThrustImage, std::string title)
 {
     std::cout << "ThrustImage: " << title << std::endl;
-    for(int y = 0; y < ThrustImage->height; y++)
+    for(int z = 0; z < ThrustImage->depth; z++)
     {
-        for(int x = 0; x < ThrustImage->width; x++)
+        for(int y = 0; y < ThrustImage->height; y++)
         {
-            std::cout << ThrustImage->getPixel(x,y) << "\t";
+            for(int x = 0; x < ThrustImage->width; x++)
+            {
+                std::cout << ThrustImage->getPixel(x,y, z) << "\t";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 }
 

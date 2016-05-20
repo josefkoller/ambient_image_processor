@@ -6,66 +6,58 @@
 
 template<typename Pixel>
 Pixel* non_local_gradient_kernel_launch(
-        Pixel* source, uint source_width, uint source_height, Pixel* kernel, uint kernel_size);
+        Pixel* source, uint source_width, uint source_height, uint source_depth,
+        Pixel* kernel, uint kernel_size);
 
 NonLocalGradientProcessor::NonLocalGradientProcessor()
 {
 }
 
-ITKImage::PixelType* NonLocalGradientProcessor::createKernel(
+ITKImage NonLocalGradientProcessor::createKernel(
         uint kernel_size,
         ITKImage::PixelType kernel_sigma)
 {
-    ITKImage::PixelType* kernel = new ITKImage::PixelType[kernel_size * kernel_size];
+    ITKImage kernel = ITKImage(kernel_size, kernel_size, kernel_size);
     uint kernel_center = std::floor(kernel_size / 2.0f);
 
     ITKImage::PixelType kernel_value_sum = 0;
-    for(uint y = 0; y < kernel_size; y++)
-    {
-        for(uint x = 0; x < kernel_size; x++)
-        {
-            uint xr = x - kernel_center;
-            uint yr = y - kernel_center;
 
-            ITKImage::PixelType radius = std::sqrt(xr*xr + yr*yr);
-            ITKImage::PixelType value = std::exp(-radius*radius / kernel_sigma);
+    kernel.setEachPixel([&kernel_value_sum, kernel_center, kernel_sigma] (uint x, uint y, uint z) {
+        uint xr = x - kernel_center;
+        uint yr = y - kernel_center;
+        uint zr = z - kernel_center;
 
-            uint i = x + y * kernel_size;
-            kernel[i] = value;
-            kernel_value_sum += value;
-        }
-    }
+        ITKImage::PixelType radius = std::sqrt(xr*xr + yr*yr + zr*zr);
+        ITKImage::PixelType value = std::exp(-radius*radius / kernel_sigma);
 
-    for(uint y = 0; y < kernel_size; y++)
-    {
-        for(uint x = 0; x < kernel_size; x++)
-        {
-            uint i = x + y * kernel_size;
-            ITKImage::PixelType value = kernel[i];
-            value /= kernel_value_sum;
+        kernel_value_sum += value;
+        return value;
+    });
 
-            //            std::cout << "kernel value1: " << value << std::endl;
-
-            kernel[i] = value;
-        }
-    }
+    kernel.foreachPixel([&kernel, kernel_value_sum] (uint x, uint y, uint z, ITKImage::PixelType value) {
+        kernel.setPixel(x,y,z, value / kernel_value_sum);
+    });
 
     return kernel;
 }
 
 ITKImage NonLocalGradientProcessor::process(ITKImage source,
-                                                       uint kernel_size,
-                                                       ITKImage::PixelType kernel_sigma)
+                                            uint kernel_size,
+                                            ITKImage::PixelType kernel_sigma)
 {
-    ITKImage::PixelType* source_data = source.getPointer()->GetBufferPointer();
-    ITKImage::PixelType* kernel_data = createKernel(kernel_size, kernel_sigma);
+    ITKImage::PixelType* source_data = source.cloneToPixelArray();
+    ITKImage kernel = createKernel(kernel_size, kernel_sigma);
+    ITKImage::PixelType* kernel_data = kernel.cloneToPixelArray();
 
     ITKImage::PixelType* destination_data = non_local_gradient_kernel_launch(source_data,
-                 source.width, source.height, kernel_data, kernel_size);
+         source.width, source.height, source.depth, kernel_data, kernel_size);
 
+    delete[] source_data;
     delete[] kernel_data;
 
-    ITKImage destination = ITKImage(source.width, source.height, destination_data);
+    ITKImage destination = ITKImage(source.width, source.height, source.depth, destination_data);
+
+    delete[] destination_data;
 
     return destination;
 }

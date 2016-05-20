@@ -1,5 +1,6 @@
 #include "BaseModuleWidget.h"
 
+
 BaseModuleWidget::BaseModuleWidget(QString title, QWidget *parent) :
     QWidget(parent),
     BaseModule(title),
@@ -33,9 +34,10 @@ void BaseModuleWidget::processInWorkerThread()
 
     }
 
-    this->worker_thread = new std::thread([=]() {
-        this->setStatusText(this->getTitle() + " started");
+    this->setStatusText(this->getTitle() + " started");
+    this->start_timestamp = QTime::currentTime();
 
+    this->worker_thread = new std::thread([=]() {
         ITKImage result_image = this->processImage(source_image);
         this->result_processor(result_image);
         emit this->fireWorkerFinished();
@@ -56,7 +58,9 @@ void BaseModuleWidget::handleWorkerFinished()
         this->worker_thread = nullptr;
     }
 
-    this->setStatusText(this->getTitle() + " finished");
+    int duration = this->start_timestamp.msecsTo(QTime::currentTime());
+    this->setStatusText(this->getTitle() + " finished after "
+                        + QString::number(duration) + "ms");
 }
 
 void BaseModuleWidget::registerModule(ImageWidget* image_widget)

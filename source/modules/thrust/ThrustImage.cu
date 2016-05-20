@@ -9,31 +9,32 @@
 
 template<typename PixelVector>
 __host__ __device__
-ThrustImage<PixelVector>::ThrustImage(uint width, uint height) : pixel_rows(PixelVector(width*height)),
-    width(width), height(height), pixel_count(width*height)
+ThrustImage<PixelVector>::ThrustImage(uint width, uint height, uint depth) :
+    pixel_rows(PixelVector(width*height*depth)),
+    width(width), height(height), depth(depth), pixel_count(width*height*depth)
 {
 }
 
 template<typename PixelVector>
 __host__ __device__
-void ThrustImage<PixelVector>::setPixel(uint x, uint y, Pixel pixel)
+void ThrustImage<PixelVector>::setPixel(uint x, uint y, uint z, Pixel pixel)
 {
-    uint index = this->getIndex(x,y);
+    uint index = this->getIndex(x,y,z);
     this->pixel_rows[index] = pixel;
 }
 
 template<typename PixelVector>
 __host__ __device__
-uint ThrustImage<PixelVector>::getIndex(uint x, uint y)
+uint ThrustImage<PixelVector>::getIndex(uint x, uint y, uint z)
 {
-    return x + y * this->width;
+    return (this->width*this->height) * z + (x + y * this->width);
 }
 
 template<typename PixelVector>
 __host__ __device__
-Pixel ThrustImage<PixelVector>::getPixel(uint x, uint y)
+Pixel ThrustImage<PixelVector>::getPixel(uint x, uint y, uint z)
 {
-    uint index = this->getIndex(x,y);
+    uint index = this->getIndex(x,y,z);
     return this->pixel_rows[index];
 }
 
@@ -294,7 +295,7 @@ template<typename PixelVector>
 __host__ __device__
 ThrustImage<PixelVector>* ThrustImage<PixelVector>::clone_uninitialized()
 {
-    return new ThrustImage(this->width, this->height);
+    return new ThrustImage(this->width, this->height, this->depth);
 }
 
 
@@ -302,7 +303,7 @@ template<typename PixelVector>
 __host__ __device__
 ThrustImage<PixelVector>* ThrustImage<PixelVector>::clone_initialized(const Pixel initial_constant_value)
 {
-    ThrustImage<PixelVector>* image = new ThrustImage(this->width, this->height);
+    ThrustImage<PixelVector>* image = new ThrustImage(this->width, this->height, this->depth);
     thrust::fill(image->pixel_rows.begin(), image->pixel_rows.end(), initial_constant_value);
     return image;
 }
@@ -312,7 +313,7 @@ template<typename PixelVector>
 __host__ __device__
 ThrustImage<PixelVector>* ThrustImage<PixelVector>::clone()
 {
-    ThrustImage<PixelVector>* clone = new ThrustImage(this->width, this->height);
+    ThrustImage<PixelVector>* clone = new ThrustImage(this->width, this->height, this->depth);
     thrust::copy(this->pixel_rows.begin(), this->pixel_rows.end(), clone->pixel_rows.begin());
     return clone;
 }
@@ -326,9 +327,9 @@ void ThrustImage<PixelVector>::set_pixel_data_of(ThrustImage<PixelVector>* Thrus
 }
 
 // explicitly instantiate the template for DevicePixelVector
-template DeviceThrustImage::ThrustImage(uint width, uint height);
-template void DeviceThrustImage::setPixel(uint x, uint y, Pixel pixel);
-template Pixel DeviceThrustImage::getPixel(uint x, uint y);
+template DeviceThrustImage::ThrustImage(uint width, uint height, uint depth);
+template void DeviceThrustImage::setPixel(uint x, uint y, uint z, Pixel pixel);
+template Pixel DeviceThrustImage::getPixel(uint x, uint y, uint z);
 template void DeviceThrustImage::add(DeviceThrustImage* other,
                                DeviceThrustImage* output);
 template void DeviceThrustImage::scale(const Pixel constant_factor,
@@ -351,9 +352,9 @@ template DeviceThrustImage* DeviceThrustImage::clone_initialized(const Pixel ini
 template DeviceThrustImage* DeviceThrustImage::clone();
 
 // explicitly instantiate the template for HostPixelVector
-template HostThrustImage::ThrustImage(uint width, uint height);
-template void HostThrustImage::setPixel(uint x, uint y, Pixel pixel);
-template Pixel HostThrustImage::getPixel(uint x, uint y);
+template HostThrustImage::ThrustImage(uint width, uint height, uint depth);
+template void HostThrustImage::setPixel(uint x, uint y, uint z, Pixel pixel);
+template Pixel HostThrustImage::getPixel(uint x, uint y, uint z);
 template void HostThrustImage::add(HostThrustImage* other,
                                HostThrustImage* output);
 template void HostThrustImage::scale(const Pixel constant_factor,

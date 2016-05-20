@@ -75,8 +75,9 @@ signals:
     void imageChanged(ITKImage& image);
     void pixmapPainted(QPixmap* q_image);
     void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index position);
-    void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
+    void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);
     void mouseReleasedOnImage();
+    void mouseWheelOnImage(int delta);
 
 private slots:
     void handleStatusTextChange(QString text);

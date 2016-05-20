@@ -47,7 +47,7 @@ ITKImage SplineInterpolationWidget::processImage(ITKImage image)
     return field_image;
 }
 
-void SplineInterpolationWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
+void SplineInterpolationWidget::setReferenceROIs(QList<QVector<Point>> reference_rois)
 {
     this->ui->referenceROIsListWidget->clear();
     this->reference_rois_statistic.clear();
@@ -76,7 +76,7 @@ void SplineInterpolationWidget::on_add_reference_roi_button_clicked()
 {
     this->adding_reference_roi = true;
 
-    QVector<QPoint> roi;
+    QVector<Point> roi;
     reference_rois.push_back(roi);
 
     uint index = reference_rois.size() - 1;
@@ -105,12 +105,16 @@ void SplineInterpolationWidget::paintSelectedReferenceROI(QPixmap* pixmap)
     {
         return;
     }
-    QVector<QPoint> roi = this->reference_rois[index];
+    QVector<Point> roi = this->reference_rois[index];
 
     if(roi.size() == 0)
         return;
 
-    QPolygon polygon(roi);
+    QVector<QPoint> qpoint_roi;
+    for(Point point : roi)
+        qpoint_roi.push_back(ITKImage::pointFromIndex(point));
+
+    QPolygon polygon(qpoint_roi);
 
     QPainter painter(pixmap);
 
@@ -134,7 +138,7 @@ void SplineInterpolationWidget::mouseReleasedOnImage()
     }
 }
 
-void SplineInterpolationWidget::mouseMoveOnImage(Qt::MouseButtons buttons, QPoint position)
+void SplineInterpolationWidget::mouseMoveOnImage(Qt::MouseButtons buttons, ITKImage::Index cursor_index)
 {
     bool is_left_button = (buttons & Qt::LeftButton) == Qt::LeftButton;
 
@@ -146,7 +150,7 @@ void SplineInterpolationWidget::mouseMoveOnImage(Qt::MouseButtons buttons, QPoin
     {
         std::cout << "add point" << std::endl;
 
-        this->reference_rois[selected_roi_index].push_back(position);
+        this->reference_rois[selected_roi_index].push_back(cursor_index);
         this->updateReferenceROI();
     }
 }
@@ -159,13 +163,19 @@ void SplineInterpolationWidget::updateReferenceROI()
     if(image.isNull())
         return;
 
-    QVector<QPoint> roi = this->reference_rois[index];
+    QVector<Point> roi = this->reference_rois[index];
+    QVector<QPoint> qpoint_roi;
+    for(Point point : roi)
+        qpoint_roi.push_back(ITKImage::pointFromIndex(point));
+
+    //TODO MAKE 3d, at the moment QPolygon::containsPoint is used
+    // take the bounding box/region of the polygon?
 
     if(roi.size() == 0)
         return;
 
     // get mean/median of pixels which are inside the polygon
-    QPolygon polygon(roi);
+    QPolygon polygon(qpoint_roi);
 
     QImage *data = ITKToQImageConverter::convert(this->image);
 

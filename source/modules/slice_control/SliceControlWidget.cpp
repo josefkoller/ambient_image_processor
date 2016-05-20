@@ -30,6 +30,9 @@ void SliceControlWidget::registerModule(ImageWidget *image_widget)
 
     connect(this, &SliceControlWidget::sliceIndexChanged,
             image_widget, &ImageWidget::handleRepaintImage);
+
+    connect(image_widget, &ImageWidget::mouseWheelOnImage,
+            this, &SliceControlWidget::mouseWheelOnImage);
 }
 
 void SliceControlWidget::on_slice_spinbox_valueChanged(int user_slice_index)
@@ -58,7 +61,7 @@ void SliceControlWidget::setSliceIndex(uint slice_index)
     if(this->image.isNull())
         return;
 
-    if(slice_index < 0 || slice_index >= this->image.getDepth())
+    if(slice_index < 0 || slice_index >= this->image.depth)
     {
         std::cerr << "invalid slice_index for this image" << std::endl << std::flush;
         return;
@@ -96,13 +99,14 @@ void SliceControlWidget::setInputRanges()
         return;
 
     this->ui->slice_slider->setMinimum(0); // first slice gets slice index 0
-    this->ui->slice_slider->setMaximum(this->image.getDepth() - 1);
+    this->ui->slice_slider->setMaximum(this->image.depth - 1);
 
     this->ui->slice_spinbox->setMinimum(this->ui->slice_slider->minimum());
     this->ui->slice_spinbox->setMaximum(this->ui->slice_slider->maximum());
 }
 
-void SliceControlWidget::on_slice_slider_sliderMoved(int user_slice_index)
+void SliceControlWidget::mouseWheelOnImage(int delta)
 {
-
+    delta /= 8 * 15;
+    this->setSliceIndex(this->visible_slice_index + delta);
 }

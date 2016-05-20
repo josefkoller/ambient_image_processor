@@ -20,25 +20,26 @@ public:
     explicit SplineInterpolationWidget(QString title, QWidget *parent = 0);
     ~SplineInterpolationWidget();
 
+    typedef ITKImage::Index Point;
 private:
     Ui::SplineInterpolationWidget *ui;
 
     ITKImage& image;
     bool adding_reference_roi;
-    QList<QVector<QPoint>> reference_rois;
+    QList<QVector<Point>> reference_rois;
     std::vector<SplineInterpolationProcessor::ReferenceROIStatistic> reference_rois_statistic;
 
     int selectedReferenceROI();
     void paintSelectedReferenceROI(QPixmap* pixmap);
     void updateReferenceROI();
 
-    void setReferenceROIs(QList<QVector<QPoint>> reference_rois);
+    void setReferenceROIs(QList<QVector<Point>> reference_rois);
 protected:
     ITKImage processImage(ITKImage image);
 private slots:
     void on_pushButton_6_clicked();
     void on_add_reference_roi_button_clicked();
-    void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
+    void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);
     void mouseReleasedOnImage();
     void on_referenceROIsListWidget_currentRowChanged(int currentRow);
 

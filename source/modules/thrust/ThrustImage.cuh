@@ -32,15 +32,16 @@ struct ThrustImage
   PixelVector pixel_rows;
   const uint width;
   const uint height;
+  const uint depth;
   const uint pixel_count;
   __host__ __device__
-  ThrustImage(uint width, uint height);
+  ThrustImage(uint width, uint height, uint depth);
   __host__ __device__
-  void setPixel(uint x, uint y, Pixel pixel);
+  void setPixel(uint x, uint y, uint z, Pixel pixel);
   __host__ __device__
-  uint getIndex(uint x, uint y);
+  uint getIndex(uint x, uint y, uint z);
   __host__ __device__
-  Pixel getPixel(uint x, uint y);
+  Pixel getPixel(uint x, uint y, uint z);
   __host__ __device__
   void backward_difference_x(ThrustImage<PixelVector>* gradient_x);
   __host__ __device__
@@ -49,6 +50,9 @@ struct ThrustImage
   void backward_difference_y(ThrustImage<PixelVector>* gradient_y);
   __host__ __device__
   void forward_difference_y(ThrustImage<PixelVector>* gradient_y);
+
+  // TODO forward, backward z
+
   __host__ __device__
   void laplace(ThrustImage<PixelVector>* output_image);
   __host__ __device__

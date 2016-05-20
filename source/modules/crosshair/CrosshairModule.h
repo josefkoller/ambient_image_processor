@@ -15,7 +15,7 @@ public:
     virtual void registerModule(ImageWidget* image_widget);
 
 private slots:
-    void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
+    void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);
 };
 
 #endif // CROSSHAIRMODULE_H

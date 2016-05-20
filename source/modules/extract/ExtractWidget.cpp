@@ -62,7 +62,7 @@ void ExtractWidget::imageChanged(ITKImage& image)
     int max_z = 0;
     if(image.getImageDimension() >= 3)
     {
-        max_z = image.getDepth() - 1;
+        max_z = image.depth - 1;
     }
     int max_x = image.width - 1;
     int max_y = image.height - 1;

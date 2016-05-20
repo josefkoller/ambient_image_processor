@@ -17,6 +17,7 @@ list(APPEND SOURCE_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/NonLocalGradientProcessor.cpp
   )
 
+
 list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/non_local_gradient_kernel.cu
   )

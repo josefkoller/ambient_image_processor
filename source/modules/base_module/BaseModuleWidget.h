@@ -8,6 +8,7 @@
 #include "ImageWidget.h"
 
 #include <QWidget>
+#include <QTime>
 
 #include "BaseModule.h"
 
@@ -23,6 +24,7 @@ private:
     SourceImageFetcher source_image_fetcher;
     ResultProcessor result_processor;
 
+    QTime start_timestamp;
     std::thread* worker_thread;
 signals:
     void fireWorkerFinished();
