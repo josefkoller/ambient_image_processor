@@ -6,44 +6,31 @@ LineProfileProcessor::LineProfileProcessor()
 }
 
 
-void LineProfileProcessor::intensity_profile(const ITKImage & image,
-                                             int point1_x, int point1_y,
-                                             int point2_x, int point2_y,
+void LineProfileProcessor::intensity_profile(ITKImage image,
+                                             LineProfile::Point point1,
+                                             LineProfile::Point point2,
                                              std::vector<double>& intensities,
                                              std::vector<double>& distances)
 {
     typedef ITKImage::InnerITKImage ImageType;
     typedef ITKImage::PixelType PixelType;
 
-    ImageType::IndexType index1;
-    index1[0] = point1_x;
-    index1[1] = point1_y;
-
-
-    ImageType::IndexType index2;
-    index2[0] = point2_x;
-    index2[1] = point2_y;
-
-    if(ImageType::ImageDimension > 2) {
-        index1[2] = 0;
-        index2[2] = 0;
-    }
-
-    itk::LineConstIterator<ImageType> iterator(image.getPointer(), index1, index2);
+    itk::LineConstIterator<ImageType> iterator(image.getPointer(), point1, point2);
     while(! iterator.IsAtEnd())
     {
-        PixelType intensity = iterator.Get();
+        intensities.push_back(iterator.Get());
+
         ImageType::IndexType index = iterator.GetIndex();
+        const int dx = point1[0] - index[0];
+        const int dy = point1[1] - index[1];
 
-        const int point_x = index[0];
-        const int point_y = index[1];
-
-        const int dx = point1_x - point_x;
-        const int dy = point1_y - point_y;
-        const double distance = sqrt(dx*dx + dy*dy);
-
-        intensities.push_back(intensity);
-        distances.push_back(distance);
+        if(ImageType::ImageDimension == 3)
+        {
+            const int dz = point1[2] - index[2];
+            distances.push_back(sqrt(dx*dx + dy*dy + dz*dz));
+        }
+        else
+            distances.push_back(sqrt(dx*dx + dy*dy));
 
         ++iterator;
     }

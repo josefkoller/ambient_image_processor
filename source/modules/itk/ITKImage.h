@@ -4,6 +4,9 @@
 #include <itkImage.h>
 #include <string>
 
+#include <QPoint>
+#include <QString>
+
 class ITKImage
 {
 public:
@@ -12,6 +15,7 @@ public:
     typedef double PixelType;
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
+    typedef InnerITKImage::IndexType Index;
 
     uint width;
     uint height;
@@ -56,6 +60,10 @@ public:
     PixelType maximum() const;
 
     static ITKImage Null;
+
+    static Index indexFromPoint(QPoint point, uint slice_index);
+    static QPoint pointFromIndex(Index index);
+    static QString indexToText(Index index);
 };
 
 #endif // ITKIMAGE_H

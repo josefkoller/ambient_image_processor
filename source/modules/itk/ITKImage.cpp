@@ -221,3 +221,27 @@ ITKImage::PixelType ITKImage::maximum() const
     });
     return maximum;
 }
+
+ITKImage::Index ITKImage::indexFromPoint(QPoint point, uint slice_index)
+{
+    ITKImage::Index index;
+    index[0] = point.x();
+    index[1] = point.y();
+    if(index.Dimension > 2)
+        index[2] = slice_index;
+    return index;
+}
+
+QPoint ITKImage::pointFromIndex(Index index)
+{
+    return QPoint(index[0], index[1]);
+}
+
+QString ITKImage::indexToText(Index index)
+{
+    return QString("%1 | %2 | %3").arg(
+            QString::number(index[0]),
+            QString::number(index[1]),
+            QString::number(index[2]) );
+
+}

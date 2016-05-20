@@ -20,14 +20,13 @@ public:
     QList<LineProfile> getProfileLines() { return this->profile_lines; }
     int selectedProfileLineIndex();
 
-    void mousePressedOnImage(Qt::MouseButton button, QPoint position);
+    void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index index);
     void connectTo(LineProfileWidget* other);
     void paintSelectedProfileLine();
 private:
     Ui::LineProfileWidget *ui;
 
     QList<LineProfile> profile_lines;
-    bool adding_profile_line;
 
     LineProfileWidget* profile_line_parent;
 

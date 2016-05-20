@@ -1,5 +1,7 @@
  #include "ITKToQImageConverter.h"
 
+#include "ExtractProcessor.h"
+
 #include <itkRescaleIntensityImageFilter.h>
 #include <QColor>
 
@@ -8,6 +10,8 @@ ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
 QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
 {
+    itk_image = ExtractProcessor::extract_slice(itk_image, slice_index);
+
     typedef ITKImage::InnerITKImage ImageType;
 
     ImageType::RegionType region = itk_image.getPointer()->GetLargestPossibleRegion();
@@ -33,7 +37,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
             index[1] = y;
 
             if(itk_image.getImageDimension() > 2)
-                index[2] = slice_index;
+                index[2] = 0;
 
             int value = rescaled_image->GetPixel(index);
 

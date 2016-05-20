@@ -15,7 +15,7 @@ public:
     typedef itk::Image<unsigned char, ITKImage::ImageDimension> LabelImage;
 
     static LabelImage::Pointer process(
-            const ITKImage& gradient_image,
+            ITKImage gradient_image,
             std::vector<std::vector<Index> > input_segments,
             float tolerance);
 

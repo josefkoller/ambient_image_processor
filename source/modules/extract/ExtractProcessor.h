@@ -13,6 +13,8 @@ public:
          unsigned int from_y, unsigned int to_y,
          unsigned int from_z, unsigned int to_z);
 
+    static ITKImage extract_slice(ITKImage image,
+         unsigned int slice_index);
 };
 
 #endif // EXTRACTPROCESSOR_H

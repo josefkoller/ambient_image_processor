@@ -10,7 +10,7 @@ RegionGrowingSegmentationProcessor::RegionGrowingSegmentationProcessor()
 
 
 RegionGrowingSegmentationProcessor::LabelImage::Pointer RegionGrowingSegmentationProcessor::process(
-    const ITKImage& gradient_image,
+    ITKImage gradient_image,
     std::vector<std::vector<Index> > input_segments,
     float tolerance)
 {
@@ -59,5 +59,12 @@ void RegionGrowingSegmentationProcessor::grow(
 
         auto index5 = index; index5[1] = index[1] - 1;
         grow(gradient_image, output_labels, segment_index, index5, tolerance);
+
+        auto index6 = index; index5[2] = index[2] - 1;
+        grow(gradient_image, output_labels, segment_index, index6, tolerance);
+
+        auto index7 = index; index7[2] = index[2] + 1;
+        grow(gradient_image, output_labels, segment_index, index7, tolerance);
+
     }
 }

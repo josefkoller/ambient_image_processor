@@ -6,7 +6,6 @@
 LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::LineProfileWidget),
-    adding_profile_line(false),
     profile_line_parent(nullptr),
     image(ITKImage::Null)
 {
@@ -24,8 +23,7 @@ LineProfileWidget::~LineProfileWidget()
 
 void LineProfileWidget::line_profile_mouse_move(QMouseEvent* event)
 {
-    auto image = this->getSourceImage();
-    if(image.isNull())
+    if(this->image.isNull())
         return;
 
     QPoint position = event->pos();
@@ -61,10 +59,8 @@ void LineProfileWidget::paintSelectedProfileLine()
     std::vector<double> intensities;
     std::vector<double> distances;
     LineProfileProcessor::intensity_profile(image,
-                                            line.position1().x(),
-                                            line.position1().y(),
-                                            line.position2().x(),
-                                            line.position2().y(),
+                                            line.position1(),
+                                            line.position2(),
                                             intensities,
                                             distances);
     this->ui->custom_plot_widget->clearGraphs();
@@ -96,7 +92,7 @@ int LineProfileWidget::selectedProfileLineIndex()
     return this->ui->line_profile_list_widget->selectionModel()->selectedIndexes().at(0).row();
 }
 
-void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, QPoint position)
+void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index)
 {
     int index = this->selectedProfileLineIndex();
     if( index == -1)
@@ -104,18 +100,17 @@ void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, QPoint posit
         this->setStatusText("add a profile line first and select it...");
         return;
     }
-    LineProfile line = this->profile_lines.at(index);
+    LineProfile& line = this->profile_lines[index];
 
     bool is_left_button = button == Qt::LeftButton;
     if(is_left_button)
     {
-        line.setPosition1(position);
+        line.setPosition1(cursor_index);
     }
     else
     {
-        line.setPosition2(position);
+        line.setPosition2(cursor_index);
     }
-    this->profile_lines[index] = line;
     this->ui->line_profile_list_widget->item(index)->setText(line.text());
 
     emit this->profileLinesChanged();
@@ -204,12 +199,16 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     QPen pen(Qt::blue);
     pen.setWidth(1);
     painter.setPen(pen);
-    painter.drawLine(line.position1(), line.position2());
+
+    QPoint point1 = ITKImage::pointFromIndex(line.position1());
+    QPoint point2 = ITKImage::pointFromIndex(line.position2());
+
+    painter.drawLine(point1, point2);
 
     painter.setPen(QPen(Qt::red,2));
-    painter.drawPoint(line.position1());
+    painter.drawPoint(point1);
     painter.setPen(QPen(Qt::green,2));
-    painter.drawPoint(line.position2());
+    painter.drawPoint(point2);
 
     this->paintSelectedProfileLine();
 }

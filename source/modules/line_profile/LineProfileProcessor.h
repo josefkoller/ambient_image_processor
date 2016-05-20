@@ -5,16 +5,18 @@
 
 #include <vector>
 
+#include "LineProfile.h"
+
 class LineProfileProcessor
 {
 private:
     LineProfileProcessor();
 public:
-    static void intensity_profile(const ITKImage & image,
-                                  int point1_x, int point1_y,
-                                  int point2_x, int point2_y,
-                                     std::vector<double>& intensities,
-                                     std::vector<double>& distances);
+    static void intensity_profile(ITKImage image,
+                                  LineProfile::Point point1,
+                                  LineProfile::Point point2,
+                                  std::vector<double>& intensities,
+                                  std::vector<double>& distances);
 };
 
 #endif // LINEPROFILEPROCESSOR_H

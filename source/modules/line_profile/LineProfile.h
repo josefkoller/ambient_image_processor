@@ -1,31 +1,37 @@
 #ifndef LINEPROFILE_H
 #define LINEPROFILE_H
 
-#include <QPoint>
 #include <QString>
 
+#include "ITKImage.h"
+
+
 struct LineProfile {
+public:
+    typedef ITKImage::Index Point;
+
 private:
-    QPoint _position1;
-    QPoint _position2;
+    Point _position1;
+    Point _position2;
     bool position1_is_set;
     bool position2_is_set;
 public:
+
     LineProfile() : position1_is_set(false), position2_is_set(false)
     {}
-    void setPosition1(QPoint position1) {
+    void setPosition1(Point position1) {
         this->_position1 = position1;
         this->position1_is_set = true;
     }
-    void setPosition2(QPoint position2) {
+    void setPosition2(Point position2) {
         this->_position2 = position2;
         this->position2_is_set = true;
     }
-    QPoint position1()
+    Point position1()
     {
         return this->_position1;
     }
-    QPoint position2()
+    Point position2()
     {
         return this->_position2;
     }
@@ -36,23 +42,20 @@ public:
 
     QString text()
     {
-        if(this->isSet())
-        {
-            return QString("%1 | %2  -  %3 | %4").arg(
-                        QString::number(_position1.x()),
-                        QString::number(_position1.y()),
-                        QString::number(_position2.x()),
-                        QString::number(_position2.y()) );
-        }
+        QString text;
         if(this->position1_is_set)
-        {
-            return "only position1 set";
-        }
+            text = ITKImage::indexToText(_position1);
+        else
+            text = "⦾";
+
+        text += " ➞ ";
+
         if(this->position2_is_set)
-        {
-            return "only position2 set";
-        }
-        return "empty line";
+            text += ITKImage::indexToText(_position2);
+        else
+            text += "⦿";
+
+        return text;
     }
 };
 

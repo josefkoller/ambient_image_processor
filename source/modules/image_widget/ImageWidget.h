@@ -74,7 +74,7 @@ signals:
     void fireImageChange(ITKImage image);
     void imageChanged(ITKImage& image);
     void pixmapPainted(QPixmap* q_image);
-    void mousePressedOnImage(Qt::MouseButton button, QPoint position);
+    void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index position);
     void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
     void mouseReleasedOnImage();
 

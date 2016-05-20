@@ -136,7 +136,7 @@ void RegionGrowingSegmentationWidget::refreshSeedPointList()
 
 QString RegionGrowingSegmentationWidget::text(RegionGrowingSegmentation::Position point) const
 {
-    return QString::number(point[0]) + "|" + QString::number(point[1]);
+    return ITKImage::indexToText(point);
 }
 
 void RegionGrowingSegmentationWidget::on_segmentsListWidget_itemSelectionChanged()
@@ -351,18 +351,12 @@ void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
     });
 }
 
-void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button, QPoint position)
+void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button,
+                                                          ITKImage::Index cursor_index)
 {
     if(this->isAddingSeedPoint())
     {
-        ITKImage::InnerITKImage::IndexType image_index;
-        image_index[0] = position.x();
-        image_index[1] = position.y();
-
-        if(ITKImage::ImageDimension > 2)
-          image_index[2] = 0; //TODO slice_index to parameters
-
-        this->addSeedPointAt(image_index);
+        this->addSeedPointAt(cursor_index);
     }
 
 }

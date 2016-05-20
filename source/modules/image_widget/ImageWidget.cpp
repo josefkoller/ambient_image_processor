@@ -239,7 +239,11 @@ void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
     QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
     // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
 
-    emit this->mousePressedOnImage(mouse_event->button(), position);
+    uint slice_index = this->slice_control_widget->getVisibleSliceIndex();
+
+    auto index = ITKImage::indexFromPoint(position, slice_index);
+
+    emit this->mousePressedOnImage(mouse_event->button(), index);
 }
 
 bool ImageWidget::eventFilter(QObject *target, QEvent *event)

@@ -81,7 +81,7 @@ public:
     void registerModule(ImageWidget* image_widget);
 
 private slots:
-    void mousePressedOnImage(Qt::MouseButton button, QPoint position);
+    void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index);
 };
 
 #endif // REGIONGROWINGSEGMENTATIONWIDGET_H

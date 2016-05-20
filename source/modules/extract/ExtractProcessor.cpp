@@ -1,5 +1,6 @@
 #include "ExtractProcessor.h"
 
+#include <itkExtractImageFilter.h>
 
 ExtractProcessor::ExtractProcessor()
 {
@@ -13,6 +14,32 @@ ITKImage ExtractProcessor::process(
 {
     typedef ITKImage::InnerITKImage ImageType;
     ImageType::Pointer image = itk_image.getPointer();
+
+    /*
+    ImageType::IndexType start;
+    start[0] = from_x;
+    start[1] = from_y;
+    start[2] = from_z;
+    ImageType::SizeType size;
+    size[0] = to_x - from_x + 1;
+    size[1] = to_y - from_y + 1;
+    size[2] = to_z - from_z + 1;
+    ImageType::RegionType extraction_region;
+    extraction_region.SetIndex(start);
+    extraction_region.SetSize(size);
+
+    typedef itk::ExtractImageFilter<ImageType, ImageType> ExtractFilter;
+    ExtractFilter::Pointer extract_filter = ExtractFilter::New();
+    extract_filter->SetExtractionRegion(extraction_region);
+    #if ITK_VERSION_MAJOR >= 4
+      extract_filter->SetDirectionCollapseToIdentity(); // This is required.
+    #endif
+    extract_filter->Update();
+    ImageType::Pointer output = extract_filter->GetOutput();
+    output->DisconnectPipeline();
+
+    return ITKImage(output);
+    */
 
     ImageType::SizeType extract_size;
     extract_size[0] = to_x - from_x + 1;
@@ -59,4 +86,13 @@ ITKImage ExtractProcessor::process(
     extracted_volume->SetOrigin(origin);
 
     return ITKImage(extracted_volume);
+}
+
+ITKImage ExtractProcessor::extract_slice(ITKImage image,
+     unsigned int slice_index)
+{
+    uint to_x = image.width - 1;
+    uint to_y = image.height - 1;
+
+    return process(image, 0, to_x, 0, to_y, slice_index, slice_index);
 }

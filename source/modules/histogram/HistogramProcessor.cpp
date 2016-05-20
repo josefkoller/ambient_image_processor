@@ -7,7 +7,7 @@ HistogramProcessor::HistogramProcessor()
 }
 
 
-void HistogramProcessor::calculate(const ITKImage& image,
+void HistogramProcessor::calculate(ITKImage image,
                                    int bin_count,
                                    ITKImage::PixelType window_from,
                                    ITKImage::PixelType window_to,

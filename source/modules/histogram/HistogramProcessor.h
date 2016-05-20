@@ -10,7 +10,7 @@ private:
     HistogramProcessor();
 
 public:
-    static void calculate(const ITKImage& image,
+    static void calculate(ITKImage image,
                           int bin_count,
                           ITKImage::PixelType window_from,
                           ITKImage::PixelType window_to,

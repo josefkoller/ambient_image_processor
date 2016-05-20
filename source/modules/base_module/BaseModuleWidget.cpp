@@ -45,7 +45,6 @@ ITKImage BaseModuleWidget::processImage(ITKImage image)
     return image;
 }
 
-
 void BaseModuleWidget::handleWorkerFinished()
 {
     if(this->worker_thread != nullptr)

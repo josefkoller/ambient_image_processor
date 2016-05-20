@@ -6,6 +6,9 @@ NonLocalGradientWidget::NonLocalGradientWidget(QString title, QWidget *parent) :
     ui(new Ui::NonLocalGradientWidget)
 {
     ui->setupUi(this);
+
+    this->ui->kernel_view->setSigma(this->ui->sigma_spinbox->value());
+    this->ui->kernel_view->setKernelSize(this->ui->kernel_size_spinbox->value());
 }
 
 NonLocalGradientWidget::~NonLocalGradientWidget()
