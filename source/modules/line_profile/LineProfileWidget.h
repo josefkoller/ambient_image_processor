@@ -31,7 +31,7 @@ private:
 
     LineProfileWidget* profile_line_parent;
 
-    ITKImage image;
+    ITKImage& image;
 private slots:
     void line_profile_mouse_move(QMouseEvent*);
     void on_add_profile_line_button_clicked();

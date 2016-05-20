@@ -31,7 +31,7 @@
         <x>0</x>
         <y>0</y>
         <width>519</width>
-        <height>378</height>
+        <height>389</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -79,38 +79,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="slice_control">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QFrame" name="slice_control_widget_frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="title">
-          <string>View</string>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Slice:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSlider" name="slice_slider">
-            <property name="pageStep">
-             <number>1</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="slice_spinbox"/>
-          </item>
-         </layout>
+         <layout class="QVBoxLayout" name="verticalLayout_2"/>
         </widget>
        </item>
       </layout>
@@ -134,7 +110,7 @@
         <x>0</x>
         <y>0</y>
         <width>519</width>
-        <height>400</height>
+        <height>389</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_10">

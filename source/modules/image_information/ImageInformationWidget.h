@@ -24,7 +24,7 @@ public:
     virtual void registerModule(ImageWidget* image_widget);
 
 private slots:
-    void collectInformation(ITKImage image);
+    void collectInformation(ITKImage& image);
 };
 
 #endif // IMAGEINFORMATIONWIDGET_H

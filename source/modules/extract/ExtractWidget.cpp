@@ -54,7 +54,7 @@ void ExtractWidget::registerModule(ImageWidget* image_widget)
             this, &ExtractWidget::imageChanged);
 }
 
-void ExtractWidget::imageChanged(ITKImage image)
+void ExtractWidget::imageChanged(ITKImage& image)
 {
     if(image.isNull())
         return;

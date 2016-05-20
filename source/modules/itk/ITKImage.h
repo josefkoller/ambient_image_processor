@@ -8,14 +8,13 @@ class ITKImage
 {
 public:
     typedef unsigned int uint;
-    static const uint ImageDimension = 2;
+    static const uint ImageDimension = 3;
     typedef double PixelType;
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
 
     uint width;
     uint height;
-    uint visible_slice_index;
 private:
     InnerITKImage::Pointer inner_image;
 public:
@@ -50,13 +49,13 @@ public:
 
     PixelType getPixel(InnerITKImage::IndexType index) const;
 
-    uint getVisibleSliceIndex() const;
-    void setVisibleSliceIndex(uint slice_index);
     uint getImageDimension() const;
     uint getDepth() const;
 
     PixelType minimum() const;
     PixelType maximum() const;
+
+    static ITKImage Null;
 };
 
 #endif // ITKIMAGE_H

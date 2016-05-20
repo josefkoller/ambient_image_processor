@@ -8,7 +8,9 @@
 
 #include <iostream>
 
-ITKImage::ITKImage(uint width, uint height) : width(width), height(height), visible_slice_index(0)
+ITKImage ITKImage::Null = ITKImage();
+
+ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
 {
     this->inner_image = InnerITKImage::New();
     InnerITKImage::SizeType size;
@@ -20,8 +22,7 @@ ITKImage::ITKImage(uint width, uint height) : width(width), height(height), visi
 
 ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image),
     width(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[0]),
-    height(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[1]),
-    visible_slice_index(0)
+    height(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[1])
 {
     if(inner_image.IsNotNull())
         inner_image->DisconnectPipeline();
@@ -67,6 +68,7 @@ ITKImage ITKImage::clone() const
     clone->DisconnectPipeline();
     clone->SetSpacing(this->inner_image->GetSpacing());
     clone->SetOrigin(this->inner_image->GetOrigin());
+
     return ITKImage(clone);
 }
 
@@ -145,7 +147,7 @@ ITKImage::PixelType ITKImage::getPixel(uint x, uint y) const
     index[1] = y;
 
     if(this->getImageDimension() > 2)
-        index[2] = this->getVisibleSliceIndex();
+        index[2] = 0; // TODO make member getPixel(x,y,z)
 
     return this->getPixel(index);
 }
@@ -162,7 +164,7 @@ void ITKImage::setPixel(uint x, uint y, PixelType value)
     index[1] = y;
 
     if(this->getImageDimension() > 2)
-        index[2] = this->getVisibleSliceIndex();
+        index[2] = 0;  // TODO make member getPixel(x,y,z)
 
     return this->inner_image->SetPixel(index, value);
 }
@@ -180,16 +182,6 @@ void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetch
 
         ++iterator;
     }
-}
-
-uint ITKImage::getVisibleSliceIndex() const
-{
-    return this->visible_slice_index;
-}
-
-void ITKImage::setVisibleSliceIndex(uint slice_index)
-{
-    this->visible_slice_index = slice_index;
 }
 
 uint ITKImage::getDepth() const

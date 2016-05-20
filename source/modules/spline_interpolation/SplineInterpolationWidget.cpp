@@ -7,7 +7,8 @@
 SplineInterpolationWidget::SplineInterpolationWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::SplineInterpolationWidget),
-    adding_reference_roi(false)
+    adding_reference_roi(false),
+    image(ITKImage::Null)
 {
     ui->setupUi(this);
 }
@@ -218,7 +219,7 @@ void SplineInterpolationWidget::registerModule(ImageWidget* image_widget)
             this, &SplineInterpolationWidget::mouseReleasedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage itk_image) {
+            this, [this] (ITKImage& itk_image) {
         this->image = itk_image;
     });
 

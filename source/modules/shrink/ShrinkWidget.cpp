@@ -36,3 +36,4 @@ void ShrinkWidget::registerModule(ImageWidget* image_widget)
 {
     BaseModuleWidget::registerModule(image_widget);
 }
+

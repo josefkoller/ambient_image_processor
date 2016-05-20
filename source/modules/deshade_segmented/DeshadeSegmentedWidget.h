@@ -25,7 +25,7 @@ public:
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;
     typedef std::function<Segments()> SegmentsFetcher;
-    typedef itk::Image<unsigned char> LabelImage;
+    typedef itk::Image<unsigned char, Image::ImageDimension> LabelImage;
     typedef std::function<LabelImage::Pointer()> LabelImageFetcher;
 private slots:
     void on_perform_button_clicked();

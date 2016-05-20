@@ -7,7 +7,7 @@
 class ITKToQImageConverter
 {
 public:
-    static QImage* convert(ITKImage image);
+    static QImage* convert(ITKImage image, uint slice_index = 0);
 
     static void setWindowFrom(ITKImage::PixelType value);
     static void setWindowTo(ITKImage::PixelType value);

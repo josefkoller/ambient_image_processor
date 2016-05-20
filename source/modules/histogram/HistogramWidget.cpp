@@ -7,7 +7,8 @@
 
 HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
-    ui(new Ui::HistogramWidget)
+    ui(new Ui::HistogramWidget),
+    image(ITKImage::Null)
 {
     ui->setupUi(this);
 
@@ -49,7 +50,7 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
             image_widget, &ImageWidget::handleRepaintImage);
 }
 
-void HistogramWidget::handleImageChanged(ITKImage image)
+void HistogramWidget::handleImageChanged(ITKImage& image)
 {
     this->image = image;
     this->calculateHistogram();

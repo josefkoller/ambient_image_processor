@@ -7,7 +7,8 @@ LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::LineProfileWidget),
     adding_profile_line(false),
-    profile_line_parent(nullptr)
+    profile_line_parent(nullptr),
+    image(ITKImage::Null)
 {
     ui->setupUi(this);
 
@@ -166,7 +167,7 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
                   this, &LineProfileWidget::mousePressedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage itk_image) {
+            this, [this] (ITKImage& itk_image) {
         this->image = itk_image;
     });
 

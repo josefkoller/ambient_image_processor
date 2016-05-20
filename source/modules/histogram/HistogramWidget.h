@@ -19,10 +19,10 @@ public:
 private:
     Ui::HistogramWidget *ui;
 
-    ITKImage image;
+    ITKImage& image;
 private slots:
     void histogram_mouse_move(QMouseEvent* event);
-    void handleImageChanged(ITKImage image);
+    void handleImageChanged(ITKImage& image);
 
     void on_histogram_bin_count_spinbox_valueChanged(int arg1);
 

@@ -14,6 +14,7 @@
 #include "ITKImage.h"
 
 class BaseModule;
+class SliceControlWidget;
 
 namespace Ui {
 class ImageWidget;
@@ -29,28 +30,19 @@ public:
     ~ImageWidget();
 
     void setImage(ITKImage image);
-
-
-    void showSliceControl();
+    ITKImage getImage() { return this->image; }
 
     void showImageOnly();
-
-    void connectSliceControlTo(ImageWidget* other_image_widget);
-
     void connectModule(QString module_title, ImageWidget* other_image_widget);
 
+    void setOutputWidget(ImageWidget* output_widget);
+    void setOutputWidget2(ImageWidget* output_widget);
+    void setOutputWidget3(ImageWidget* output_widget);
+    ImageWidget* getOutputWidget() const;
+    void setPage(unsigned char page_index);
+
 private:
-    BaseModule* getModuleByName(QString module_title) const;
-private slots:
-    void on_slice_slider_valueChanged(int value);
-
-    void on_load_button_clicked();
-
-    void on_save_button_clicked();
-
-public:
     Ui::ImageWidget *ui;
-private:
     QList<BaseModule*> modules;
 
     ImageWidget* output_widget;
@@ -59,43 +51,28 @@ private:
 
     ITKImage image;
 
-    bool show_slice_control;
-
-    void setSliceIndex(uint slice_index);
-    uint userSliceIndex() const;
+    QLabel* inner_image_frame;
+    QImage* q_image;
 
     void paintImage(bool repaint = false);
-    void setInputRanges();
-signals:
-    void sliceIndexChanged(uint slice_index);
-public slots:
-    void connectedSliceControlChanged(uint slice_index);
-
-public:
-    ITKImage getImage() { return this->image; }
-private slots:
-    void on_slice_spinbox_valueChanged(int arg1);
-
-public:
     void setMinimumSizeToImage();
-    void hidePixelValueAtCursor();
-    void showPixelValueAtCursor();
-    void setOutputWidget(ImageWidget* output_widget);
-    void setOutputWidget2(ImageWidget* output_widget);
-    void setOutputWidget3(ImageWidget* output_widget);
+    BaseModule* getModuleByName(QString module_title) const;
 
-    ImageWidget* getOutputWidget() const;
+    SliceControlWidget* slice_control_widget;
+private slots:
+    void on_load_button_clicked();
+    void on_save_button_clicked();
 
-    void setPage(unsigned char page_index);
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    bool eventFilter(QObject *target, QEvent *event);
 
 signals:
     void fireStatusTextChange(QString text);
     void fireImageChange(ITKImage image);
-    void imageChanged(ITKImage image);
+    void imageChanged(ITKImage& image);
     void pixmapPainted(QPixmap* q_image);
     void mousePressedOnImage(Qt::MouseButton button, QPoint position);
     void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
@@ -104,12 +81,6 @@ signals:
 private slots:
     void handleStatusTextChange(QString text);
     void handleImageChange(ITKImage image);
-
-private:
-    QLabel* inner_image_frame;
-    QImage* q_image;
-protected:
-    bool eventFilter(QObject *target, QEvent *event);
 
 public slots:
     void handleRepaintImage();

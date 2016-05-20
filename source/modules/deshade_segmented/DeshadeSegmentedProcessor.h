@@ -4,16 +4,18 @@
 #include <itkImage.h>
 #include <itkLabelStatisticsImageFilter.h>
 
+#include "ITKImage.h"
+
 class DeshadeSegmentedProcessor
 {
 private:
     DeshadeSegmentedProcessor();
 
-    typedef itk::Image<double> Image;
+    typedef ITKImage::InnerITKImage Image;
     typedef Image::IndexType SeedPoint;
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;
-    typedef itk::Image<unsigned char> LabelImage;
+    typedef itk::Image<unsigned char, Image::ImageDimension> LabelImage;
 
     typedef itk::LabelStatisticsImageFilter<Image, LabelImage> StatisticsFilter;
 

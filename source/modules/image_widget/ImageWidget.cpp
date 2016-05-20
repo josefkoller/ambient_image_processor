@@ -21,6 +21,7 @@
 #include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
 #include "CrosshairModule.h"
+#include "SliceControlWidget.h"
 
 #include "QMenuBar"
 
@@ -28,15 +29,12 @@ ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
     image(nullptr),
-    show_slice_control(false),
     output_widget(this),
     inner_image_frame(nullptr),
     q_image(nullptr),
     output_widget2(this)
 {
     ui->setupUi(this);
-
-    this->ui->slice_control->setVisible(this->show_slice_control);
 
     connect(this, SIGNAL(fireStatusTextChange(QString)),
             this, SLOT(handleStatusTextChange(QString)));
@@ -57,6 +55,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto deshade_segmented_widget = new DeshadeSegmentedWidget("Deshade Segmented", module_parent);
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
 
+    this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
+
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
@@ -72,6 +72,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
     modules.push_back(new CrosshairModule("Bilateral Filter"));
+    modules.push_back(slice_control_widget);
 
     // register modules and add widget modules
     module_parent->hide();
@@ -80,12 +81,17 @@ ImageWidget::ImageWidget(QWidget *parent) :
     for(auto module : modules)
     {
         auto widget = dynamic_cast<BaseModuleWidget*>(module);
-        if(widget != nullptr)
+        if(widget != nullptr && widget != slice_control_widget)
             module_parent->insertTab(index++, widget, module->getTitle());
 
         std::cout << "registering module: " << module->getTitle().toStdString() << std::endl;
         module->registerModule(this);
     }
+
+  //  module_parent->removeTab(module_parent->indexOf(slice_control_widget));
+ //   slice_control_widget->setParent(this->ui->slice_control_widget_frame);
+    this->ui->slice_control_widget_frame->layout()->addWidget(slice_control_widget);
+
     module_parent->setUpdatesEnabled(true);
     module_parent->show();
 
@@ -147,47 +153,13 @@ ImageWidget::~ImageWidget()
 
 void ImageWidget::setImage(ITKImage image)
 {
-    this->q_image = nullptr; // redo converting
     this->image = image.clone();
 
-    this->setInputRanges();
-    this->setSliceIndex(0);
     this->setMinimumSizeToImage();
 
     emit this->imageChanged(this->image);
-}
 
-uint ImageWidget::userSliceIndex() const
-{
-    return this->ui->slice_slider->value();
-}
-
-void ImageWidget::setSliceIndex(uint slice_index)
-{
-    if(this->image.isNull())
-        return;
-
-    if(slice_index < 0 || slice_index >= this->image.getDepth())
-    {
-        std::cerr << "invalid slice_index for this image" << std::endl << std::flush;
-        return;
-    }
-
-    image.setVisibleSliceIndex(slice_index);
-    if(this->ui->slice_slider->value() != this->image.getVisibleSliceIndex())
-    {
-        this->ui->slice_slider->setValue(this->image.getVisibleSliceIndex());
-    }
-    if(this->ui->slice_spinbox->value() != this->image.getVisibleSliceIndex())
-    {
-        this->ui->slice_spinbox->setValue(this->image.getVisibleSliceIndex());
-    }
-    this->paintImage();
-
-    if(image.getImageDimension() > 2)
-        this->showSliceControl();
-
-    emit this->sliceIndexChanged(slice_index);
+    this->paintImage(true);
 }
 
 void ImageWidget::paintImage(bool repaint)
@@ -202,7 +174,8 @@ void ImageWidget::paintImage(bool repaint)
 
     if(q_image == nullptr)
     {
-        q_image = ITKToQImageConverter::convert(this->image);
+        q_image = ITKToQImageConverter::convert(this->image,
+                                                this->slice_control_widget->getVisibleSliceIndex());
         if(inner_image_frame != nullptr)
             delete inner_image_frame;
         inner_image_frame = new QLabel(this->ui->image_frame);
@@ -231,24 +204,6 @@ void ImageWidget::paintImage(bool repaint)
     }
 }
 
-void ImageWidget::on_slice_slider_valueChanged(int user_slice_index)
-{
-    this->setSliceIndex(user_slice_index);
-}
-
-
-void ImageWidget::showSliceControl()
-{
-    this->show_slice_control = true;
-    this->ui->slice_control->setVisible(true);
-}
-
-void ImageWidget::connectSliceControlTo(ImageWidget* other_image_widget)
-{
-    connect(other_image_widget, &ImageWidget::sliceIndexChanged,
-            this, &ImageWidget::connectedSliceControlChanged);
-}
-
 BaseModule* ImageWidget::getModuleByName(QString module_title) const
 {
     for(auto module : modules)
@@ -268,10 +223,6 @@ void ImageWidget::connectModule(QString module_title, ImageWidget* other_image_w
     module1->connectTo(module2);
 }
 
-void ImageWidget::connectedSliceControlChanged(uint slice_index)
-{
-    this->setSliceIndex(slice_index);
-}
 
 void ImageWidget::mouseReleaseEvent(QMouseEvent *)
 {
@@ -338,29 +289,6 @@ void ImageWidget::on_save_button_clicked()
     this->image.write(file_name.toStdString());
 }
 
-void ImageWidget::setInputRanges()
-{
-    if(this->image.isNull())
-        return;
-
-    this->ui->slice_slider->setMinimum(0); // first slice gets slice index 0
-    this->ui->slice_spinbox->setMinimum(this->ui->slice_slider->minimum());
-
-    if(this->image.getImageDimension() >= 3)
-    {
-        this->ui->slice_slider->setMaximum(this->image.getDepth() - 1);
-        this->ui->slice_spinbox->setMaximum(this->ui->slice_slider->maximum());
-    }
-
-}
-
-void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
-{
-    if(slice_index != this->image.getVisibleSliceIndex())
-    {
-        this->setSliceIndex(slice_index);
-    }
-}
 
 void ImageWidget::setMinimumSizeToImage()
 {

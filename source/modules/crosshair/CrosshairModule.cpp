@@ -1,7 +1,8 @@
 #include "CrosshairModule.h"
 
 CrosshairModule::CrosshairModule(QString title) :
-    BaseModule(title)
+    BaseModule(title),
+    image(ITKImage::Null)
 {
 }
 

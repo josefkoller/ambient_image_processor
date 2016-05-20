@@ -6,7 +6,7 @@
 ITKImage::PixelType* ITKToQImageConverter::window_from = nullptr;
 ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
-QImage* ITKToQImageConverter::convert(ITKImage itk_image)
+QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
 {
     typedef ITKImage::InnerITKImage ImageType;
 
@@ -33,7 +33,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image)
             index[1] = y;
 
             if(itk_image.getImageDimension() > 2)
-                index[2] = itk_image.getVisibleSliceIndex();
+                index[2] = slice_index;
 
             int value = rescaled_image->GetPixel(index);
 
