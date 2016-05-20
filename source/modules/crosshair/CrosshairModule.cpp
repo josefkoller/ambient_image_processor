@@ -11,7 +11,7 @@ void CrosshairModule::registerModule(ImageWidget* image_widget)
     BaseModule::registerModule(image_widget);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage::InnerITKImage::Pointer image) {
+            this, [this] (ITKImage image) {
         this->image = image;
     });
 
@@ -21,19 +21,12 @@ void CrosshairModule::registerModule(ImageWidget* image_widget)
 
 void CrosshairModule::mouseMoveOnImage(Qt::MouseButtons button, QPoint position)
 {
-    ITKImage::InnerITKImage::SizeType size = this->image->GetLargestPossibleRegion().GetSize();
-    if(position.x() < 0 || position.x() > size[0] ||
-            position.y() < 0 || position.y() > size[1] )
+    if(position.x() < 0 || position.x() > this->image.width ||
+            position.y() < 0 || position.y() > this->image.height )
         return;
 
-    ITKImage::InnerITKImage::IndexType index;
-    index[0] = position.x();
-    index[1] = position.y();
- //TODO   if(ITKImage::InnerITKImage::ImageDimension > 2)
- //      index[2] = this->slice_index;
-
     // showing pixel value...
-    ITKImage::InnerITKImage::PixelType pixel_value = this->image->GetPixel(index);
+    ITKImage::InnerITKImage::PixelType pixel_value = this->image.getPixel(position.x(), position.y());
     QString text = QString("pixel value at ") +
             QString::number(position.x()) +
             " | " +

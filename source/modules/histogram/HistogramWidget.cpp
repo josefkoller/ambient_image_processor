@@ -23,7 +23,7 @@ HistogramWidget::~HistogramWidget()
 
 void HistogramWidget::histogram_mouse_move(QMouseEvent* event)
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     QPoint position = event->pos();
@@ -49,7 +49,7 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
             image_widget, &ImageWidget::handleRepaintImage);
 }
 
-void HistogramWidget::handleImageChanged(Image::Pointer image)
+void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
     this->calculateHistogram();
@@ -57,13 +57,13 @@ void HistogramWidget::handleImageChanged(Image::Pointer image)
 
 void HistogramWidget::calculateHistogram()
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     int bin_count = this->ui->histogram_bin_count_spinbox->value();
 
-    Image::PixelType window_from = this->ui->window_from_spinbox->value();
-    Image::PixelType window_to = this->ui->window_to_spinbox->value();
+    ITKImage::PixelType window_from = this->ui->window_from_spinbox->value();
+    ITKImage::PixelType window_to = this->ui->window_to_spinbox->value();
 
     std::vector<double> intensities;
     std::vector<double> probabilities;
@@ -119,14 +119,12 @@ void HistogramWidget::on_window_to_spinbox_valueChanged(double value)
 
 void HistogramWidget::on_fromMinimumButton_clicked()
 {
-    auto minimum = HistogramProcessor::minPixel(this->image);
-    this->ui->window_from_spinbox->setValue(minimum);
+    this->ui->window_from_spinbox->setValue(this->image.minimum());
     this->calculateHistogram();
 }
 
 void HistogramWidget::on_toMaximumButton_clicked()
 {
-    auto maximum = HistogramProcessor::maxPixel(this->image);
-    this->ui->window_to_spinbox->setValue(maximum);
+    this->ui->window_to_spinbox->setValue(this->image.maximum());
     this->calculateHistogram();
 }

@@ -8,7 +8,7 @@ class CrosshairModule : public QObject, public BaseModule
 {
     Q_OBJECT
 private:
-    ITKImage::InnerITKImage::Pointer image;
+    ITKImage image;
 public:
     CrosshairModule(QString title);
 

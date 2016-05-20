@@ -7,21 +7,19 @@ class SplineInterpolationProcessor
 {
 private:
     SplineInterpolationProcessor();
-
-    typedef ITKImage::InnerITKImage ImageType;
 public:
 
     struct ReferenceROIStatistic
     {
-        ImageType::PixelType median_value;
+        ITKImage::PixelType median_value;
         int x;
         int y;
     };
 
-    static ImageType::Pointer process(ImageType::Pointer image, uint spline_order,
+    static ITKImage process(ITKImage image, uint spline_order,
                                  uint spline_levels, uint spline_control_points,
                                  std::vector<ReferenceROIStatistic> nodes,
-                                 ImageType::Pointer& field_image);
+                                 ITKImage& field_image);
     static void printMetric(std::vector<ReferenceROIStatistic> rois);
 };
 

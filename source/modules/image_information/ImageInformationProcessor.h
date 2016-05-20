@@ -11,7 +11,7 @@ private:
     ImageInformationProcessor();
 public:
     typedef QMap<QString, QString> InformationMap;
-    static InformationMap collectInformation(ITKImage::InnerITKImage::Pointer image);
+    static InformationMap collectInformation(ITKImage image);
 };
 
 #endif // IMAGEINFORMATIONPROCESSOR_H

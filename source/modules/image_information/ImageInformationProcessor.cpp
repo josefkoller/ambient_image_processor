@@ -8,14 +8,15 @@ ImageInformationProcessor::ImageInformationProcessor()
 
 
 ImageInformationProcessor::InformationMap ImageInformationProcessor::collectInformation(
-        ITKImage::InnerITKImage::Pointer image)
+        ITKImage itk_image)
 {
     InformationMap information = InformationMap();
 
-    if(image.IsNull())
+    if(itk_image.isNull())
         return information;
 
     typedef ITKImage::InnerITKImage Image;
+    Image::Pointer image = itk_image.getPointer();
 
     Image::RegionType region = image->GetLargestPossibleRegion();
     Image::SizeType size = region.GetSize();

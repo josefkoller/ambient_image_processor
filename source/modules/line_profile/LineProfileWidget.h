@@ -31,7 +31,7 @@ private:
 
     LineProfileWidget* profile_line_parent;
 
-    ITKImage::InnerITKImage::Pointer image;
+    ITKImage image;
 private slots:
     void line_profile_mouse_move(QMouseEvent*);
     void on_add_profile_line_button_clicked();
@@ -46,7 +46,7 @@ public slots:
 
 public:
     virtual void registerModule(ImageWidget* image_widget);
-    virtual void connectTo(BaseModuleWidget* other);
+    virtual void connectTo(BaseModule* other);
 };
 
 #endif // LINEPROFILEWIDGET_H

@@ -54,20 +54,18 @@ void ExtractWidget::registerModule(ImageWidget* image_widget)
             this, &ExtractWidget::imageChanged);
 }
 
-void ExtractWidget::imageChanged(ITKImage::InnerITKImage::Pointer image)
+void ExtractWidget::imageChanged(ITKImage image)
 {
-    if(image.IsNull())
+    if(image.isNull())
         return;
 
-    ITKImage::InnerITKImage::SizeType size = image->GetLargestPossibleRegion().GetSize();
-
     int max_z = 0;
-    if(size.GetSizeDimension() >= 3)
+    if(image.getImageDimension() >= 3)
     {
-        max_z = size[2] - 1;
+        max_z = image.getDepth() - 1;
     }
-    int max_x = size[0] - 1;
-    int max_y = size[1] - 1;
+    int max_x = image.width - 1;
+    int max_y = image.height - 1;
     this->ui->from_x_spinbox->setMaximum(max_x);
     this->ui->from_y_spinbox->setMaximum(max_y);
     this->ui->from_z_spinbox->setMaximum(max_z);

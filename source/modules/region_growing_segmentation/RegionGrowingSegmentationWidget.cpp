@@ -339,6 +339,8 @@ std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegm
 
 void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
 {
+    BaseModuleWidget::registerModule(image_widget);
+
     connect(image_widget, &ImageWidget::mousePressedOnImage,
             this, &RegionGrowingSegmentationWidget::mousePressedOnImage);
 }

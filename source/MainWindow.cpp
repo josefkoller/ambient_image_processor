@@ -15,8 +15,7 @@ MainWindow::MainWindow(std::string image_path) :
 
     if(QFile(QString::fromStdString(image_path)).exists())
     {
-        ITKImage input_image = ITKImage::read(image_path);
-        this->ui->image_widget->setImage(input_image.getPointer());
+        this->ui->image_widget->setImage(ITKImage::read(image_path));
     }
 
    // this->ui->image_widget->showSliceControl();

@@ -10,32 +10,36 @@ SplineInterpolationProcessor::SplineInterpolationProcessor()
 }
 
 
-SplineInterpolationProcessor::ImageType::Pointer SplineInterpolationProcessor::process(
-        ImageType::Pointer image, uint spline_order, uint spline_levels, uint spline_control_points,
+ITKImage SplineInterpolationProcessor::process(
+        ITKImage image, uint spline_order, uint spline_levels, uint spline_control_points,
         std::vector<ReferenceROIStatistic> nodes,
-        ImageType::Pointer& field_image)
+        ITKImage& field_image)
 {
-    typedef itk::Vector<ImageType::PixelType, 1> ScalarType;
-    typedef itk::PointSet<ScalarType, ImageType::ImageDimension> PointSet;
+    typedef itk::Vector<ITKImage::PixelType, 1> ScalarType;
+    typedef itk::PointSet<ScalarType, ITKImage::ImageDimension> PointSet;
     PointSet::Pointer fieldPoints = PointSet::New();
     fieldPoints->Initialize();
 
-    typedef itk::Image<ScalarType, ImageType::ImageDimension> ScalarImageType;
+    typedef itk::Image<ScalarType, ITKImage::ImageDimension> ScalarImageType;
     typedef typename itk::BSplineScatteredDataPointSetToImageFilter<PointSet, ScalarImageType> BSplineFilter;
     BSplineFilter::WeightsContainerType::Pointer weights = BSplineFilter::WeightsContainerType::New();
     weights->Initialize();
 
+
+    typedef ITKImage::InnerITKImage ImageType;
+    ImageType::Pointer itk_image = image.getPointer();
+
     unsigned int index = 0;
     for(ReferenceROIStatistic node_info : nodes)
     {
-        ImageType::IndexType node;
+        ITKImage::InnerITKImage::IndexType node;
         node[0] = node_info.x;
         node[1] = node_info.y;
 
         PointSet::PointType point;
-        image->TransformIndexToPhysicalPoint(node, point);
+        itk_image->TransformIndexToPhysicalPoint(node, point);
 
-        auto pixel_value = image->GetPixel(node);
+        auto pixel_value = itk_image->GetPixel(node);
         ScalarType scalar;
         scalar[0] = pixel_value;
 
@@ -54,12 +58,12 @@ SplineInterpolationProcessor::ImageType::Pointer SplineInterpolationProcessor::p
     numberOfControlPoints.Fill(spline_control_points);
     numberOfFittingLevels.Fill(spline_levels);
 
-    ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
+    ITKImage::InnerITKImage::SizeType size = itk_image->GetLargestPossibleRegion().GetSize();
 
-    bspliner->SetOrigin(image->GetOrigin());
-    bspliner->SetSpacing(image->GetSpacing());
+    bspliner->SetOrigin(itk_image->GetOrigin());
+    bspliner->SetSpacing(itk_image->GetSpacing());
     bspliner->SetSize(size);
-    bspliner->SetDirection(image->GetDirection());
+    bspliner->SetDirection(itk_image->GetDirection());
     bspliner->SetGenerateOutputImage( true );
     bspliner->SetNumberOfLevels(numberOfFittingLevels);
     bspliner->SetSplineOrder(spline_order);
@@ -73,23 +77,23 @@ SplineInterpolationProcessor::ImageType::Pointer SplineInterpolationProcessor::p
     catch(itk::ExceptionObject exception)
     {
         exception.Print(std::cout);
-        return nullptr;
+        return ITKImage();
     }
 
-    typedef itk::VectorIndexSelectionCastImageFilter<ScalarImageType, ImageType> CastFilter;
+    typedef itk::VectorIndexSelectionCastImageFilter<ScalarImageType, ITKImage::InnerITKImage> CastFilter;
     typename CastFilter::Pointer cast_filter = CastFilter::New();
     cast_filter->SetInput(bspliner->GetOutput());
     cast_filter->SetIndex(0);
-    ImageType::Pointer output = cast_filter->GetOutput();
+    ITKImage::InnerITKImage::Pointer output = cast_filter->GetOutput();
     output->Update();
     output->DisconnectPipeline();
-    output->SetRegions( image->GetRequestedRegion() );
-    field_image = output;
+    output->SetRegions( itk_image->GetRequestedRegion() );
+    field_image = ITKImage(output);
 
     // set zero values to very small
-    const ImageType::PixelType MINIMUM_PIXEL_VALUE = 1e-5f;
-    itk::ImageRegionIterator<ImageType> iterator(field_image,
-                                                 field_image->GetLargestPossibleRegion());
+    const ITKImage::PixelType MINIMUM_PIXEL_VALUE = 1e-5f;
+    itk::ImageRegionIterator<ImageType> iterator(field_image.getPointer(),
+                                                 field_image.getPointer()->GetLargestPossibleRegion());
     while(!iterator.IsAtEnd())
     {
         ImageType::PixelType value = iterator.Get();
@@ -101,20 +105,19 @@ SplineInterpolationProcessor::ImageType::Pointer SplineInterpolationProcessor::p
     // divide ...
     typedef itk::DivideImageFilter<ImageType, ImageType, ImageType> DivideFilter;
     DivideFilter::Pointer divide_filter = DivideFilter::New();
-    divide_filter->SetInput1(image);
-    divide_filter->SetInput2(field_image);
+    divide_filter->SetInput1(image.getPointer());
+    divide_filter->SetInput2(field_image.getPointer());
     divide_filter->Update();
     ImageType::Pointer corrected_image = divide_filter->GetOutput();
     corrected_image->DisconnectPipeline();
 
-
-    return corrected_image;
+    return ITKImage(corrected_image);
 }
 
 
 void SplineInterpolationProcessor::printMetric(std::vector<ReferenceROIStatistic> rois)
 {
-    std::vector<ImageType::PixelType> v;
+    std::vector<ITKImage::PixelType> v;
     std::for_each (std::begin(rois), std::end(rois), [&](const ReferenceROIStatistic roi) {
         v.push_back(roi.median_value);
     });

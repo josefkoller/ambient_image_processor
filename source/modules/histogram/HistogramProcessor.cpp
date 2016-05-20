@@ -7,14 +7,14 @@ HistogramProcessor::HistogramProcessor()
 }
 
 
-void HistogramProcessor::calculate(const Image::Pointer& image,
+void HistogramProcessor::calculate(const ITKImage& image,
                                    int bin_count,
-                                   Image::PixelType window_from,
-                                   Image::PixelType window_to,
+                                   ITKImage::PixelType window_from,
+                                   ITKImage::PixelType window_to,
                                    std::vector<double>& intensities,
                                    std::vector<double>& probabilities)
 {
-    typedef itk::Statistics::ImageToHistogramFilter<Image> HistogramGenerator;
+    typedef itk::Statistics::ImageToHistogramFilter<ITKImage::InnerITKImage> HistogramGenerator;
     HistogramGenerator::Pointer histogram_generator = HistogramGenerator::New();
 
     HistogramGenerator::HistogramSizeType number_of_bins(1);
@@ -28,7 +28,7 @@ void HistogramProcessor::calculate(const Image::Pointer& image,
     //  histogram_generator->SetClipBinsAtEnds(true);
     histogram_generator->SetMarginalScale(1);
 
-    histogram_generator->SetInput(image);
+    histogram_generator->SetInput(image.getPointer());
     histogram_generator->Update();
 
     const HistogramGenerator::HistogramType *histogram = histogram_generator->GetOutput();
@@ -37,7 +37,7 @@ void HistogramProcessor::calculate(const Image::Pointer& image,
     const Image::SizeType size = image->GetLargestPossibleRegion().GetSize();
     long pixel_count = size[0] * size[1] * size[2];
     long samples_per_bin = ceil(((double)pixel_count) / bin_count); */
-    Image::PixelType total_frequency = histogram->GetTotalFrequency();
+    ITKImage::PixelType total_frequency = histogram->GetTotalFrequency();
 
     for(unsigned int i = 0; i < histogram->GetSize()[0]; i++)
     {
@@ -56,30 +56,3 @@ void HistogramProcessor::calculate(const Image::Pointer& image,
     }
 }
 
-HistogramProcessor::Image::PixelType HistogramProcessor::minPixel(const Image::Pointer& image)
-{
-    if(image.IsNull())
-        return 0;
-
-    Image::PixelType minimum = 1e7;
-    auto itk_image = ITKImage(image);
-    itk_image.foreachPixel([&minimum](uint x, uint y, Image::PixelType value) {
-        if(value < minimum)
-            minimum = value;
-    });
-    return minimum;
-}
-
-HistogramProcessor::Image::PixelType HistogramProcessor::maxPixel(const Image::Pointer& image)
-{
-    if(image.IsNull())
-        return 0;
-
-    Image::PixelType maximum = -1e7;
-    auto itk_image = ITKImage(image);
-    itk_image.foreachPixel([&maximum](uint x, uint y, Image::PixelType value) {
-        if(value > maximum)
-            maximum = value;
-    });
-    return maximum;
-}

@@ -35,16 +35,15 @@ ITKImage SplineInterpolationWidget::processImage(ITKImage image)
         return ITKImage();
     }
 
-    typedef ITKImage::InnerITKImage Image;
-    Image::Pointer field_image = nullptr;
-    Image::Pointer output_image = SplineInterpolationProcessor::process(
-                image.getPointer(), spline_order, spline_levels, spline_control_points,
+    ITKImage field_image;
+    ITKImage output_image = SplineInterpolationProcessor::process(
+                image, spline_order, spline_levels, spline_control_points,
                 this->reference_rois_statistic, field_image);
 
     SplineInterpolationProcessor::printMetric(this->reference_rois_statistic);
 //    target_widget->setReferenceROIs(this->reference_rois);
 
-    return ITKImage(field_image);
+    return field_image;
 }
 
 void SplineInterpolationWidget::setReferenceROIs(QList<QVector<QPoint>> reference_rois)
@@ -156,7 +155,7 @@ void SplineInterpolationWidget::updateReferenceROI()
     if(index == -1)
         return;
 
-    if(image.IsNull())
+    if(image.isNull())
         return;
 
     QVector<QPoint> roi = this->reference_rois[index];
@@ -167,8 +166,7 @@ void SplineInterpolationWidget::updateReferenceROI()
     // get mean/median of pixels which are inside the polygon
     QPolygon polygon(roi);
 
-    QImage *data = ITKToQImageConverter::convert(this->image, 0);
-                                          //TODO         this->slice_index);
+    QImage *data = ITKToQImageConverter::convert(this->image);
 
     QList<float> pixelsInside;
     for(int x = 0; x < data->width(); x++)
@@ -220,7 +218,7 @@ void SplineInterpolationWidget::registerModule(ImageWidget* image_widget)
             this, &SplineInterpolationWidget::mouseReleasedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage::InnerITKImage::Pointer itk_image) {
+            this, [this] (ITKImage itk_image) {
         this->image = itk_image;
     });
 

@@ -12,24 +12,24 @@
 
 #include <QListWidgetItem>
 
+#include "ITKImage.h"
+
 class BaseModule;
 
 namespace Ui {
 class ImageWidget;
 }
 
-Q_DECLARE_METATYPE(ITKImageProcessor::ImageType::Pointer);
+Q_DECLARE_METATYPE(ITKImage);
 
 class ImageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    typedef ITKImageProcessor::ImageType Image;
-
     explicit ImageWidget(QWidget *parent = 0);
     ~ImageWidget();
 
-    void setImage(const Image::Pointer& image);
+    void setImage(ITKImage image);
 
 
     void showSliceControl();
@@ -58,9 +58,8 @@ private:
     ImageWidget* output_widget2;
     ImageWidget* output_widget3;
 
-    Image::Pointer image;
+    ITKImage image;
 
-    uint slice_index;
     bool show_slice_control;
 
     void setSliceIndex(uint slice_index);
@@ -74,7 +73,7 @@ public slots:
     void connectedSliceControlChanged(uint slice_index);
 
 public:
-    Image::Pointer getImage() { return this->image; }
+    ITKImage getImage() { return this->image; }
 private slots:
     void on_slice_spinbox_valueChanged(int arg1);
 
@@ -96,8 +95,8 @@ protected:
 
 signals:
     void fireStatusTextChange(QString text);
-    void fireImageChange(Image::Pointer image);
-    void imageChanged(Image::Pointer image);
+    void fireImageChange(ITKImage image);
+    void imageChanged(ITKImage image);
     void pixmapPainted(QPixmap* q_image);
     void mousePressedOnImage(Qt::MouseButton button, QPoint position);
     void mouseMoveOnImage(Qt::MouseButtons button, QPoint position);
@@ -105,7 +104,7 @@ signals:
 
 private slots:
     void handleStatusTextChange(QString text);
-    void handleImageChange(Image::Pointer image);
+    void handleImageChange(ITKImage image);
 
 private:
     QLabel* inner_image_frame;

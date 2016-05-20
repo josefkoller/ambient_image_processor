@@ -28,7 +28,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ImageWidget),
     image(nullptr),
-    slice_index(0),
     show_slice_control(false),
     output_widget(this),
     inner_image_frame(nullptr),
@@ -42,9 +41,9 @@ ImageWidget::ImageWidget(QWidget *parent) :
     connect(this, SIGNAL(fireStatusTextChange(QString)),
             this, SLOT(handleStatusTextChange(QString)));
 
-    qRegisterMetaType<Image::Pointer>("Image::Pointer");
-    connect(this, SIGNAL(fireImageChange(Image::Pointer)),
-            this, SLOT(handleImageChange(Image::Pointer)));
+    qRegisterMetaType<ITKImage>("ITKImage");
+    connect(this, &ImageWidget::fireImageChange,
+            this, &ImageWidget::handleImageChange);
 
 
     this->ui->operations_panel->setVisible(false);
@@ -146,10 +145,10 @@ ImageWidget::~ImageWidget()
 }
 
 
-void ImageWidget::setImage(const Image::Pointer& image)
+void ImageWidget::setImage(ITKImage image)
 {
     this->q_image = nullptr; // redo converting
-    this->image = ITKImageProcessor::cloneImage(image);
+    this->image = image.clone();
 
     this->setInputRanges();
     this->setSliceIndex(0);
@@ -165,34 +164,35 @@ uint ImageWidget::userSliceIndex() const
 
 void ImageWidget::setSliceIndex(uint slice_index)
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
-    if(slice_index < 0 ||
-            slice_index >= this->image->GetLargestPossibleRegion().GetSize()[2])
+    if(slice_index < 0 || slice_index >= this->image.getDepth())
     {
         std::cerr << "invalid slice_index for this image" << std::endl << std::flush;
         return;
     }
 
-
-    this->slice_index = slice_index;
-    if(this->ui->slice_slider->value() != this->slice_index)
+    image.setVisibleSliceIndex(slice_index);
+    if(this->ui->slice_slider->value() != this->image.getVisibleSliceIndex())
     {
-        this->ui->slice_slider->setValue(this->slice_index);
+        this->ui->slice_slider->setValue(this->image.getVisibleSliceIndex());
     }
-    if(this->ui->slice_spinbox->value() != this->slice_index)
+    if(this->ui->slice_spinbox->value() != this->image.getVisibleSliceIndex())
     {
-        this->ui->slice_spinbox->setValue(this->slice_index);
+        this->ui->slice_spinbox->setValue(this->image.getVisibleSliceIndex());
     }
     this->paintImage();
+
+    if(image.getImageDimension() > 2)
+        this->showSliceControl();
 
     emit this->sliceIndexChanged(slice_index);
 }
 
 void ImageWidget::paintImage(bool repaint)
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     if(repaint && q_image != nullptr) {
@@ -202,8 +202,7 @@ void ImageWidget::paintImage(bool repaint)
 
     if(q_image == nullptr)
     {
-        q_image = ITKToQImageConverter::convert(this->image,
-                                                this->slice_index);
+        q_image = ITKToQImageConverter::convert(this->image);
         if(inner_image_frame != nullptr)
             delete inner_image_frame;
         inner_image_frame = new QLabel(this->ui->image_frame);
@@ -283,7 +282,7 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent *)
 
 void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
 {
-    if(this->image.IsNull() || this->inner_image_frame == nullptr)
+    if(this->image.isNull() || this->inner_image_frame == nullptr)
         return;
 
     QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
@@ -294,7 +293,7 @@ void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
 
 bool ImageWidget::eventFilter(QObject *target, QEvent *event)
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return false;
 
     if(event->type() == QEvent::Paint)
@@ -322,40 +321,34 @@ void ImageWidget::on_load_button_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
     if(file_name == QString::null || !QFile(file_name).exists())
-    {
         return;
-    }
-    Image::Pointer image = ITKImageProcessor::read(file_name.toStdString());
-    this->setImage(image);
+
+    this->setImage(ITKImage::read(file_name.toStdString()));
 }
 
 void ImageWidget::on_save_button_clicked()
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
     if(file_name.isNull())
-    {
         return;
-    }
-    ITKImageProcessor::write(this->image, file_name.toStdString());
+
+    this->image.write(file_name.toStdString());
 }
 
 void ImageWidget::setInputRanges()
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
-
-    Image::RegionType region = image->GetLargestPossibleRegion();
-    Image::SizeType size = region.GetSize();
 
     this->ui->slice_slider->setMinimum(0); // first slice gets slice index 0
     this->ui->slice_spinbox->setMinimum(this->ui->slice_slider->minimum());
 
-    if(size.GetSizeDimension() >= 3)
+    if(this->image.getImageDimension() >= 3)
     {
-        this->ui->slice_slider->setMaximum(size[2] - 1);
+        this->ui->slice_slider->setMaximum(this->image.getDepth() - 1);
         this->ui->slice_spinbox->setMaximum(this->ui->slice_slider->maximum());
     }
 
@@ -363,7 +356,7 @@ void ImageWidget::setInputRanges()
 
 void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
 {
-    if(slice_index != this->slice_index)
+    if(slice_index != this->image.getVisibleSliceIndex())
     {
         this->setSliceIndex(slice_index);
     }
@@ -371,12 +364,13 @@ void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
 
 void ImageWidget::setMinimumSizeToImage()
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     const int border = 50;
-    this->ui->image_frame->setMinimumSize(this->image->GetLargestPossibleRegion().GetSize()[0] + border*2,
-            this->image->GetLargestPossibleRegion().GetSize()[1]+border*2);
+    this->ui->image_frame->setMinimumSize(
+                this->image.width + border*2,
+                this->image.height + border*2);
 }
 
 void ImageWidget::setOutputWidget(ImageWidget* output_widget)
@@ -411,7 +405,7 @@ void ImageWidget::handleStatusTextChange(QString text)
     this->ui->status_bar->repaint();
 }
 
-void ImageWidget::handleImageChange(Image::Pointer image)
+void ImageWidget::handleImageChange(ITKImage image)
 {
     this->setImage(image);
 }

@@ -166,7 +166,7 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
                   this, &LineProfileWidget::mousePressedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage::InnerITKImage::Pointer itk_image) {
+            this, [this] (ITKImage itk_image) {
         this->image = itk_image;
     });
 
@@ -184,7 +184,7 @@ void LineProfileWidget::on_line_profile_list_widget_itemSelectionChanged()
 
 void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
 {
-    if(this->image.IsNull())
+    if(this->image.isNull())
         return;
 
     int selected_profile_line_index = this->selectedProfileLineIndex();
@@ -213,7 +213,7 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     this->paintSelectedProfileLine();
 }
 
-void LineProfileWidget::connectTo(BaseModuleWidget* other)
+void LineProfileWidget::connectTo(BaseModule* other)
 {
     auto other_line_profile_widget = dynamic_cast<LineProfileWidget*>(other);
     if(other_line_profile_widget == nullptr)

@@ -13,18 +13,28 @@ public:
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
 
-    const uint width;
-    const uint height;
+    uint width;
+    uint height;
+    uint visible_slice_index;
 private:
     InnerITKImage::Pointer inner_image;
 public:
     ITKImage();
+    ITKImage(const ITKImage&);
+    ITKImage& operator=(ITKImage image)
+    {
+        this->width = image.width;
+        this->height = image.height;
+        this->inner_image = image.inner_image;
+        return *this;
+    }
+
     ITKImage(uint width, uint height);
     ITKImage(InnerITKImage::Pointer inner_image);
     ITKImage(uint width, uint height, InnerITKImage::PixelType* data);
 
     InnerITKImage::Pointer getPointer() const;
-    InnerITKImage::Pointer clone() const;
+    ITKImage clone() const;
 
     static ITKImage read(std::string image_file_path);
     void write(std::string image_file_path);
@@ -40,6 +50,13 @@ public:
 
     PixelType getPixel(InnerITKImage::IndexType index) const;
 
+    uint getVisibleSliceIndex() const;
+    void setVisibleSliceIndex(uint slice_index);
+    uint getImageDimension() const;
+    uint getDepth() const;
+
+    PixelType minimum() const;
+    PixelType maximum() const;
 };
 
 #endif // ITKIMAGE_H

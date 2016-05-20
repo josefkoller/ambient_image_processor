@@ -61,10 +61,10 @@ void BaseModuleWidget::registerModule(ImageWidget* image_widget)
     BaseModule::registerModule(image_widget);
 
     this->source_image_fetcher = [image_widget](){
-        return ITKImage(image_widget->getImage());
+        return image_widget->getImage();
     };
     this->result_processor = [image_widget] (ITKImage image) {
-        emit image_widget->getOutputWidget()->fireImageChange(image.getPointer());
+        emit image_widget->getOutputWidget()->fireImageChange(image);
     };
 }
 

@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
+ITKImage::ITKImage(uint width, uint height) : width(width), height(height), visible_slice_index(0)
 {
     this->inner_image = InnerITKImage::New();
     InnerITKImage::SizeType size;
@@ -20,13 +20,19 @@ ITKImage::ITKImage(uint width, uint height) : width(width), height(height)
 
 ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image),
     width(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[0]),
-    height(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[1])
+    height(inner_image.IsNull() ? 0 : inner_image->GetLargestPossibleRegion().GetSize()[1]),
+    visible_slice_index(0)
 {
     if(inner_image.IsNotNull())
         inner_image->DisconnectPipeline();
 }
 
 ITKImage::ITKImage() : ITKImage(nullptr)
+{
+}
+
+ITKImage::ITKImage(const ITKImage& origin) :
+    ITKImage(origin.inner_image)
 {
 }
 
@@ -50,7 +56,7 @@ ITKImage::InnerITKImage::Pointer ITKImage::getPointer() const
     return this->inner_image;
 }
 
-ITKImage::InnerITKImage::Pointer ITKImage::clone() const
+ITKImage ITKImage::clone() const
 {
     typedef itk::ImageDuplicator<InnerITKImage> Duplicator;
     typename Duplicator::Pointer duplicator = Duplicator::New();
@@ -61,7 +67,7 @@ ITKImage::InnerITKImage::Pointer ITKImage::clone() const
     clone->DisconnectPipeline();
     clone->SetSpacing(this->inner_image->GetSpacing());
     clone->SetOrigin(this->inner_image->GetOrigin());
-    return clone;
+    return ITKImage(clone);
 }
 
 
@@ -137,6 +143,10 @@ ITKImage::PixelType ITKImage::getPixel(uint x, uint y) const
     ITKImage::InnerITKImage::IndexType index;
     index[0] = x;
     index[1] = y;
+
+    if(this->getImageDimension() > 2)
+        index[2] = this->getVisibleSliceIndex();
+
     return this->getPixel(index);
 }
 
@@ -150,6 +160,10 @@ void ITKImage::setPixel(uint x, uint y, PixelType value)
     ITKImage::InnerITKImage::IndexType index;
     index[0] = x;
     index[1] = y;
+
+    if(this->getImageDimension() > 2)
+        index[2] = this->getVisibleSliceIndex();
+
     return this->inner_image->SetPixel(index, value);
 }
 
@@ -166,4 +180,52 @@ void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y)> pixel_fetch
 
         ++iterator;
     }
+}
+
+uint ITKImage::getVisibleSliceIndex() const
+{
+    return this->visible_slice_index;
+}
+
+void ITKImage::setVisibleSliceIndex(uint slice_index)
+{
+    this->visible_slice_index = slice_index;
+}
+
+uint ITKImage::getDepth() const
+{
+    if(this->getImageDimension() <= 2)
+        return 1;
+    return this->inner_image->GetLargestPossibleRegion().GetSize()[2];
+}
+
+uint ITKImage::getImageDimension() const
+{
+    return this->inner_image->GetImageDimension();
+}
+
+ITKImage::PixelType ITKImage::minimum() const
+{
+    if(this->isNull())
+        return 0;
+
+    PixelType minimum = 1e7;
+    this->foreachPixel([&minimum](uint x, uint y, PixelType value) {
+        if(value < minimum)
+            minimum = value;
+    });
+    return minimum;
+}
+
+ITKImage::PixelType ITKImage::maximum() const
+{
+    if(this->isNull())
+        return 0;
+
+    PixelType maximum = -1e7;
+    this->foreachPixel([&maximum](uint x, uint y, PixelType value) {
+        if(value > maximum)
+            maximum = value;
+    });
+    return maximum;
 }

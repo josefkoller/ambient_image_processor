@@ -1,19 +1,23 @@
  #include "ITKToQImageConverter.h"
 
+#include <itkRescaleIntensityImageFilter.h>
+#include <QColor>
 
-ITKToQImageConverter::ImageType::PixelType* ITKToQImageConverter::window_from = nullptr;
-ITKToQImageConverter::ImageType::PixelType* ITKToQImageConverter::window_to = nullptr;
+ITKImage::PixelType* ITKToQImageConverter::window_from = nullptr;
+ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
-QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_index)
+QImage* ITKToQImageConverter::convert(ITKImage itk_image)
 {
-    ImageType::RegionType region = itk_image->GetLargestPossibleRegion();
+    typedef ITKImage::InnerITKImage ImageType;
+
+    ImageType::RegionType region = itk_image.getPointer()->GetLargestPossibleRegion();
     ImageType::SizeType size = region.GetSize();
 
-    typedef itk::RescaleIntensityImageFilter<ImageType> RescaleFilter;
+    typedef itk::RescaleIntensityImageFilter<ITKImage::InnerITKImage> RescaleFilter;
     RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
     rescale_filter->SetOutputMinimum(0);
     rescale_filter->SetOutputMaximum(255);
-    rescale_filter->SetInput( itk_image );
+    rescale_filter->SetInput( itk_image.getPointer() );
     rescale_filter->Update();
     ImageType::Pointer rescaled_image = rescale_filter->GetOutput();
 
@@ -28,8 +32,8 @@ QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_i
             index[0] = x;
             index[1] = y;
 
-            if(InputDimension > 2)
-                index[2] = slice_index;
+            if(itk_image.getImageDimension() > 2)
+                index[2] = itk_image.getVisibleSliceIndex();
 
             int value = rescaled_image->GetPixel(index);
 
@@ -71,50 +75,16 @@ QImage* ITKToQImageConverter::convert(ImageType::Pointer itk_image, uint slice_i
     return q_image;
 }
 
-QImage ITKToQImageConverter::convert_mask(MaskImage::Pointer itk_image)
-{
-    MaskImage::RegionType region = itk_image->GetLargestPossibleRegion();
-    MaskImage::SizeType size = region.GetSize();
-
-    typedef itk::RescaleIntensityImageFilter<MaskImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(255);
-
-    rescale_filter->SetInput( itk_image );
-
-    rescale_filter->Update();
-    MaskImage::Pointer rescaled_image = rescale_filter->GetOutput();
-
-    QImage q_image( QSize(size[0], size[1]), QImage::Format_ARGB32);
-
-    for(int x = 0; x < q_image.size().width(); x++)
-    {
-        for(int y = 0; y < q_image.size().height(); y++)
-        {
-            ImageType::IndexType index;
-            index[0] = x;
-            index[1] = y;
-            index[2] = 0;
-            int value = rescaled_image->GetPixel(index);
-
-            QColor color(value, value, value);
-            q_image.setPixel(x, y, color.rgb());
-        }
-    }
-    return q_image;
-}
-
-void ITKToQImageConverter::setWindowFrom(ImageType::PixelType value)
+void ITKToQImageConverter::setWindowFrom(ITKImage::PixelType value)
 {
     if(window_from == nullptr)
-        window_from = new ImageType::PixelType;
+        window_from = new ITKImage::PixelType;
     *window_from = value;
 }
 
-void ITKToQImageConverter::setWindowTo(ImageType::PixelType value)
+void ITKToQImageConverter::setWindowTo(ITKImage::PixelType value)
 {
     if(window_to == nullptr)
-        window_to = new ImageType::PixelType;
+        window_to = new ITKImage::PixelType;
     *window_to = value;
 }
