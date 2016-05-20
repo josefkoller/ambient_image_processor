@@ -12,17 +12,17 @@ public:
 
     typedef ITKImage::InnerITKImage::IndexType Index;
 
-    typedef itk::Image<unsigned char, ITKImage::ImageDimension> LabelImage;
+    typedef ITKImage LabelImage;
 
-    static LabelImage::Pointer process(
-            ITKImage gradient_image,
+    static LabelImage process(
+            const ITKImage& gradient_image,
             std::vector<std::vector<Index> > input_segments,
             float tolerance);
 
 private:
 
     static void grow(const ITKImage& gradient_image,
-        LabelImage::Pointer output_labels, uint segment_index, Index index,
+        LabelImage& output_labels, uint segment_index, Index index,
         float tolerance);
 };
 

@@ -7,6 +7,7 @@ LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::LineProfileWidget),
     profile_line_parent(nullptr),
+    setting_line_point(false),
     image(ITKImage::Null)
 {
     ui->setupUi(this);
@@ -95,7 +96,7 @@ int LineProfileWidget::selectedProfileLineIndex()
 void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index)
 {
     int index = this->selectedProfileLineIndex();
-    if( index == -1)
+    if( index == -1 || !setting_line_point)
     {
         this->setStatusText("add a profile line first and select it...");
         return;
@@ -149,6 +150,9 @@ void LineProfileWidget::on_add_profile_line_button_clicked()
     this->ui->line_profile_list_widget->addItem(line.text());
     this->ui->line_profile_list_widget->item(
                 this->profile_lines.size() - 1)->setSelected(true);
+
+    this->setting_line_point = true;
+    this->ui->setting_line_point_button->setFlat(true);
 }
 
 void LineProfileWidget::registerModule(ImageWidget* image_widget)
@@ -173,6 +177,11 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
 void LineProfileWidget::on_line_profile_list_widget_itemSelectionChanged()
 {
     //   std::cout << "selected profile line: " << this->selectedProfileLineIndex() << std::endl;
+
+    if(this->selectedProfileLineIndex() > -1) {
+        this->setting_line_point = true;
+        this->ui->setting_line_point_button->setFlat(true);
+    }
 
     emit this->profileLinesChanged();
 }
@@ -223,4 +232,12 @@ void LineProfileWidget::connectTo(BaseModule* other)
 
     connect(other_line_profile_widget, &LineProfileWidget::profileLinesChanged,
             this, &LineProfileWidget::connectedProfileLinesChanged);
+}
+
+void LineProfileWidget::on_setting_line_point_button_clicked()
+{
+    if(this->setting_line_point) {
+        this->setting_line_point = false;
+        this->ui->setting_line_point_button->setFlat(false);
+    }
 }

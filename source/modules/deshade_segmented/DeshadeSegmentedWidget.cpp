@@ -29,19 +29,18 @@ ITKImage DeshadeSegmentedWidget::processImage(ITKImage image)
         return ITKImage();
 
     Segments segments = this->segment_fetcher();
-    LabelImage::Pointer label_image = this->label_image_fetcher();
-    Image::Pointer source_image = image.getPointer();
+    LabelImage label_image = this->label_image_fetcher();
 
-    if(source_image.IsNull() || label_image.IsNull() || segments.size() == 0)
+    if(image.isNull() || label_image.isNull() || segments.size() == 0)
         return ITKImage();
 
     float lambda = this->ui->lambda_spinbox->value();
 
-    Image::Pointer reflectance_image;
-    Image::Pointer shading_image = DeshadeSegmentedProcessor::process(
-                source_image, lambda, segments, label_image, reflectance_image);
+    ITKImage reflectance_image;
+    ITKImage shading_image = DeshadeSegmentedProcessor::process(
+                image, lambda, segments, label_image, reflectance_image);
 
-    return ITKImage(shading_image);
+    return shading_image;
 }
 
 void DeshadeSegmentedWidget::setSegmentsFetcher(SegmentsFetcher segment_fetcher)

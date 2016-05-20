@@ -134,9 +134,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     deshade_segmented_widget->setSegmentsFetcher([region_growing_segmentation_widget]() {
         return region_growing_segmentation_widget->getSegments();
     });
+    /* TODO
     deshade_segmented_widget->setLabelImageFetcher([region_growing_segmentation_widget]() {
         return region_growing_segmentation_widget->getLabelImage();
     });
+    */
 
     tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(

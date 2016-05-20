@@ -164,7 +164,11 @@ void ITKImage::setPixel(uint x, uint y, uint z, PixelType value)
     index[0] = x;
     index[1] = y;
     index[2] = z;
+    this->setPixel(index, value);
+}
 
+void ITKImage::setPixel(Index index, PixelType value)
+{
     return this->inner_image->SetPixel(index, value);
 }
 
@@ -255,6 +259,14 @@ ITKImage::PixelType* ITKImage::cloneToPixelArray() const
     this->foreachPixel([clone, this](uint x, uint y, uint z, PixelType pixel) {
         uint i = this->linearIndex(x,y,z);
         clone[i] = pixel;
+    });
+    return clone;
+}
+ITKImage ITKImage::cloneSameSizeWithZeros() const
+{
+    ITKImage clone = ITKImage(this->width, this->height, this->depth);
+    clone.setEachPixel([](uint, uint, uint) {
+        return 0;
     });
     return clone;
 }

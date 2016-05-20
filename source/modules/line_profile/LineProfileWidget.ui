@@ -68,6 +68,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="setting_line_point_button">
+        <property name="text">
+         <string>Setting Line Point</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

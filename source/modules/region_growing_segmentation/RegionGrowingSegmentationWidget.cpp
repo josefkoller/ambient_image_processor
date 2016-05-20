@@ -6,7 +6,6 @@
 #include "RegionGrowingSegmentationProcessor.h"
 #include "SegmentsToLabelImageConverter.h"
 
-#include <itkCastImageFilter.h>
 
 #include "../non_local_gradient/NonLocalGradientProcessor.h"
 
@@ -19,7 +18,6 @@ RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QString title, 
     is_adding_seed_point(false),
     kernel_sigma_fetcher(nullptr),
     kernel_size_fetcher(nullptr),
-    label_image(nullptr),
     image(ITKImage::Null)
 {
     ui->setupUi(this);
@@ -224,17 +222,12 @@ ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
 
 
     // action...
-    this->label_image = RegionGrowingSegmentationProcessor::process(
-                gradient_image.getPointer(), this->region_growing_segmentation.getSegments(), tolerance);
+    auto label_image = RegionGrowingSegmentationProcessor::process(
+                gradient_image,
+                this->region_growing_segmentation.getSegments(),
+                tolerance);
 
-    // output...
-    typedef itk::CastImageFilter<LabelImage, ITKImage::InnerITKImage> CastFilter;
-    CastFilter::Pointer cast_filter = CastFilter::New();
-    cast_filter->SetInput(this->label_image);
-    cast_filter->Update();
-    ITKImage::InnerITKImage::Pointer output_image = cast_filter->GetOutput();
-
-    return ITKImage(output_image);
+    return label_image;
 }
 
 void RegionGrowingSegmentationWidget::setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher)
@@ -324,12 +317,6 @@ void RegionGrowingSegmentationWidget::on_load_ParameterButton_clicked()
     this->ui->segmentsListWidget->setCurrentRow(0);
     this->refreshSeedPointGroupBoxTitle();
     this->refreshSeedPointList();
-}
-
-RegionGrowingSegmentationProcessor::LabelImage::Pointer
-    RegionGrowingSegmentationWidget::getLabelImage() const
-{
-    return this->label_image;
 }
 
 std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegmentationWidget::getSegments() const

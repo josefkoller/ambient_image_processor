@@ -31,6 +31,8 @@ private:
     LineProfileWidget* profile_line_parent;
 
     ITKImage& image;
+
+    bool setting_line_point;
 private slots:
     void line_profile_mouse_move(QMouseEvent*);
     void on_add_profile_line_button_clicked();
@@ -38,6 +40,8 @@ private slots:
     void on_line_profile_list_widget_itemSelectionChanged();
 
     void paintSelectedProfileLineInImage(QPixmap* pixmap);
+    void on_setting_line_point_button_clicked();
+
 signals:
     void profileLinesChanged();
 public slots:

@@ -66,12 +66,10 @@ private:
     std::function<float()> kernel_sigma_fetcher;
     std::function<uint()> kernel_size_fetcher;
 
-    RegionGrowingSegmentationProcessor::LabelImage::Pointer label_image;
 public:
     void setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher);
     void setKernelSizeFetcher(std::function<uint()> kernel_size_fetcher);
 
-    RegionGrowingSegmentationProcessor::LabelImage::Pointer getLabelImage() const;
     std::vector<std::vector<RegionGrowingSegmentation::Position> > getSegments() const;
 
 protected:

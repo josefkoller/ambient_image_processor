@@ -50,6 +50,7 @@ public:
 
     PixelType getPixel(uint x, uint y, uint z) const;
     void setPixel(uint x, uint y, uint z, PixelType value);
+    void setPixel(Index index, PixelType value);
 
     void setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher);
 
@@ -71,6 +72,7 @@ public:
     bool contains(Index index) const;
 
     PixelType* cloneToPixelArray() const;
+    ITKImage cloneSameSizeWithZeros() const;
 };
 
 #endif // ITKIMAGE_H

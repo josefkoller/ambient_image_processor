@@ -6,21 +6,20 @@ SegmentsToLabelImageConverter::SegmentsToLabelImageConverter()
 }
 
 
-SegmentsToLabelImageConverter::LabelImage::Pointer
-    SegmentsToLabelImageConverter::convert(SegmentVector segments, LabelImage::SizeType size)
+SegmentsToLabelImageConverter::LabelImage
+    SegmentsToLabelImageConverter::convert(SegmentVector segments, LabelImage::InnerITKImage::SizeType size)
 {
-    LabelImage::Pointer label_image = LabelImage::New();
-    label_image->SetRegions(size);
-    label_image->Allocate();
-    // 0 for pixels which are not in any segment...
-    label_image->FillBuffer(0);
+    LabelImage label_image = LabelImage(size[0], size[1], size[2]);
+    label_image.setEachPixel([](uint,uint,uint) {
+        return 0;
+    });
 
     LabelImage::PixelType segment_pixel_value = 1;
     for(RegionGrowingSegmentation::Segment segment : segments)
     {
         for(RegionGrowingSegmentation::Position index : segment.seed_points)
         {
-            label_image->SetPixel(index, segment_pixel_value);
+            label_image.setPixel(index, segment_pixel_value);
         }
         segment_pixel_value++;
     }

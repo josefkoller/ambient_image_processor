@@ -6,8 +6,14 @@
 
 #include "ITKImage.h"
 
+#include "RegionGrowingSegmentationProcessor.h"
+
 class DeshadeSegmentedProcessor
 {
+public:
+    typedef RegionGrowingSegmentationProcessor::LabelImage LabelImage;
+    typedef itk::Image<unsigned char, ITKImage::ImageDimension> ITKLabelImage;
+
 private:
     DeshadeSegmentedProcessor();
 
@@ -15,19 +21,17 @@ private:
     typedef Image::IndexType SeedPoint;
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;
-    typedef itk::Image<unsigned char, Image::ImageDimension> LabelImage;
 
-    typedef itk::LabelStatisticsImageFilter<Image, LabelImage> StatisticsFilter;
+    typedef itk::LabelStatisticsImageFilter<Image, ITKLabelImage> StatisticsFilter;
 
     static void computeReflectanceInSegment(Segment segment,
-        LabelImage::Pointer label_image, Image::Pointer reflectance_image,
+        LabelImage label_image, ITKImage reflectance_image,
         StatisticsFilter::Pointer statistics_filter);
-
-    static void initializeReflectanceImage(Image::Pointer reflectance_image);
 public:
-    static Image::Pointer process(
-      Image::Pointer source_image, float lambda, Segments segments,
-      LabelImage::Pointer label_image, Image::Pointer& reflectance_image);
+
+    static ITKImage process(
+      ITKImage source_image, float lambda, Segments segments,
+      LabelImage label_image, ITKImage& reflectance_image);
 };
 
 #endif // DESHADESEGMENTEDPROCESSOR_H

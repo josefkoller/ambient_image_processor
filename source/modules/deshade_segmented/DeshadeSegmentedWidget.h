@@ -8,6 +8,8 @@
 #include "ITKImage.h"
 #include "BaseModuleWidget.h"
 
+#include "DeshadeSegmentedProcessor.h"
+
 namespace Ui {
 class DeshadeSegmentedWidget;
 }
@@ -25,8 +27,11 @@ public:
     typedef std::vector<SeedPoint> Segment;
     typedef std::vector<Segment> Segments;
     typedef std::function<Segments()> SegmentsFetcher;
-    typedef itk::Image<unsigned char, Image::ImageDimension> LabelImage;
-    typedef std::function<LabelImage::Pointer()> LabelImageFetcher;
+
+    typedef DeshadeSegmentedProcessor::LabelImage LabelImage;
+
+
+    typedef std::function<LabelImage()> LabelImageFetcher;
 private slots:
     void on_perform_button_clicked();
 

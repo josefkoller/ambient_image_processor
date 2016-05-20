@@ -134,6 +134,7 @@ void SplineInterpolationWidget::mouseReleasedOnImage()
     if(this->adding_reference_roi)
     {
         this->adding_reference_roi = false;
+        updateReferenceROI();
         emit this->repaintImage();
     }
 }
@@ -151,7 +152,6 @@ void SplineInterpolationWidget::mouseMoveOnImage(Qt::MouseButtons buttons, ITKIm
         std::cout << "add point" << std::endl;
 
         this->reference_rois[selected_roi_index].push_back(cursor_index);
-        this->updateReferenceROI();
     }
 }
 void SplineInterpolationWidget::updateReferenceROI()
@@ -160,58 +160,21 @@ void SplineInterpolationWidget::updateReferenceROI()
     if(index == -1)
         return;
 
-    if(image.isNull())
+    if(this->image.isNull())
         return;
 
     QVector<Point> roi = this->reference_rois[index];
-    QVector<QPoint> qpoint_roi;
-    for(Point point : roi)
-        qpoint_roi.push_back(ITKImage::pointFromIndex(point));
 
-    //TODO MAKE 3d, at the moment QPolygon::containsPoint is used
-    // take the bounding box/region of the polygon?
+    SplineInterpolationProcessor::ReferenceROIStatistic statistic =
+            SplineInterpolationProcessor::calculateStatisticInROI(roi, this->image);
 
-    if(roi.size() == 0)
-        return;
+    QString text = QString("Position: %1, Mean: %3").arg(
+                ITKImage::indexToText(statistic.point),
+                QString::number(statistic.mean_value));
 
-    // get mean/median of pixels which are inside the polygon
-    QPolygon polygon(qpoint_roi);
-
-    QImage *data = ITKToQImageConverter::convert(this->image);
-
-    QList<float> pixelsInside;
-    for(int x = 0; x < data->width(); x++)
-    {
-        for(int y = 0; y < data->height(); y++)
-        {
-            QPoint point(x,y);
-            if(!polygon.containsPoint(point, Qt::OddEvenFill))
-                continue;
-
-            QColor color = QColor(data->pixel(x,y));
-            float pixel = color.red() / 255.0f;
-            pixelsInside.push_back(pixel);
-        }
-    }
-    if(pixelsInside.length() == 0)
-        return;
-
-    qSort(pixelsInside);
-    uint median_index = pixelsInside.length() / 2;
-    float median_value = pixelsInside[median_index];
-
-    QPoint center = polygon.boundingRect().center();
-
-    QString text = QString("Position: (%1, %2), Median: %3").arg(
-                QString::number(center.x()),
-                QString::number(center.y()),
-                QString::number(median_value));
     this->ui->referenceROIsListWidget->item(index)->setText(text);
 
-    SplineInterpolationProcessor::ReferenceROIStatistic& statistic = this->reference_rois_statistic[index];
-    statistic.median_value = median_value;
-    statistic.x = center.x();
-    statistic.y = center.y();
+    this->reference_rois_statistic[index] = statistic;
 
   //  emit this->repaintImage();
 }

@@ -1,6 +1,6 @@
 #include "ExtractProcessor.h"
 
-#include <itkExtractImageFilter.h>
+#include <itkImageRegionConstIteratorWithIndex.h>
 
 ExtractProcessor::ExtractProcessor()
 {
@@ -15,32 +15,6 @@ ITKImage ExtractProcessor::process(
     typedef ITKImage::InnerITKImage ImageType;
     ImageType::Pointer image = itk_image.getPointer();
 
-    /*
-    ImageType::IndexType start;
-    start[0] = from_x;
-    start[1] = from_y;
-    start[2] = from_z;
-    ImageType::SizeType size;
-    size[0] = to_x - from_x + 1;
-    size[1] = to_y - from_y + 1;
-    size[2] = to_z - from_z + 1;
-    ImageType::RegionType extraction_region;
-    extraction_region.SetIndex(start);
-    extraction_region.SetSize(size);
-
-    typedef itk::ExtractImageFilter<ImageType, ImageType> ExtractFilter;
-    ExtractFilter::Pointer extract_filter = ExtractFilter::New();
-    extract_filter->SetExtractionRegion(extraction_region);
-    #if ITK_VERSION_MAJOR >= 4
-      extract_filter->SetDirectionCollapseToIdentity(); // This is required.
-    #endif
-    extract_filter->Update();
-    ImageType::Pointer output = extract_filter->GetOutput();
-    output->DisconnectPipeline();
-
-    return ITKImage(output);
-    */
-
     ImageType::SizeType extract_size;
     extract_size[0] = to_x - from_x + 1;
     extract_size[1] = to_y - from_y + 1;
@@ -49,40 +23,40 @@ ITKImage ExtractProcessor::process(
         extract_size[2] = to_z - from_z + 1;
     ImageType::RegionType extract_region(extract_size);
 
+    return process(image, extract_region);
+}
+
+ITKImage ExtractProcessor::process(ITKImage image,
+                                          ITKImage::InnerITKImage::RegionType extract_region)
+{
+    typedef ITKImage::InnerITKImage ImageType;
     ImageType::Pointer extracted_volume = ImageType::New();
     extracted_volume->SetRegions(extract_region);
     extracted_volume->Allocate();
-    extracted_volume->SetSpacing(image->GetSpacing());
+    extracted_volume->SetSpacing(image.getPointer()->GetSpacing());
 
-    for(unsigned int x = from_x; x <= to_x; x++)
+    ImageType::IndexType start_index = extract_region.GetIndex();
+
+    itk::ImageRegionConstIteratorWithIndex<ImageType> source_iteration(
+                image.getPointer(), extract_region);
+    while(!source_iteration.IsAtEnd())
     {
-        for(unsigned int y = from_y; y <= to_y; y++)
-        {
-            for(unsigned int z = from_z; z <= to_z; z++)
-            {
-                ImageType::IndexType index_in_source;
-                index_in_source[0] = x;
-                index_in_source[1] = y;
-                if(is3D)
-                    index_in_source[2] = z;
-                ImageType::PixelType pixel = image->GetPixel(index_in_source);
+        ImageType::IndexType index = source_iteration.GetIndex();
+        ImageType::IndexType destination_index;
+        destination_index[0] = index[0] + start_index[0];
+        destination_index[1] = index[1] + start_index[1];
+        destination_index[2] = index[2] + start_index[2];
 
-                ImageType::IndexType index_in_extracted;
-                index_in_extracted[0] = x - from_x;
-                index_in_extracted[1] = y - from_y;
-                if(is3D)
-                    index_in_extracted[2] = z - from_z;
-                extracted_volume->SetPixel(index_in_extracted, pixel);
-            }
-        }
+        extracted_volume->SetPixel(destination_index, source_iteration.Get());
+
+        ++source_iteration;
     }
 
-    ImageType::SpacingType spacing = image->GetSpacing();
-    ImageType::PointType origin = image->GetOrigin();
-    origin[0] = origin[0] + from_x * spacing[0];
-    origin[1] = origin[1] + from_y * spacing[1];
-    if(is3D)
-        origin[2] = origin[2] + from_z * spacing[2];
+    ImageType::SpacingType spacing = image.getPointer()->GetSpacing();
+    ImageType::PointType origin = image.getPointer()->GetOrigin();
+    origin[0] = origin[0] + start_index[0] * spacing[0];
+    origin[1] = origin[1] + start_index[1] * spacing[1];
+    origin[2] = origin[2] + start_index[2] * spacing[2];
     extracted_volume->SetOrigin(origin);
 
     return ITKImage(extracted_volume);

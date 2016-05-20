@@ -15,7 +15,7 @@ public:
     typedef RegionGrowingSegmentationProcessor::LabelImage LabelImage;
     typedef std::vector<RegionGrowingSegmentation::Segment> SegmentVector;
 
-    static LabelImage::Pointer convert(SegmentVector segments, LabelImage::SizeType size);
+    static LabelImage convert(SegmentVector segments, LabelImage::InnerITKImage::SizeType size);
 };
 
 #endif // SEGMENTSTOLABELIMAGECONVERTER_H

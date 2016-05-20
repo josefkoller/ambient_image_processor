@@ -4,6 +4,9 @@
 #include <itkBSplineScatteredDataPointSetToImageFilter.h>
 #include <itkVectorIndexSelectionCastImageFilter.h>
 #include <itkDivideImageFilter.h>
+#include <itkStatisticsImageFilter.h>
+
+#include "ExtractProcessor.h"
 
 SplineInterpolationProcessor::SplineInterpolationProcessor()
 {
@@ -32,9 +35,7 @@ ITKImage SplineInterpolationProcessor::process(
     unsigned int index = 0;
     for(ReferenceROIStatistic node_info : nodes)
     {
-        ITKImage::InnerITKImage::IndexType node;
-        node[0] = node_info.x;
-        node[1] = node_info.y;
+        ITKImage::InnerITKImage::IndexType node = node_info.point;
 
         PointSet::PointType point;
         itk_image->TransformIndexToPhysicalPoint(node, point);
@@ -119,7 +120,7 @@ void SplineInterpolationProcessor::printMetric(std::vector<ReferenceROIStatistic
 {
     std::vector<ITKImage::PixelType> v;
     std::for_each (std::begin(rois), std::end(rois), [&](const ReferenceROIStatistic roi) {
-        v.push_back(roi.median_value);
+        v.push_back(roi.mean_value);
     });
 
     double sum = std::accumulate(std::begin(v), std::end(v), 0.0);
@@ -134,4 +135,45 @@ void SplineInterpolationProcessor::printMetric(std::vector<ReferenceROIStatistic
 
     std::cout << "mean: " << m << std::endl;
     std::cout << "standard deviation: " << stdev << std::endl;
+}
+
+SplineInterpolationProcessor::ReferenceROIStatistic
+SplineInterpolationProcessor::calculateStatisticInROI(QVector<Point> roi, ITKImage image)
+{
+    ITKImage::InnerITKImage::RegionType region = image.getPointer()->GetLargestPossibleRegion();
+    ITKImage::Index start = region.GetIndex();
+    ITKImage::Index end = region.GetUpperIndex();
+
+    for(Point index : roi)
+    {
+        if(index[0] < start[0])
+            start[0] = index[0];
+        if(index[1] < start[1])
+            start[1] = index[1];
+        if(index[2] < start[0])
+            start[2] = index[2];
+        if(index[0] > end[0])
+            end[0] = index[0];
+        if(index[1] > end[1])
+            end[1] = index[1];
+        if(index[2] > end[2])
+            end[2] = index[2];
+    }
+    region.SetIndex(start);
+    region.SetUpperIndex(end);
+
+    ITKImage region_image = ExtractProcessor::process(image, region);
+
+    typedef itk::StatisticsImageFilter<ITKImage::InnerITKImage> StatisticFilter;
+    StatisticFilter::Pointer statistic_filter = StatisticFilter::New();
+    statistic_filter->SetInput(region_image.getPointer());
+    statistic_filter->Update();
+
+    ReferenceROIStatistic statistic;
+    statistic.point[0] = (end[0] - start[0]) / 2;
+    statistic.point[1] = (end[1] - start[1]) / 2;
+    statistic.point[2] = (end[2] - start[2]) / 2;
+    statistic.mean_value = statistic_filter->GetMean();
+
+    return statistic;
 }
