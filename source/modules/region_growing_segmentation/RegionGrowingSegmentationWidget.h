@@ -31,6 +31,8 @@ public:
 private:
     Ui::RegionGrowingSegmentationWidget *ui;
 
+    ITKImage image;
+
     RegionGrowingSegmentation region_growing_segmentation;
     bool is_adding_seed_point;
 

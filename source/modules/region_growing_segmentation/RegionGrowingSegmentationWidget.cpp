@@ -343,6 +343,11 @@ void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
 
     connect(image_widget, &ImageWidget::mousePressedOnImage,
             this, &RegionGrowingSegmentationWidget::mousePressedOnImage);
+
+    connect(image_widget, &ImageWidget::imageChanged,
+            this, [this] (ITKImage image) {
+        this->image = image;
+    });
 }
 
 void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button, QPoint position)
@@ -352,8 +357,9 @@ void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button
         ITKImage::InnerITKImage::IndexType image_index;
         image_index[0] = position.x();
         image_index[1] = position.y();
-    //    if(ITKImage::ImageDimension > 2)
-    // TODO slice_index to ITKImage?        image_index[2] = this->slice_index;
+
+        if(ITKImage::ImageDimension > 2)
+          image_index[2] = this->image.getVisibleSliceIndex();
 
         this->addSeedPointAt(image_index);
     }
