@@ -14,7 +14,7 @@ class ExtractWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit ExtractWidget(QWidget *parent = 0);
+    explicit ExtractWidget(QString title, QWidget *parent = 0);
     ~ExtractWidget();
 private slots:
     void on_extract_button_clicked();

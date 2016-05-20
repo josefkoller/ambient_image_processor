@@ -17,7 +17,7 @@ class DeshadeSegmentedWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit DeshadeSegmentedWidget(QWidget *parent = 0);
+    explicit DeshadeSegmentedWidget(QString title, QWidget *parent = 0);
     ~DeshadeSegmentedWidget();
 
     typedef ITKImage::InnerITKImage Image;

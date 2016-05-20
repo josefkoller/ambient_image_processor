@@ -3,8 +3,8 @@
 
 #include "MultiScaleRetinexProcessor.h"
 
-MultiScaleRetinexWidget::MultiScaleRetinexWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+MultiScaleRetinexWidget::MultiScaleRetinexWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::MultiScaleRetinexWidget)
 {
     ui->setupUi(this);

@@ -1,8 +1,8 @@
 #include "TGVWidget.h"
 #include "ui_TGVWidget.h"
 
-TGVWidget::TGVWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+TGVWidget::TGVWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::TGVWidget)
 {
     ui->setupUi(this);

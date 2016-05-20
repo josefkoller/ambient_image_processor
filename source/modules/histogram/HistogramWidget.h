@@ -13,7 +13,7 @@ class HistogramWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit HistogramWidget(QWidget *parent = 0);
+    explicit HistogramWidget(QString title, QWidget *parent = 0);
     ~HistogramWidget();
 
 private:

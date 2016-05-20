@@ -7,7 +7,9 @@
 
 NonLocalGradientKernelWidget::NonLocalGradientKernelWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::NonLocalGradientKernelWidget)
+    ui(new Ui::NonLocalGradientKernelWidget),
+    kernel_size(3),
+    sigma(1)
 {
     ui->setupUi(this);
     this->createKernelImage();

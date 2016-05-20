@@ -22,7 +22,7 @@ MainWindow::MainWindow(std::string image_path) :
    // this->ui->image_widget->showSliceControl();
     this->ui->image_widget->setOutputWidget(this->ui->output_widget);
     this->ui->output_widget->connectSliceControlTo(this->ui->image_widget);
-    this->ui->output_widget->connectProfileLinesTo(this->ui->image_widget);
+    this->ui->output_widget->connectModule("Line Profile", this->ui->image_widget);
     this->ui->output_widget->setPage(0);
 }
 

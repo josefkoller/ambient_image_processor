@@ -12,6 +12,8 @@
 
 #include <QListWidgetItem>
 
+class BaseModuleWidget;
+
 namespace Ui {
 class ImageWidget;
 }
@@ -35,7 +37,11 @@ public:
     void showImageOnly();
 
     void connectSliceControlTo(ImageWidget* other_image_widget);
-    void connectProfileLinesTo(ImageWidget* other_image_widget);
+
+    void connectModule(QString module_title, ImageWidget* other_image_widget);
+
+private:
+    BaseModuleWidget* getModuleByName(QString module_title) const;
 private slots:
     void on_slice_slider_valueChanged(int value);
 
@@ -46,25 +52,23 @@ private slots:
 public:
     Ui::ImageWidget *ui;
 private:
+    QList<BaseModuleWidget*> modules;
+
     ImageWidget* output_widget;
     ImageWidget* output_widget2;
     ImageWidget* output_widget3;
 
-    Image::Pointer image_save;
-
     Image::Pointer image;
+
     uint slice_index;
 
     bool show_pixel_value_at_cursor;
-
     bool show_slice_control;
 
     void setSliceIndex(uint slice_index);
     uint userSliceIndex() const;
 
     void paintImage(bool repaint = false);
-
-
     void setInputRanges();
 signals:
     void sliceIndexChanged(uint slice_index);

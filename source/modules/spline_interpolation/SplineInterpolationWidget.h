@@ -17,7 +17,7 @@ class SplineInterpolationWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit SplineInterpolationWidget(QWidget *parent = 0);
+    explicit SplineInterpolationWidget(QString title, QWidget *parent = 0);
     ~SplineInterpolationWidget();
 
 private:

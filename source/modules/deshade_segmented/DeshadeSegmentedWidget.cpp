@@ -3,8 +3,8 @@
 
 #include "DeshadeSegmentedProcessor.h"
 
-DeshadeSegmentedWidget::DeshadeSegmentedWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+DeshadeSegmentedWidget::DeshadeSegmentedWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::DeshadeSegmentedWidget),
     segment_fetcher(nullptr),
     label_image_fetcher(nullptr)

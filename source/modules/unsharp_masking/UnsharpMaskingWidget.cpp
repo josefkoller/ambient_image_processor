@@ -3,8 +3,8 @@
 
 #include "UnsharpMaskingProcessor.h"
 
-UnsharpMaskingWidget::UnsharpMaskingWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+UnsharpMaskingWidget::UnsharpMaskingWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::UnsharpMaskingWidget)
 {
     ui->setupUi(this);

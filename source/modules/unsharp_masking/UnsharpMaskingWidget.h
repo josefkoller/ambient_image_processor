@@ -14,7 +14,7 @@ class UnsharpMaskingWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit UnsharpMaskingWidget(QWidget *parent = 0);
+    explicit UnsharpMaskingWidget(QString title, QWidget *parent = 0);
     ~UnsharpMaskingWidget();
 
 private slots:

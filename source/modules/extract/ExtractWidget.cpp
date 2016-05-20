@@ -3,8 +3,8 @@
 
 #include "ExtractProcessor.h"
 
-ExtractWidget::ExtractWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+ExtractWidget::ExtractWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::ExtractWidget)
 {
     ui->setupUi(this);

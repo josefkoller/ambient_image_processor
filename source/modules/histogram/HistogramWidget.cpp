@@ -5,8 +5,8 @@
 
 #include "ITKToQImageConverter.h"
 
-HistogramWidget::HistogramWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::HistogramWidget)
 {
     ui->setupUi(this);

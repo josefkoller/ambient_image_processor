@@ -13,3 +13,5 @@ list(APPEND SOURCE_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/DeshadeSegmentedWidget.cpp
   ${CMAKE_CURRENT_LIST_DIR}/DeshadeSegmentedProcessor.cpp
   )
+
+include_directories(${CMAKE_CURRENT_LIST_DIR})

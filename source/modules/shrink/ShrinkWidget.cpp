@@ -3,8 +3,8 @@
 
 #include "ShrinkProcessor.h"
 
-ShrinkWidget::ShrinkWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+ShrinkWidget::ShrinkWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::ShrinkWidget)
 {
     ui->setupUi(this);

@@ -6,8 +6,6 @@
 #include <QDateTime>
 #include <QMouseEvent>
 
-#include "LineProfile.h"
-
 #include "LineProfileWidget.h"
 #include "UnsharpMaskingWidget.h"
 #include "MultiScaleRetinexWidget.h"
@@ -20,6 +18,8 @@
 #include "ThresholdFilterWidget.h"
 #include "ExtractWidget.h"
 #include "BilateralFilterWidget.h"
+#include "DeshadeSegmentedWidget.h"
+#include "TGVWidget.h"
 
 #include "QMenuBar"
 
@@ -33,7 +33,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     show_pixel_value_at_cursor(true),
     inner_image_frame(nullptr),
     q_image(nullptr),
-    image_save(nullptr),
     output_widget2(this)
 {
     ui->setupUi(this);
@@ -48,36 +47,68 @@ ImageWidget::ImageWidget(QWidget *parent) :
             this, SLOT(handleImageChange(Image::Pointer)));
 
 
-    /*
     this->ui->operations_panel->setVisible(false);
 
+    // define modules
+    auto module_parent = this->ui->operations_panel;
 
-    QMap<QString, BaseModuleWidget*> modules;
-    modules.insert("Line Profile", new LineProfileWidget(this));
-    modules.insert("Multiscale Retinex", new MultiScaleRetinexWidget(this));
-    modules.insert("Non-local Gradient", new NonLocalGradientWidget(this));
-    modules.insert("Region Growing Segmentation", new RegionGrowingSegmentationWidget(this));
+    auto region_growing_segmentation_widget =
+            new RegionGrowingSegmentationWidget("Region Growing Segmentation", module_parent);
+    auto non_local_gradient_widget = new NonLocalGradientWidget("Non-local Gradient", module_parent);
+    auto deshade_segmented_widget = new DeshadeSegmentedWidget("Deshade Segmented", module_parent);
+    auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
 
-    auto module_parent = this->ui->tabWidget;
-    for(auto module_iterator = modules.begin(); module_iterator != modules.end(); ++module_iterator)
+    modules.push_back(new ImageInformationWidget("Image Information", module_parent));
+    modules.push_back(new HistogramWidget("Histogram", module_parent));
+    modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
+    modules.push_back(new LineProfileWidget("Line Profile", module_parent));
+    modules.push_back(new ShrinkWidget("Shrink", module_parent));
+    modules.push_back(new ExtractWidget("Extract", module_parent));
+    modules.push_back(new UnsharpMaskingWidget("Unsharp Masking", module_parent));
+    modules.push_back(new MultiScaleRetinexWidget("Multiscale Retinex", module_parent));
+    modules.push_back(non_local_gradient_widget);
+    modules.push_back(region_growing_segmentation_widget);
+    modules.push_back(deshade_segmented_widget);
+    modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
+    modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
+    modules.push_back(tgv_widget);
+
+    // add modules
+    module_parent->hide();
+    module_parent->setUpdatesEnabled(false);
+    uint index = 0;
+    for(auto module : modules)
     {
-        module_parent->addTab(module_iterator.value(), module_iterator.key());
+        module_parent->insertTab(index++, module, module->getTitle());
     }
+    module_parent->setUpdatesEnabled(true);
+    module_parent->show();
 
+    // create menu
     QMenuBar* menu_bar = new QMenuBar();
     QMenu *file_menu = new QMenu("File");
     QAction* load_action = file_menu->addAction("Load");
-    this->connect(load_action, &QAction::triggered, this, [load_action, this]() {
+    this->connect(load_action, &QAction::triggered, this, [this]() {
         this->on_load_button_clicked();
     });
-    file_menu->addAction("Save");
+    QAction* save_action = file_menu->addAction("Save");
+    this->connect(save_action, &QAction::triggered, this, [this]() {
+        this->on_save_button_clicked();
+    });
     menu_bar->addMenu(file_menu);
+    QMenu *tools_menu = new QMenu("Tools");
+    for(auto module : modules)
+    {
+        QAction* module_action = tools_menu->addAction(module->getTitle());
+        this->connect(module_action, &QAction::triggered, this, [this, module]() {
+            this->ui->operations_panel->setCurrentWidget(module);
+        });
+    }
+    menu_bar->addMenu(tools_menu);
 
     this->layout()->setMenuBar(menu_bar);
 
-    this->ui->stackedWidget->setCurrentIndex(2);
-*/
-
+    // register modules
     auto module_widgets = this->findChildren<BaseModuleWidget*>();
     for(auto module_widget : module_widgets)
     {
@@ -85,24 +116,25 @@ ImageWidget::ImageWidget(QWidget *parent) :
         module_widget->registerModule(this);
     }
 
-    this->ui->region_growing_segmentation_widget->setKernelSigmaFetcher([this]() {
-        return this->ui->non_local_gradient_widget->getKernelSigma();
+    // connect modules...
+    region_growing_segmentation_widget->setKernelSigmaFetcher([non_local_gradient_widget]() {
+        return non_local_gradient_widget->getKernelSigma();
     });
-    this->ui->region_growing_segmentation_widget->setKernelSizeFetcher([this]() {
-        return this->ui->non_local_gradient_widget->getKernelSize();
-    });
-
-    this->ui->deshade_segmented_widget->setSegmentsFetcher([this]() {
-        return this->ui->region_growing_segmentation_widget->getSegments();
-    });
-    this->ui->deshade_segmented_widget->setLabelImageFetcher([this]() {
-        return this->ui->region_growing_segmentation_widget->getLabelImage();
+    region_growing_segmentation_widget->setKernelSizeFetcher([non_local_gradient_widget]() {
+        return non_local_gradient_widget->getKernelSize();
     });
 
-    this->ui->tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
+    deshade_segmented_widget->setSegmentsFetcher([region_growing_segmentation_widget]() {
+        return region_growing_segmentation_widget->getSegments();
+    });
+    deshade_segmented_widget->setLabelImageFetcher([region_growing_segmentation_widget]() {
+        return region_growing_segmentation_widget->getLabelImage();
+    });
+
+    tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
-                                     QString::number(index+1),
-                                     QString::number(count)));
+                                            QString::number(index+1),
+                                            QString::number(count)));
         emit this->output_widget->fireImageChange(u.getPointer());
     });
 }
@@ -170,7 +202,7 @@ void ImageWidget::paintImage(bool repaint)
     if(q_image == nullptr)
     {
         q_image = ITKToQImageConverter::convert(this->image,
-                                                       this->slice_index);
+                                                this->slice_index);
         if(inner_image_frame != nullptr)
             delete inner_image_frame;
         inner_image_frame = new QLabel(this->ui->image_frame);
@@ -178,9 +210,9 @@ void ImageWidget::paintImage(bool repaint)
         inner_image_frame->installEventFilter(this);
         inner_image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         inner_image_frame->setMinimumSize(q_image->size());
-      //  frame->setMaximumSize(q_image.size());
-      //  frame->setBaseSize(q_image.size());
-      //  frame->setFixedSize(q_image.size());
+        //  frame->setMaximumSize(q_image.size());
+        //  frame->setBaseSize(q_image.size());
+        //  frame->setFixedSize(q_image.size());
 
         QPixmap pixmap = QPixmap::fromImage(*q_image);
         emit this->pixmapPainted(&pixmap);  // other modules paint into it here
@@ -217,11 +249,24 @@ void ImageWidget::connectSliceControlTo(ImageWidget* other_image_widget)
             this, &ImageWidget::connectedSliceControlChanged);
 }
 
-void ImageWidget::connectProfileLinesTo(ImageWidget* other_image_widget)
+BaseModuleWidget* ImageWidget::getModuleByName(QString module_title) const
 {
-    this->ui->line_profile_widget->connectTo(other_image_widget->ui->line_profile_widget);
-}
+    for(auto module : modules)
+        if(module->getTitle() == module_title)
+            return module;
+    return nullptr;
 
+}
+void ImageWidget::connectModule(QString module_title, ImageWidget* other_image_widget)
+{
+    auto module1 = this->getModuleByName(module_title);
+    auto module2 = other_image_widget->getModuleByName(module_title);
+
+    if(module1 == nullptr || module2 == nullptr)
+        return;
+
+    module1->connectTo(module2);
+}
 
 void ImageWidget::connectedSliceControlChanged(uint slice_index)
 {
@@ -241,7 +286,7 @@ void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
         return;
 
     QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
-   // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
+    // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
 
     emit this->mousePressedOnImage(mouse_event->button(), position);
 }
@@ -266,7 +311,7 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
 
         Image::SizeType size = this->image->GetLargestPossibleRegion().GetSize();
         if(position.x() < 0 || position.x() > size[0] ||
-           position.y() < 0 || position.y() > size[1] )
+                position.y() < 0 || position.y() > size[1] )
         {
             return false;
         }
@@ -279,11 +324,11 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
         // showing pixel value...
         Image::PixelType pixel_value = this->image->GetPixel(index);
         QString text = QString("pixel value at ") +
-                               QString::number(position.x()) +
-                               " | " +
-                               QString::number(position.y()) +
-                               " = " +
-                               QString::number(pixel_value);
+                QString::number(position.x()) +
+                " | " +
+                QString::number(position.y()) +
+                " = " +
+                QString::number(pixel_value);
         this->handleStatusTextChange(text);
 
         emit this->mouseMoveOnImage(mouse_event->buttons(), position);
@@ -343,13 +388,6 @@ void ImageWidget::on_slice_spinbox_valueChanged(int slice_index)
     {
         this->setSliceIndex(slice_index);
     }
-}
-
-void ImageWidget::showImageOnly()
-{
-    this->ui->load_save_panel->hide();
-    this->ui->operations_panel->hide();
-    this->setMinimumSizeToImage();
 }
 
 void ImageWidget::setMinimumSizeToImage()

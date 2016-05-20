@@ -3,8 +3,8 @@
 
 #include "BilateralFilterProcessor.h"
 
-BilateralFilterWidget::BilateralFilterWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+BilateralFilterWidget::BilateralFilterWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::BilateralFilterWidget)
 {
     ui->setupUi(this);

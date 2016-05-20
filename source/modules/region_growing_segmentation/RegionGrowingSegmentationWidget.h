@@ -23,7 +23,7 @@ class RegionGrowingSegmentationWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit RegionGrowingSegmentationWidget(QWidget *parent = 0);
+    explicit RegionGrowingSegmentationWidget(QString title, QWidget *parent = 0);
     ~RegionGrowingSegmentationWidget();
 
     bool isAddingSeedPoint() const;

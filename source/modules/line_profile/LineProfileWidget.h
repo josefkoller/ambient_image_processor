@@ -14,7 +14,7 @@ class LineProfileWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit LineProfileWidget(QWidget *parent = 0);
+    explicit LineProfileWidget(QString title, QWidget *parent = 0);
     ~LineProfileWidget();
 
     QList<LineProfile> getProfileLines() { return this->profile_lines; }
@@ -46,6 +46,7 @@ public slots:
 
 public:
     virtual void registerModule(ImageWidget* image_widget);
+    virtual void connectTo(BaseModuleWidget* other);
 };
 
 #endif // LINEPROFILEWIDGET_H

@@ -1,8 +1,8 @@
 #include "NonLocalGradientWidget.h"
 #include "ui_NonLocalGradientWidget.h"
 
-NonLocalGradientWidget::NonLocalGradientWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+NonLocalGradientWidget::NonLocalGradientWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::NonLocalGradientWidget)
 {
     ui->setupUi(this);

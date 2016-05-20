@@ -1,7 +1,8 @@
 #include "BaseModuleWidget.h"
 
-BaseModuleWidget::BaseModuleWidget(QWidget *parent) :
+BaseModuleWidget::BaseModuleWidget(QString title, QWidget *parent) :
     QWidget(parent),
+    title(title),
     source_image_fetcher(nullptr),
     result_processor(nullptr),
     worker_thread(nullptr)
@@ -79,4 +80,13 @@ void BaseModuleWidget::setStatusText(QString text)
 {
     if(this->status_text_processor != nullptr)
         this->status_text_processor(text);
+}
+
+QString BaseModuleWidget::getTitle() const
+{
+    return this->title;
+}
+
+void BaseModuleWidget::connectTo(BaseModuleWidget* other)
+{
 }

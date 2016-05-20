@@ -14,7 +14,7 @@ class BilateralFilterWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit BilateralFilterWidget(QWidget *parent = 0);
+    explicit BilateralFilterWidget(QString title, QWidget *parent = 0);
     ~BilateralFilterWidget();
 
 private slots:

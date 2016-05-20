@@ -13,7 +13,7 @@ class BaseModuleWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BaseModuleWidget(QWidget *parent);
+    BaseModuleWidget(QString title, QWidget *parent);
 
     typedef std::function<void(ITKImage)> ResultProcessor;
     typedef std::function<ITKImage()> SourceImageFetcher;
@@ -22,6 +22,8 @@ private:
     ResultProcessor result_processor;
 
     std::thread* worker_thread;
+
+    QString title;
 signals:
     void fireWorkerFinished();
 private slots:
@@ -39,6 +41,9 @@ protected:
     void setStatusText(QString text);
 public:
     virtual void registerModule(ImageWidget* image_widget);
+
+    QString getTitle() const;
+    virtual void connectTo(BaseModuleWidget* other);
 };
 
 #endif // BASEMODULEWIDGET_H

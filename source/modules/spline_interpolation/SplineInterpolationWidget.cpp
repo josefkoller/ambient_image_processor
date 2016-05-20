@@ -4,8 +4,8 @@
 #include <QPainter>
 #include <QPen>
 
-SplineInterpolationWidget::SplineInterpolationWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+SplineInterpolationWidget::SplineInterpolationWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::SplineInterpolationWidget),
     adding_reference_roi(false)
 {

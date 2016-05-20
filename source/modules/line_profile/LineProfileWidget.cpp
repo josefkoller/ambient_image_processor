@@ -3,8 +3,8 @@
 
 #include "LineProfileProcessor.h"
 
-LineProfileWidget::LineProfileWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::LineProfileWidget),
     adding_profile_line(false),
     profile_line_parent(nullptr)
@@ -155,14 +155,6 @@ void LineProfileWidget::on_add_profile_line_button_clicked()
                 this->profile_lines.size() - 1)->setSelected(true);
 }
 
-void LineProfileWidget::connectTo(LineProfileWidget *other)
-{
-    this->profile_line_parent = other;
-
-    connect(other, &LineProfileWidget::profileLinesChanged,
-            this, &LineProfileWidget::connectedProfileLinesChanged);
-}
-
 void LineProfileWidget::registerModule(ImageWidget* image_widget)
 {
     BaseModuleWidget::registerModule(image_widget);
@@ -219,4 +211,16 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     painter.drawPoint(line.position2());
 
     this->paintSelectedProfileLine();
+}
+
+void LineProfileWidget::connectTo(BaseModuleWidget* other)
+{
+    auto other_line_profile_widget = dynamic_cast<LineProfileWidget*>(other);
+    if(other_line_profile_widget == nullptr)
+        return;
+
+    this->profile_line_parent = other_line_profile_widget;
+
+    connect(other_line_profile_widget, &LineProfileWidget::profileLinesChanged,
+            this, &LineProfileWidget::connectedProfileLinesChanged);
 }

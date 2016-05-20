@@ -18,7 +18,7 @@ class NonLocalGradientWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit NonLocalGradientWidget(QWidget *parent = 0);
+    explicit NonLocalGradientWidget(QString title, QWidget *parent = 0);
     ~NonLocalGradientWidget();
 
 private slots:

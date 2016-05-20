@@ -14,7 +14,7 @@ class ImageInformationWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit ImageInformationWidget(QWidget *parent = 0);
+    explicit ImageInformationWidget(QString title, QWidget *parent = 0);
     ~ImageInformationWidget();
 
 private:

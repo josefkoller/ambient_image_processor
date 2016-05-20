@@ -14,7 +14,7 @@ class ShrinkWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
-    explicit ShrinkWidget(QWidget *parent = 0);
+    explicit ShrinkWidget(QString title, QWidget *parent = 0);
     ~ShrinkWidget();
 private slots:
     void on_shrink_button_clicked();

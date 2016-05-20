@@ -4,8 +4,8 @@
 #include "ImageWidget.h"
 #include "ImageInformationProcessor.h"
 
-ImageInformationWidget::ImageInformationWidget(QWidget *parent) :
-    BaseModuleWidget(parent),
+ImageInformationWidget::ImageInformationWidget(QString title, QWidget *parent) :
+    BaseModuleWidget(title, parent),
     ui(new Ui::ImageInformationWidget)
 {
     ui->setupUi(this);

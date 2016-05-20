@@ -18,3 +18,4 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/tgv_kernel.cu
   )
 
+include_directories(${CMAKE_CURRENT_LIST_DIR})
