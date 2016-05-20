@@ -2,7 +2,7 @@
 
 BaseModuleWidget::BaseModuleWidget(QString title, QWidget *parent) :
     QWidget(parent),
-    title(title),
+    BaseModule(title),
     source_image_fetcher(nullptr),
     result_processor(nullptr),
     worker_thread(nullptr)
@@ -58,14 +58,13 @@ void BaseModuleWidget::handleWorkerFinished()
 
 void BaseModuleWidget::registerModule(ImageWidget* image_widget)
 {
+    BaseModule::registerModule(image_widget);
+
     this->source_image_fetcher = [image_widget](){
         return ITKImage(image_widget->getImage());
     };
     this->result_processor = [image_widget] (ITKImage image) {
         emit image_widget->getOutputWidget()->fireImageChange(image.getPointer());
-    };
-    this->status_text_processor = [image_widget] (QString text) {
-        emit image_widget->fireStatusTextChange(text);
     };
 }
 
@@ -74,19 +73,4 @@ ITKImage BaseModuleWidget::getSourceImage() const
     if(this->source_image_fetcher == nullptr)
         return ITKImage();
     return this->source_image_fetcher();
-}
-
-void BaseModuleWidget::setStatusText(QString text)
-{
-    if(this->status_text_processor != nullptr)
-        this->status_text_processor(text);
-}
-
-QString BaseModuleWidget::getTitle() const
-{
-    return this->title;
-}
-
-void BaseModuleWidget::connectTo(BaseModuleWidget* other)
-{
 }

@@ -9,7 +9,9 @@
 
 #include <QWidget>
 
-class BaseModuleWidget : public QWidget
+#include "BaseModule.h"
+
+class BaseModuleWidget : public QWidget, public BaseModule
 {
     Q_OBJECT
 public:
@@ -22,8 +24,6 @@ private:
     ResultProcessor result_processor;
 
     std::thread* worker_thread;
-
-    QString title;
 signals:
     void fireWorkerFinished();
 private slots:
@@ -34,16 +34,9 @@ protected:
     void processInWorkerThread();
 
     ITKImage getSourceImage() const;
-
-private:
-    std::function<void(QString)> status_text_processor;
-protected:
-    void setStatusText(QString text);
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
-    QString getTitle() const;
-    virtual void connectTo(BaseModuleWidget* other);
 };
 
 #endif // BASEMODULEWIDGET_H

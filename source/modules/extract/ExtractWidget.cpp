@@ -56,6 +56,9 @@ void ExtractWidget::registerModule(ImageWidget* image_widget)
 
 void ExtractWidget::imageChanged(ITKImage::InnerITKImage::Pointer image)
 {
+    if(image.IsNull())
+        return;
+
     ITKImage::InnerITKImage::SizeType size = image->GetLargestPossibleRegion().GetSize();
 
     int max_z = 0;

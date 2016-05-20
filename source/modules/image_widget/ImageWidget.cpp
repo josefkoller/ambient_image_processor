@@ -20,6 +20,7 @@
 #include "BilateralFilterWidget.h"
 #include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
+#include "CrosshairModule.h"
 
 #include "QMenuBar"
 
@@ -30,7 +31,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     slice_index(0),
     show_slice_control(false),
     output_widget(this),
-    show_pixel_value_at_cursor(true),
     inner_image_frame(nullptr),
     q_image(nullptr),
     output_widget2(this)
@@ -72,19 +72,25 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
+    modules.push_back(new CrosshairModule("Bilateral Filter"));
 
-    // add modules
+    // register modules and add widget modules
     module_parent->hide();
     module_parent->setUpdatesEnabled(false);
     uint index = 0;
     for(auto module : modules)
     {
-        module_parent->insertTab(index++, module, module->getTitle());
+        auto widget = dynamic_cast<BaseModuleWidget*>(module);
+        if(widget != nullptr)
+            module_parent->insertTab(index++, widget, module->getTitle());
+
+        std::cout << "registering module: " << module->getTitle().toStdString() << std::endl;
+        module->registerModule(this);
     }
     module_parent->setUpdatesEnabled(true);
     module_parent->show();
 
-    // create menu
+    // create menu entry for widget modules
     QMenuBar* menu_bar = new QMenuBar();
     QMenu *file_menu = new QMenu("File");
     QAction* load_action = file_menu->addAction("Load");
@@ -99,22 +105,17 @@ ImageWidget::ImageWidget(QWidget *parent) :
     QMenu *tools_menu = new QMenu("Tools");
     for(auto module : modules)
     {
+        auto widget = dynamic_cast<BaseModuleWidget*>(module);
+        if(widget == nullptr)
+            continue;
+
         QAction* module_action = tools_menu->addAction(module->getTitle());
-        this->connect(module_action, &QAction::triggered, this, [this, module]() {
-            this->ui->operations_panel->setCurrentWidget(module);
+        this->connect(module_action, &QAction::triggered, this, [this, widget]() {
+            this->ui->operations_panel->setCurrentWidget(widget);
         });
     }
     menu_bar->addMenu(tools_menu);
-
     this->layout()->setMenuBar(menu_bar);
-
-    // register modules
-    auto module_widgets = this->findChildren<BaseModuleWidget*>();
-    for(auto module_widget : module_widgets)
-    {
-        std::cout << "registering module: " << module_widget->metaObject()->className() << std::endl;
-        module_widget->registerModule(this);
-    }
 
     // connect modules...
     region_growing_segmentation_widget->setKernelSigmaFetcher([non_local_gradient_widget]() {
@@ -249,7 +250,7 @@ void ImageWidget::connectSliceControlTo(ImageWidget* other_image_widget)
             this, &ImageWidget::connectedSliceControlChanged);
 }
 
-BaseModuleWidget* ImageWidget::getModuleByName(QString module_title) const
+BaseModule* ImageWidget::getModuleByName(QString module_title) const
 {
     for(auto module : modules)
         if(module->getTitle() == module_title)
@@ -302,34 +303,12 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
     if(event->type() == QEvent::MouseMove && target == inner_image_frame)
     {
         QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
-        if(mouse_event == nullptr || this->show_pixel_value_at_cursor == false)
+        if(mouse_event == nullptr)
             return false;
 
         QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
 
         //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
-
-        Image::SizeType size = this->image->GetLargestPossibleRegion().GetSize();
-        if(position.x() < 0 || position.x() > size[0] ||
-                position.y() < 0 || position.y() > size[1] )
-        {
-            return false;
-        }
-        Image::IndexType index;
-        index[0] = position.x();
-        index[1] = position.y();
-        if(InputDimension > 2)
-            index[2] = this->slice_index;
-
-        // showing pixel value...
-        Image::PixelType pixel_value = this->image->GetPixel(index);
-        QString text = QString("pixel value at ") +
-                QString::number(position.x()) +
-                " | " +
-                QString::number(position.y()) +
-                " = " +
-                QString::number(pixel_value);
-        this->handleStatusTextChange(text);
 
         emit this->mouseMoveOnImage(mouse_event->buttons(), position);
 
@@ -398,16 +377,6 @@ void ImageWidget::setMinimumSizeToImage()
     const int border = 50;
     this->ui->image_frame->setMinimumSize(this->image->GetLargestPossibleRegion().GetSize()[0] + border*2,
             this->image->GetLargestPossibleRegion().GetSize()[1]+border*2);
-}
-
-void ImageWidget::hidePixelValueAtCursor()
-{
-    this->show_pixel_value_at_cursor = false;
-}
-
-void ImageWidget::showPixelValueAtCursor()
-{
-    this->show_pixel_value_at_cursor = true;
 }
 
 void ImageWidget::setOutputWidget(ImageWidget* output_widget)

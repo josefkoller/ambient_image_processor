@@ -67,6 +67,7 @@ include(source/modules/shrink/CMakeLists.txt)
 include(source/modules/extract/CMakeLists.txt)
 include(source/modules/bilateral_filter/CMakeLists.txt)
 include(source/modules/threshold/CMakeLists.txt)
+include(source/modules/crosshair/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

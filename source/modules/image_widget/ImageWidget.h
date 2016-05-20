@@ -12,7 +12,7 @@
 
 #include <QListWidgetItem>
 
-class BaseModuleWidget;
+class BaseModule;
 
 namespace Ui {
 class ImageWidget;
@@ -41,7 +41,7 @@ public:
     void connectModule(QString module_title, ImageWidget* other_image_widget);
 
 private:
-    BaseModuleWidget* getModuleByName(QString module_title) const;
+    BaseModule* getModuleByName(QString module_title) const;
 private slots:
     void on_slice_slider_valueChanged(int value);
 
@@ -52,7 +52,7 @@ private slots:
 public:
     Ui::ImageWidget *ui;
 private:
-    QList<BaseModuleWidget*> modules;
+    QList<BaseModule*> modules;
 
     ImageWidget* output_widget;
     ImageWidget* output_widget2;
@@ -61,8 +61,6 @@ private:
     Image::Pointer image;
 
     uint slice_index;
-
-    bool show_pixel_value_at_cursor;
     bool show_slice_control;
 
     void setSliceIndex(uint slice_index);
