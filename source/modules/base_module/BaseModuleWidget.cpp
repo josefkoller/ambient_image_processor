@@ -34,6 +34,8 @@ void BaseModuleWidget::processInWorkerThread()
     }
 
     this->worker_thread = new std::thread([=]() {
+        this->setStatusText(this->getTitle() + " started");
+
         ITKImage result_image = this->processImage(source_image);
         this->result_processor(result_image);
         emit this->fireWorkerFinished();
@@ -53,6 +55,8 @@ void BaseModuleWidget::handleWorkerFinished()
         delete this->worker_thread;
         this->worker_thread = nullptr;
     }
+
+    this->setStatusText(this->getTitle() + " finished");
 }
 
 void BaseModuleWidget::registerModule(ImageWidget* image_widget)
