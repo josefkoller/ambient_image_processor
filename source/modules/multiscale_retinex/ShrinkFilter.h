@@ -4,7 +4,7 @@
 #include <itkUnaryFunctorImageFilter.h>
 #include "ShrinkFunctor.h"
 
-typedef itk::Image< ShrinkFunctor::PixelType, InputDimension> VectorImageType;
+typedef itk::Image< ShrinkFunctor::PixelType, ITKImage::ImageDimension> VectorImageType;
 
 class ShrinkFilter :
         public itk::UnaryFunctorImageFilter<VectorImageType, VectorImageType, ShrinkFunctor>

@@ -5,9 +5,6 @@
 #include <QLabel>
 #include <QPaintEvent>
 
-#include "ITKImageProcessor.h"
-#include "ITKToQImageConverter.h"
-
 namespace Ui {
 class MainWindow;
 }

@@ -10,7 +10,7 @@ ShrinkFunctor::PixelType ShrinkFunctor::operator()(const PixelType& input)
 {
     PixelType output;
 
-    for(unsigned short d = 0; d < InputDimension; d++)
+    for(unsigned short d = 0; d < ITKImage::ImageDimension; d++)
     {
         const float input_value = input.GetElement(d);
         float output_value = 0;

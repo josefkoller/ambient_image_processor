@@ -5,7 +5,6 @@
 #include <QList>
 #include <QLabel>
 
-#include "ITKImageProcessor.h"
 #include "ITKToQImageConverter.h"
 
 #include <functional>
