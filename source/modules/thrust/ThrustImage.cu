@@ -50,39 +50,34 @@ template<typename PixelVector>
 __host__ __device__
 void ThrustImage<PixelVector>::backward_difference_x(ThrustImage<PixelVector>* gradient_x)
 {
-  InverseMinus<Pixel> inverse_minus;
+    InverseMinus<Pixel> inverse_minus;
 
-  PixelVector& data = this->pixel_rows;
-  PixelVector& gradient_data = gradient_x->pixel_rows;
+    PixelVector& data = this->pixel_rows;
+    PixelVector& gradient_data = gradient_x->pixel_rows;
 
-  for(uint slice_index = 0; slice_index < depth; slice_index++)
-  {
-      for(uint row_index = 0; row_index < height; row_index++)
-      {
-          auto offset = slice_index*this->width*this->height + row_index * width;
+    for(uint slice_index = 0; slice_index < depth; slice_index++)
+    {
+        for(uint row_index = 0; row_index < height; row_index++)
+        {
+            auto offset = slice_index*this->width*this->height + row_index * width;
 
-          gradient_data[offset] = - data[offset]; // neumann boundary condition of gradient
-          for(uint x = 1; x < width; x++)
-          {
-              const uint index = offset + x;
-              gradient_data[index] = - data[index] + data[index - 1];  // note: the sign
-          }
+            gradient_data[offset] = - data[offset]; // neumann boundary condition of gradient
+
+            for(uint x = 1; x < width; x++)
+            {
+                const uint index = offset + x;
+                gradient_data[index] = - data[index] + data[index - 1];  // note: the sign
+            }
 
 
-          /*
-          auto begin = data.begin() + offset;
-          auto end = begin + this->width;
-          auto target_begin = gradient_data.begin() + offset;
-          thrust::adjacent_difference(begin, end, target_begin, inverse_minus);
-
-          // neumann boundary conditions for u means...
-          // the value of p at the boundary is constant
-          // this is done by thrust::adjacent_difference, but
-          // the funny sign convention has to be fullfilled
-          *target_begin = -(*target_begin);
-          * */
-      }
-  }
+            /*
+            auto begin = data.begin() + offset;
+            auto end = begin + this->width;
+            auto target_begin = gradient_data.begin() + offset;
+            thrust::adjacent_difference(begin, end, target_begin, inverse_minus);
+            */
+        }
+    }
 }
 
 template<typename PixelVector>
@@ -98,25 +93,21 @@ void ThrustImage<PixelVector>::forward_difference_x(ThrustImage<PixelVector>* gr
         {
             auto offset = slice_index*this->width*this->height + row_index * this->width;
 
-            /*
-            auto begin = data.rbegin() + offset;
-            auto end = begin + this->width;
-            auto target_begin = gradient_data.rbegin() + offset;
-            */
+            gradient_data[offset + width - 1] = 0; // neumann boundary condition
+
 
             for(uint x = 0; x < width - 1; x++)
             {
                 const uint index = offset + x;
                 gradient_data[index] = data[index + 1] - data[index];
             }
-            gradient_data[offset + width - 1] = 0; // neumann boundary condition
 
             /*
+            auto begin = data.rbegin() + offset;
+            auto end = begin + this->width;
+            auto target_begin = gradient_data.rbegin() + offset;
             thrust::adjacent_difference(begin, end, target_begin, InverseMinus<Pixel>());
-
-            // neumann boundary conditions: 0 in the last column...
-            *target_begin = 0;
-            * */
+            */
         }
     }
 
@@ -165,14 +156,7 @@ void ThrustImage<PixelVector>::backward_difference_y(ThrustImage<PixelVector>* g
 
             thrust::adjacent_difference(column_begin, column_end, column_target_begin,
                                         InverseMinus<Pixel>());
-
-            // neumann boundary conditions for u means...
-            // the value of p at the boundary is constant
-            // this is done by thrust::adjacent_difference, but
-            // the funny sign convention has to be fullfilled
-            auto target_begin2 = gradient_data.begin() + offset;
-            *target_begin2 = -(*target_begin2);
-            * */
+            */
         }
     }
 }
@@ -198,7 +182,6 @@ void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gr
         {
             auto offset = slice_index*this->width*this->height + column_index;
 
-
             for(uint y = 1; y < height; y++)
             {
                 uint index = offset + y * width;
@@ -217,7 +200,7 @@ void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gr
 
             strided_range<reverse_iterator> strided_data(begin, end, striding);
             strided_range<reverse_iterator> strided_gradient_data(target_begin,
-                                                                       target_end, this->width);
+                                                                  target_end, this->width);
 
             auto column_begin = strided_data.begin();
             auto column_end = strided_data.end();
@@ -227,10 +210,7 @@ void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gr
                                         column_target_begin,
                                         InverseMinus<Pixel>());
 
-            // neumann boundary conditions: 0 in the first row...
-            auto target_begin2 = gradient_data.rbegin() + offset;
-            *target_begin2 = 0;
-            * */
+            */
         }
     }
 }
@@ -261,6 +241,7 @@ void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* g
                 gradient_data[index] = data[index + width_x_height] - data[index];
 
             }
+
             uint index = offset + (depth - 1) * width_x_height;
             gradient_data[index] = 0;
 
@@ -270,9 +251,9 @@ void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* g
             auto target_begin = gradient_data.begin() + offset;
             auto target_end = target_begin + begin_to_end;
 
-            strided_range<iterator> strided_data(begin, end, this->width);
+            strided_range<iterator> strided_data(begin, end, width_x_height);
             strided_range<iterator> strided_gradient_data(target_begin,
-                                                          target_end, this->width);
+                                                          target_end, width_x_height);
 
             auto column_begin = strided_data.begin();
             auto column_end = strided_data.end();
@@ -280,14 +261,7 @@ void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* g
 
             thrust::adjacent_difference(column_begin, column_end, column_target_begin,
                                         InverseMinus<Pixel>());
-
-            // neumann boundary conditions for u means...
-            // the value of p at the boundary is constant
-            // this is done by thrust::adjacent_difference, but
-            // the funny sign convention has to be fullfilled
-            auto target_begin2 = gradient_data.begin() + offset;
-            *target_begin2 = -(*target_begin2);
-            * */
+            */
         }
     }
 }
@@ -300,12 +274,8 @@ void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gr
     PixelVector& gradient_data = gradient_z->pixel_rows;
     const uint width = this->width;
 
-    typedef typename PixelVector::iterator::difference_type difference_type;
-    difference_type striding = this->width;
-
-    const uint begin_to_end = this->width*(this->height-1) + 1;
-
     const uint width_x_height = width*height;
+    const uint begin_to_end = width_x_height*(depth-1) + 1;
 
     typedef typename PixelVector::reverse_iterator reverse_iterator;
 
@@ -323,7 +293,6 @@ void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gr
             }
             gradient_data[offset] = - data[offset];
 
-
             /*
             auto begin = data.rbegin() + offset;
             auto end = begin + begin_to_end;
@@ -331,9 +300,9 @@ void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gr
             auto target_end = target_begin + begin_to_end;
 
 
-            strided_range<reverse_iterator> strided_data(begin, end, striding);
+            strided_range<reverse_iterator> strided_data(begin, end, width_x_height);
             strided_range<reverse_iterator> strided_gradient_data(target_begin,
-                                                                       target_end, this->width);
+                                                                  target_end, width_x_height);
 
             auto column_begin = strided_data.begin();
             auto column_end = strided_data.end();
@@ -342,11 +311,7 @@ void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gr
             thrust::adjacent_difference(column_begin, column_end,
                                         column_target_begin,
                                         InverseMinus<Pixel>());
-
-            // neumann boundary conditions: 0 in the first row...
-            auto target_begin2 = gradient_data.rbegin() + offset;
-            *target_begin2 = 0;
-            * */
+            */
         }
     }
 }
@@ -410,9 +375,9 @@ void ThrustImage<PixelVector>::add(ThrustImage<PixelVector>* other, ThrustImage<
 template<typename PixelVector>
 __host__ __device__
 void ThrustImage<PixelVector>::projected_gradient(ThrustImage<PixelVector>* gradient_x,
-                                            ThrustImage<PixelVector>* gradient_y,
-                                            ThrustImage<PixelVector>* projected_gradient_x,
-                                            ThrustImage<PixelVector>* projected_gradient_y)
+                                                  ThrustImage<PixelVector>* gradient_y,
+                                                  ThrustImage<PixelVector>* projected_gradient_x,
+                                                  ThrustImage<PixelVector>* projected_gradient_y)
 {
     thrust::transform(gradient_x->pixel_rows.begin(), gradient_x->pixel_rows.end(),
                       gradient_y->pixel_rows.begin(), projected_gradient_x->pixel_rows.begin(),
@@ -433,15 +398,17 @@ template<typename PixelVector>
 __host__ __device__
 void ThrustImage<PixelVector>::divergence(
         ThrustImage<PixelVector>* gradient_x, ThrustImage<PixelVector>* gradient_y, ThrustImage<PixelVector>* gradient_z,
-                       ThrustImage<PixelVector>* gradient_xx, ThrustImage<PixelVector>* gradient_yy, ThrustImage<PixelVector>* gradient_zz,
-                       ThrustImage<PixelVector>* output)
+        ThrustImage<PixelVector>* gradient_xx, ThrustImage<PixelVector>* gradient_yy, ThrustImage<PixelVector>* gradient_zz,
+        ThrustImage<PixelVector>* output)
 {
     gradient_x->backward_difference_x(gradient_xx);
     gradient_y->backward_difference_y(gradient_yy);
-    gradient_z->backward_difference_y(gradient_zz);
+    gradient_xx->add(gradient_yy, output);
 
-    gradient_xx->add(gradient_yy, gradient_xx);
-    gradient_xx->add(gradient_zz, output);
+    if(gradient_x->depth > 1) {
+        gradient_z->backward_difference_y(gradient_zz);
+        output->add(gradient_zz, output);
+    }
 }
 
 
@@ -488,22 +455,22 @@ template DeviceThrustImage::ThrustImage(uint width, uint height, uint depth, Vec
 template void DeviceThrustImage::setPixel(uint x, uint y, uint z, Pixel pixel);
 template Pixel DeviceThrustImage::getPixel(uint x, uint y, uint z);
 template void DeviceThrustImage::add(DeviceThrustImage* other,
-                               DeviceThrustImage* output);
+DeviceThrustImage* output);
 template void DeviceThrustImage::scale(const Pixel constant_factor,
-                               DeviceThrustImage* scaled_ThrustImage);
+DeviceThrustImage* scaled_ThrustImage);
 template void DeviceThrustImage::divergence(
-    DeviceThrustImage* gradient_x,
-    DeviceThrustImage* gradient_y,
-    DeviceThrustImage* gradient_z,
-    DeviceThrustImage* gradient_xx,
-    DeviceThrustImage* gradient_yy,
-    DeviceThrustImage* gradient_zz,
-    DeviceThrustImage* output);
+DeviceThrustImage* gradient_x,
+DeviceThrustImage* gradient_y,
+DeviceThrustImage* gradient_z,
+DeviceThrustImage* gradient_xx,
+DeviceThrustImage* gradient_yy,
+DeviceThrustImage* gradient_zz,
+DeviceThrustImage* output);
 template void DeviceThrustImage::projected_gradient(
-    DeviceThrustImage* gradient_x,
-    DeviceThrustImage* gradient_y,
-    DeviceThrustImage* projected_gradient_x,
-    DeviceThrustImage* projected_gradient_y);
+DeviceThrustImage* gradient_x,
+DeviceThrustImage* gradient_y,
+DeviceThrustImage* projected_gradient_x,
+DeviceThrustImage* projected_gradient_y);
 template void DeviceThrustImage::backward_difference_x(DeviceThrustImage* gradient_x);
 template void DeviceThrustImage::forward_difference_x(DeviceThrustImage* gradient_x);
 template void DeviceThrustImage::backward_difference_y(DeviceThrustImage* gradient_y);
@@ -522,22 +489,22 @@ template HostThrustImage::ThrustImage(uint width, uint height, uint depth, Vecto
 template void HostThrustImage::setPixel(uint x, uint y, uint z, Pixel pixel);
 template Pixel HostThrustImage::getPixel(uint x, uint y, uint z);
 template void HostThrustImage::add(HostThrustImage* other,
-                               HostThrustImage* output);
+HostThrustImage* output);
 template void HostThrustImage::scale(const Pixel constant_factor,
-                               HostThrustImage* scaled_ThrustImage);
+HostThrustImage* scaled_ThrustImage);
 template void HostThrustImage::divergence(
-    HostThrustImage* gradient_x,
-    HostThrustImage* gradient_y,
-    HostThrustImage* gradient_z,
-    HostThrustImage* gradient_xx,
-    HostThrustImage* gradient_yy,
-    HostThrustImage* gradient_zz,
-    HostThrustImage* output);
+HostThrustImage* gradient_x,
+HostThrustImage* gradient_y,
+HostThrustImage* gradient_z,
+HostThrustImage* gradient_xx,
+HostThrustImage* gradient_yy,
+HostThrustImage* gradient_zz,
+HostThrustImage* output);
 template void HostThrustImage::projected_gradient(
-    HostThrustImage* gradient_x,
-    HostThrustImage* gradient_y,
-    HostThrustImage* projected_gradient_x,
-    HostThrustImage* projected_gradient_y);
+HostThrustImage* gradient_x,
+HostThrustImage* gradient_y,
+HostThrustImage* projected_gradient_x,
+HostThrustImage* projected_gradient_y);
 template void HostThrustImage::backward_difference_x(HostThrustImage* gradient_x);
 template void HostThrustImage::forward_difference_x(HostThrustImage* gradient_x);
 template void HostThrustImage::backward_difference_y(HostThrustImage* gradient_y);

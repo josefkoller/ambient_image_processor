@@ -73,8 +73,14 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
     ThrustThrustImage* p_y_temp = u->clone_uninitialized(); // memory allocation
     ThrustThrustImage* p_x = u->clone_initialized(0); // memory allocation
     ThrustThrustImage* p_y = u->clone_initialized(0); // memory allocation
-    ThrustThrustImage* p_z_temp = u->clone_uninitialized(); // memory allocation
-    ThrustThrustImage* p_z = u->clone_initialized(0); // memory allocation
+
+    ThrustThrustImage* p_z_temp;
+    ThrustThrustImage* p_z;
+    if(u->depth > 1) {
+        p_z_temp = u->clone_uninitialized(); // memory allocation
+        p_z = u->clone_initialized(0); // memory allocation
+    }
+
 
     ThrustThrustImage* divergence_p = u->clone_uninitialized(); // memory allocation
     ThrustThrustImage* u_bar = u->clone(); // memory allocation
@@ -109,7 +115,10 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         //p = p + sigma*nabla*u_bar;
         u_bar->forward_difference_x(p_x_temp);
         u_bar->forward_difference_y(p_y_temp);
-        u_bar->forward_difference_z(p_z_temp);
+
+        if(u->depth > 1) {
+            u_bar->forward_difference_z(p_z_temp);
+        }
 
         thrust::transform(p_x_temp->pixel_rows.begin(), p_x_temp->pixel_rows.end(),
                           p_x->pixel_rows.begin(), p_x_temp->pixel_rows.begin(),
@@ -117,9 +126,12 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         thrust::transform(p_y_temp->pixel_rows.begin(), p_y_temp->pixel_rows.end(),
                           p_y->pixel_rows.begin(), p_y_temp->pixel_rows.begin(),
                           MultiplyByConstantAndAddOperation<Pixel>(sigma) );
-        thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
-                          p_z->pixel_rows.begin(), p_z_temp->pixel_rows.begin(),
-                          MultiplyByConstantAndAddOperation<Pixel>(sigma) );
+
+        if(u->depth > 1) {
+            thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
+                              p_z->pixel_rows.begin(), p_z_temp->pixel_rows.begin(),
+                              MultiplyByConstantAndAddOperation<Pixel>(sigma) );
+        }
 
 
         // norm_p = sqrt(p(1:N).^2 + p(N+1:2*N).^2);
@@ -129,16 +141,22 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         thrust::transform(p_y_temp->pixel_rows.begin(), p_y_temp->pixel_rows.end(),
                           p_y->pixel_rows.begin(),
                           SquareOperation<Pixel>() );
-        thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
-                          p_z->pixel_rows.begin(),
-                          SquareOperation<Pixel>() );
+
+        if(u->depth > 1) {
+            thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
+                              p_z->pixel_rows.begin(),
+                              SquareOperation<Pixel>() );
+        }
 
         thrust::transform(p_x->pixel_rows.begin(), p_x->pixel_rows.end(),
                           p_y->pixel_rows.begin(), p_magnitude->pixel_rows.begin(),
                           thrust::plus<Pixel>() );
-        thrust::transform(p_magnitude->pixel_rows.begin(), p_magnitude->pixel_rows.end(),
-                          p_z->pixel_rows.begin(), p_magnitude->pixel_rows.begin(),
-                          thrust::plus<Pixel>() );
+
+        if(u->depth > 1) {
+            thrust::transform(p_magnitude->pixel_rows.begin(), p_magnitude->pixel_rows.end(),
+                              p_z->pixel_rows.begin(), p_magnitude->pixel_rows.begin(),
+                              thrust::plus<Pixel>() );
+        }
 
         thrust::transform(p_magnitude->pixel_rows.begin(), p_magnitude->pixel_rows.end(),
                           p_magnitude->pixel_rows.begin(),
@@ -155,9 +173,12 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         thrust::transform(p_y_temp->pixel_rows.begin(), p_y_temp->pixel_rows.end(),
                           p_magnitude->pixel_rows.begin(), p_y->pixel_rows.begin(),
                           thrust::divides<Pixel>() );
-        thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
-                          p_magnitude->pixel_rows.begin(), p_z->pixel_rows.begin(),
-                          thrust::divides<Pixel>() );
+
+        if(u->depth > 1) {
+            thrust::transform(p_z_temp->pixel_rows.begin(), p_z_temp->pixel_rows.end(),
+                              p_magnitude->pixel_rows.begin(), p_z->pixel_rows.begin(),
+                              thrust::divides<Pixel>() );
+        }
 
         // u = u_old - tau * nabla_t * p;
         ThrustThrustImage::divergence(p_x, p_y, p_z,
@@ -183,7 +204,8 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
 
         if(iteration_finished_callback != nullptr &&
-           iteration_index % paint_iteration_interval == 0)
+           paint_iteration_interval > 0 &&
+           iteration_index % paint_iteration_interval == 0 )
             iteration_finished_callback(iteration_index, iteration_count, u);
     }
 
@@ -191,6 +213,12 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
     delete p_y_temp;
     delete p_x;
     delete p_y;
+
+    if(u->depth > 1) {
+        delete p_z_temp;
+        delete p_z;
+    }
+
     delete divergence_p;
     delete u_previous;
     delete u_bar;
