@@ -2,6 +2,7 @@ project(ambient)
 
 cmake_minimum_required(VERSION 2.8.11)
 
+
 #set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)

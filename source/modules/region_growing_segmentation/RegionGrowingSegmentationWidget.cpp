@@ -253,7 +253,8 @@ void RegionGrowingSegmentationWidget::on_saveParameterButton_clicked()
         for(RegionGrowingSegmentation::Position seed_point : segment.seed_points)
         {
             data += QString::number(seed_point[0]) + "|" +
-                    QString::number(seed_point[1]) + ";";
+                    QString::number(seed_point[1]) + "|" +
+                    QString::number(seed_point[2]) + ";";
         }
         data += "\n";
     }
@@ -306,9 +307,11 @@ void RegionGrowingSegmentationWidget::on_load_ParameterButton_clicked()
             QStringList seed_point_elements = seed_points_elements[s].split("|");
             uint x = seed_point_elements[0].toInt();
             uint y = seed_point_elements[1].toInt();
+            uint z = seed_point_elements[2].toInt();
             RegionGrowingSegmentation::Position seed_point;
             seed_point[0] = x;
             seed_point[1] = y;
+            seed_point[2] = z;
 
             this->region_growing_segmentation.addSeedPoint(segment_index, seed_point);
         }

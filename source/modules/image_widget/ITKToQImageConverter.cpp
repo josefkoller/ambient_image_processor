@@ -10,7 +10,7 @@ ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
 QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
 {
-    itk_image = ExtractProcessor::extract_slice(itk_image, slice_index);
+    ITKImage slice_image = ExtractProcessor::extract_slice(itk_image, slice_index);
 
     typedef ITKImage::InnerITKImage ImageType;
 
@@ -21,9 +21,10 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
     RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
     rescale_filter->SetOutputMinimum(0);
     rescale_filter->SetOutputMaximum(255);
-    rescale_filter->SetInput( itk_image.getPointer() );
+    rescale_filter->SetInput( slice_image.getPointer() );
     rescale_filter->Update();
     ImageType::Pointer rescaled_image = rescale_filter->GetOutput();
+    rescaled_image->DisconnectPipeline();
 
     QImage* q_image = new QImage( QSize(size[0], size[1]), QImage::Format_ARGB32);
 
@@ -74,7 +75,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
         std::cout << "there are pixels < 0 or > 255" << std::endl;
     }
 
-    std::cout << "converted image" << std::endl;
+    std::cout << "converted image slice " << slice_index << std::endl;
 
     return q_image;
 }

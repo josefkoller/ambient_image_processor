@@ -1,5 +1,6 @@
 *.png
 *.bmp
 build
+build*
 build_qtcreator
 CMakeLists.txt.user

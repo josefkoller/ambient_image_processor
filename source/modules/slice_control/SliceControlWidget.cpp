@@ -63,7 +63,8 @@ void SliceControlWidget::setSliceIndex(uint slice_index)
 
     if(slice_index < 0 || slice_index >= this->image.depth)
     {
-        std::cerr << "invalid slice_index for this image" << std::endl << std::flush;
+        std::cerr << "invalid slice_index (" << slice_index << ") for image with " <<
+                     this->image.depth << " slices " << std::endl << std::flush;
         return;
     }
 

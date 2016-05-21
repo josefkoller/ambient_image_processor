@@ -29,7 +29,9 @@ void BaseModuleWidget::processInWorkerThread()
     }
 
     if(worker_thread != nullptr) {
-        std::cout << "worker thread not finished" << std::endl;
+        int duration = this->start_timestamp.msecsTo(QTime::currentTime());
+        this->setStatusText(this->getTitle() + " already started " +
+                            QString::number(duration) + "ms ago");
         return;
 
     }
@@ -38,8 +40,18 @@ void BaseModuleWidget::processInWorkerThread()
     this->start_timestamp = QTime::currentTime();
 
     this->worker_thread = new std::thread([=]() {
-        ITKImage result_image = this->processImage(source_image);
-        this->result_processor(result_image);
+        try
+        {
+            ITKImage result_image = this->processImage(source_image);
+            this->result_processor(result_image);
+        }
+        catch(itk::ExceptionObject exception)
+        {
+            std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
+                         exception << std::endl;
+            this->setStatusText("Error in " + this->getTitle());
+        }
+
         emit this->fireWorkerFinished();
     });
 }

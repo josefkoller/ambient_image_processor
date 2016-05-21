@@ -22,7 +22,7 @@ public:
 private:
 
     static void grow(const ITKImage& gradient_image,
-        LabelImage& output_labels, uint segment_index, Index index,
+        LabelImage* output_labels, uint segment_index, Index index,
         float tolerance);
 };
 

@@ -22,8 +22,15 @@ ITKImage MultiScaleRetinexProcessor::process(
     for(MultiScaleRetinex::Scale* scale : scales)
         weight_sum += scale->weight;
 
-    ImageType::Pointer input_image =  image.getPointer();
+    ImageType::Pointer input_image =  image.clone().getPointer();
     ImageType::RegionType region = input_image->GetLargestPossibleRegion();
+
+    ImageType::PointType origin;
+    origin.Fill(0);
+    ImageType::SpacingType spacing;
+    spacing.Fill(1);
+    input_image->SetOrigin(origin);
+    input_image->SetSpacing(spacing);
 
     ImageType::Pointer reflectance = ImageType::New();
     reflectance->SetRegions(region);
@@ -79,6 +86,11 @@ ITKImage MultiScaleRetinexProcessor::process(
         reflectance = add_filter->GetOutput();
 
     }
+
+    origin = input_image.GetPointer()->GetOrigin();
+    spacing = input_image.GetPointer()->GetSpacing();
+    reflectance->SetOrigin(origin);
+    reflectance->SetSpacing(spacing);
 
     return ITKImage(reflectance);
 }

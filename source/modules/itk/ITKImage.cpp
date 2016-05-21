@@ -62,6 +62,9 @@ ITKImage::InnerITKImage::Pointer ITKImage::getPointer() const
 
 ITKImage ITKImage::clone() const
 {
+    if(this->isNull())
+        return ITKImage();
+
     typedef itk::ImageDuplicator<InnerITKImage> Duplicator;
     typename Duplicator::Pointer duplicator = Duplicator::New();
     duplicator->SetInputImage(this->inner_image);

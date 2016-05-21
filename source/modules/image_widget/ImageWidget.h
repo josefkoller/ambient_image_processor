@@ -21,6 +21,7 @@ class ImageWidget;
 }
 
 Q_DECLARE_METATYPE(ITKImage);
+Q_DECLARE_METATYPE(ITKImage::Index);
 
 class ImageWidget : public QWidget
 {

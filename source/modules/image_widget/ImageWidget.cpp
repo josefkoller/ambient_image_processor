@@ -41,6 +41,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
             this, SLOT(handleStatusTextChange(QString)));
 
     qRegisterMetaType<ITKImage>("ITKImage");
+    qRegisterMetaType<ITKImage>("ITKImage::Index");
+
     connect(this, &ImageWidget::fireImageChange,
             this, &ImageWidget::handleImageChange);
 
@@ -192,17 +194,22 @@ void ImageWidget::paintImage(bool repaint)
 
         QPixmap pixmap = QPixmap::fromImage(*q_image);
         emit this->pixmapPainted(&pixmap);  // other modules paint into it here
+
+        inner_image_frame->setUpdatesEnabled(false);
+
         inner_image_frame->setPixmap(pixmap);
-
         inner_image_frame->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-
         QVBoxLayout* layout = new QVBoxLayout();
         layout->addWidget(inner_image_frame);
+        if(this->ui->image_frame->layout() != nullptr)
+            delete this->ui->image_frame->layout();
         if(this->ui->image_frame->layout() != nullptr)
             delete this->ui->image_frame->layout();
         this->ui->image_frame->setLayout(layout);
         this->ui->image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         this->ui->image_frame->setMinimumSize(q_image->size());
+
+        inner_image_frame->setUpdatesEnabled(true);
 
     }
 }
@@ -278,7 +285,7 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
         if(wheel_event == nullptr)
             return false;
 
-        emit this->mouseWheelOnImage(wheel_event->delta());
+      //  emit this->mouseWheelOnImage(wheel_event->delta());
     }
 
     return false; // always returning false, so the pixmap is painted

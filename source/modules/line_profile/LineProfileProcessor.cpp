@@ -12,6 +12,10 @@ void LineProfileProcessor::intensity_profile(ITKImage image,
                                              std::vector<double>& intensities,
                                              std::vector<double>& distances)
 {
+    if(!image.contains(point1) ||
+       !image.contains(point2))
+        return;
+
     typedef ITKImage::InnerITKImage ImageType;
     typedef ITKImage::PixelType PixelType;
 
