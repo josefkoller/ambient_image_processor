@@ -285,7 +285,7 @@ bool ImageWidget::eventFilter(QObject *target, QEvent *event)
         if(wheel_event == nullptr)
             return false;
 
-      //  emit this->mouseWheelOnImage(wheel_event->delta());
+        emit this->mouseWheelOnImage(wheel_event->delta());
     }
 
     return false; // always returning false, so the pixmap is painted
