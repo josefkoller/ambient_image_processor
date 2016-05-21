@@ -41,18 +41,22 @@ ITKImage TGVProcessor::processTVL2GPU(ITKImage input_image,
    const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
 {
     DeviceThrustImage* f = convert<DeviceThrustImage>(input_image);
-    DeviceThrustImage* u = filterGPU(f, lambda, iteration_count,
+    DeviceThrustImage* u = f;
+
+            /*
+            filterGPU(f, lambda, iteration_count,
         [iteration_finished_callback](uint index, uint count, DeviceThrustImage* u) {
             ITKImage itk_u = convert(u);
             iteration_finished_callback(index, count, itk_u);
     });
-
+*/
     delete f;
 
     ITKImage result = convert(u);
     delete u;
     return result;
 }
+
 
 ITKImage TGVProcessor::processTVL2CPU(ITKImage input_image,
    const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
