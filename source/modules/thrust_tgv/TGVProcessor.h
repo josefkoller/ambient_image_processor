@@ -28,9 +28,12 @@ private:
 public:
 
     static ITKImage processTVL2GPU(ITKImage input_image,
-      const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback);
+      const Pixel lambda, const uint iteration_count,
+      const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
     static ITKImage processTVL2CPU(ITKImage input_image,
-      const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback);
+      const Pixel lambda, const uint iteration_count,
+      const uint paint_iteration_interval,
+      IterationFinished iteration_finished_callback);
 };
 
 #endif // TGVPROCESSOR_H

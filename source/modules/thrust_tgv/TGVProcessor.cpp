@@ -7,9 +7,11 @@
 #include "thrust/system_error.h"
 
 DeviceThrustImage* filterGPU(DeviceThrustImage* f, const Pixel lambda, const uint iteration_count,
-                       TGVProcessor::DeviceIterationFinished iteration_finished_callback);
+                             const uint paint_iteration_interval,
+                             TGVProcessor::DeviceIterationFinished iteration_finished_callback);
 HostThrustImage* filterCPU(HostThrustImage* f, const Pixel lambda, const uint iteration_count,
-                     TGVProcessor::HostIterationFinished iteration_finished_callback);
+                           const uint paint_iteration_interval,
+                           TGVProcessor::HostIterationFinished iteration_finished_callback);
 
 TGVProcessor::TGVProcessor()
 {
@@ -46,17 +48,19 @@ ITKImage TGVProcessor::convert(ThrustImage* image)
 }
 
 ITKImage TGVProcessor::processTVL2GPU(ITKImage input_image,
-   const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
+                                      const Pixel lambda, const uint iteration_count,
+                                      const uint paint_iteration_interval,
+                                      IterationFinished iteration_finished_callback)
 {
     try
     {
         DeviceThrustImage* f = convert<DeviceThrustImage>(input_image);
 
-        DeviceThrustImage* u = filterGPU(f, lambda, iteration_count,
-            [iteration_finished_callback](uint index, uint count, DeviceThrustImage* u) {
+        DeviceThrustImage* u = filterGPU(f, lambda, iteration_count, paint_iteration_interval,
+                                         [iteration_finished_callback](uint index, uint count, DeviceThrustImage* u) {
                 ITKImage itk_u = convert(u);
                 iteration_finished_callback(index, count, itk_u);
-        });
+    });
         delete f;
 
         ITKImage result = convert(u);
@@ -74,17 +78,16 @@ ITKImage TGVProcessor::processTVL2GPU(ITKImage input_image,
 
 
 ITKImage TGVProcessor::processTVL2CPU(ITKImage input_image,
-   const Pixel lambda, const uint iteration_count, IterationFinished iteration_finished_callback)
+                                      const Pixel lambda, const uint iteration_count,
+                                      const uint paint_iteration_interval,
+                                      IterationFinished iteration_finished_callback)
 {
     HostThrustImage* f = convert<HostThrustImage>(input_image);
-    HostThrustImage* u = filterCPU(f, lambda, iteration_count,
-                                   nullptr);
-                                   /*
-         [iteration_finished_callback](uint index, uint count, HostThrustImage* u) {
-             ITKImage itk_u = convert(u);
-             iteration_finished_callback(index, count, itk_u);
-    });
-                                   */
+    HostThrustImage* u = filterCPU(f, lambda, iteration_count, paint_iteration_interval,
+                                   [iteration_finished_callback](uint index, uint count, HostThrustImage* u) {
+            ITKImage itk_u = convert(u);
+            iteration_finished_callback(index, count, itk_u);
+});
 
     delete f;
 

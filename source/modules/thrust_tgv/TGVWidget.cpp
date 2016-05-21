@@ -29,11 +29,17 @@ ITKImage TGVWidget::processImage(ITKImage image)
     const float alpha1 = this->ui->alpha1_spinbox->value();
     const float lambda = this->ui->lambda_spinbox->value();
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
+    const uint paint_iteration_interval = this->ui->paint_iteration_interval_spinbox->value();
 
     bool perform_on_gpu = this->ui->gpu_radio_button->isChecked();
 
     if(perform_on_gpu)
-        return TGVProcessor::processTVL2GPU(image, lambda, iteration_count, this->iteration_finished_callback);
+        return TGVProcessor::processTVL2GPU(image, lambda, iteration_count,
+                                            paint_iteration_interval,
+                                            this->iteration_finished_callback);
 
-    return TGVProcessor::processTVL2CPU(image, lambda, iteration_count, this->iteration_finished_callback);
+    return TGVProcessor::processTVL2CPU(image,
+                                        lambda, iteration_count,
+                                        paint_iteration_interval,
+                                        this->iteration_finished_callback);
 }
