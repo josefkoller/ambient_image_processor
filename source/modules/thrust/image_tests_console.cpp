@@ -48,21 +48,31 @@ int main(int argc, char *argv[])
     thrust_image1->forward_difference_y(grad_y);
     print(grad_y, "grad_y");
 
+    ThrustThrustImage* grad_z = thrust_image1->clone_uninitialized();
+    thrust_image1->forward_difference_y(grad_z);
+    print(grad_z, "grad_z");
+
     ThrustThrustImage* divergence = thrust_image1->clone_uninitialized();
     ThrustThrustImage* grad_xx = thrust_image1->clone_uninitialized();
     ThrustThrustImage* grad_yy = thrust_image1->clone_uninitialized();
-    ThrustThrustImage::divergence(grad_x, grad_y, grad_xx, grad_yy, divergence);
+    ThrustThrustImage* grad_zz = thrust_image1->clone_uninitialized();
+    ThrustThrustImage::divergence(grad_x, grad_y, grad_z,
+                                  grad_xx, grad_yy, grad_zz,
+                                  divergence);
 
 
     print(grad_xx, "grad_xx");
     print(grad_yy, "grad_yy");
+    print(grad_zz, "grad_zz");
     print(divergence, "divergence");
 
     delete grad_yy;
     delete grad_xx;
+    delete grad_zz;
     delete divergence;
     delete grad_x;
     delete grad_y;
+    delete grad_z;
     delete thrust_image1;
 
     return 0;

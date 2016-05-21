@@ -146,7 +146,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
                                             QString::number(index+1),
                                             QString::number(count)));
-//        emit this->output_widget->fireImageChange(u.getPointer());
+        emit this->output_widget->fireImageChange(u.getPointer());
     });
 }
 

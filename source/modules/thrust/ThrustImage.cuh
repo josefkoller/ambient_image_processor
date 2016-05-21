@@ -58,7 +58,10 @@ struct ThrustImage
   __host__ __device__
   void forward_difference_y(ThrustImage<PixelVector>* gradient_y);
 
-  // TODO forward, backward z
+  __host__ __device__
+  void backward_difference_z(ThrustImage<PixelVector>* gradient_z);
+  __host__ __device__
+  void forward_difference_z(ThrustImage<PixelVector>* gradient_z);
 
   __host__ __device__
   void laplace(ThrustImage<PixelVector>* output_image);
@@ -74,8 +77,8 @@ struct ThrustImage
   static void projected_gradient(ThrustImage<PixelVector>* gradient_x, ThrustImage<PixelVector>* gradient_y,
                                  ThrustImage<PixelVector>* projected_gradient_x, ThrustImage<PixelVector>* projected_gradient_y);
   __host__ __device__
-  static void divergence(ThrustImage<PixelVector>* gradient_x, ThrustImage<PixelVector>* gradient_y,
-                         ThrustImage<PixelVector>* gradient_xx, ThrustImage<PixelVector>* gradient_yy,
+  static void divergence(ThrustImage<PixelVector>* gradient_x, ThrustImage<PixelVector>* gradient_y, ThrustImage<PixelVector>* gradient_z,
+                         ThrustImage<PixelVector>* gradient_xx, ThrustImage<PixelVector>* gradient_yy, ThrustImage<PixelVector>* gradient_zz,
                          ThrustImage<PixelVector>* output);
   __host__ __device__
   ThrustImage<PixelVector>* clone_uninitialized();

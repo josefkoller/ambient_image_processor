@@ -78,10 +78,13 @@ ITKImage TGVProcessor::processTVL2CPU(ITKImage input_image,
 {
     HostThrustImage* f = convert<HostThrustImage>(input_image);
     HostThrustImage* u = filterCPU(f, lambda, iteration_count,
+                                   nullptr);
+                                   /*
          [iteration_finished_callback](uint index, uint count, HostThrustImage* u) {
              ITKImage itk_u = convert(u);
              iteration_finished_callback(index, count, itk_u);
     });
+                                   */
 
     delete f;
 
