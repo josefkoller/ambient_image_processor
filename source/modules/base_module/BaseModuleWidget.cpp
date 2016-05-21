@@ -44,6 +44,10 @@ void BaseModuleWidget::processInWorkerThread()
         {
             ITKImage result_image = this->processImage(source_image);
             this->result_processor(result_image);
+
+            int duration = this->start_timestamp.msecsTo(QTime::currentTime());
+            this->setStatusText(this->getTitle() + " finished after "
+                                + QString::number(duration) + "ms");
         }
         catch(itk::ExceptionObject exception)
         {
@@ -51,7 +55,6 @@ void BaseModuleWidget::processInWorkerThread()
                          exception << std::endl;
             this->setStatusText("Error in " + this->getTitle());
         }
-
         emit this->fireWorkerFinished();
     });
 }
@@ -69,10 +72,6 @@ void BaseModuleWidget::handleWorkerFinished()
         delete this->worker_thread;
         this->worker_thread = nullptr;
     }
-
-    int duration = this->start_timestamp.msecsTo(QTime::currentTime());
-    this->setStatusText(this->getTitle() + " finished after "
-                        + QString::number(duration) + "ms");
 }
 
 void BaseModuleWidget::registerModule(ImageWidget* image_widget)

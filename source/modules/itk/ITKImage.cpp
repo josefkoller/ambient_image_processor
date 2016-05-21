@@ -10,7 +10,9 @@
 
 ITKImage ITKImage::Null = ITKImage();
 
-ITKImage::ITKImage(uint width, uint height, uint depth) : width(width), height(height), depth(depth)
+ITKImage::ITKImage(uint width, uint height, uint depth)
+    : width(width), height(height), depth(depth),
+      voxel_count(width*height*depth)
 {
     this->inner_image = InnerITKImage::New();
     InnerITKImage::SizeType size;
@@ -28,6 +30,8 @@ ITKImage::ITKImage(InnerITKImage::Pointer inner_image) : inner_image(inner_image
 {
     if(inner_image.IsNotNull())
         inner_image->DisconnectPipeline();
+
+    this->voxel_count = width*height*depth;
 }
 
 ITKImage::ITKImage() : ITKImage(nullptr)
@@ -161,6 +165,11 @@ ITKImage::PixelType ITKImage::getPixel(InnerITKImage::IndexType index) const
     return this->inner_image->GetPixel(index);
 }
 
+ITKImage::PixelType ITKImage::getPixel(PixelIndex index) const
+{
+    return this->getPixel(index.toITKIndex());
+}
+
 void ITKImage::setPixel(uint x, uint y, uint z, PixelType value)
 {
     ITKImage::InnerITKImage::IndexType index;
@@ -173,6 +182,11 @@ void ITKImage::setPixel(uint x, uint y, uint z, PixelType value)
 void ITKImage::setPixel(Index index, PixelType value)
 {
     return this->inner_image->SetPixel(index, value);
+}
+
+void ITKImage::setPixel(PixelIndex index, PixelType value)
+{
+    this->setPixel(index.toITKIndex(), value);
 }
 
 void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher)
@@ -255,10 +269,22 @@ bool ITKImage::contains(Index index) const
     return this->inner_image->GetLargestPossibleRegion().IsInside(index);
 }
 
+bool ITKImage::contains(PixelIndex index) const
+{
+    return this->inner_image->GetLargestPossibleRegion().IsInside(index.toITKIndex());
+}
+
 
 ITKImage::PixelType* ITKImage::cloneToPixelArray() const
 {
     ITKImage::PixelType* clone = new ITKImage::PixelType[this->width*this->height*this->depth];
+    if(clone == nullptr) {
+        std::cerr << "memory allocation error in cloneToPixelArray: " <<
+                     sizeof(ITKImage::PixelType)*this->width*this->height*this->depth <<
+                     " bytes could not be reservated" << std::endl;
+        return clone;
+    }
+
     this->foreachPixel([clone, this](uint x, uint y, uint z, PixelType pixel) {
         uint i = this->linearIndex(x,y,z);
         clone[i] = pixel;
@@ -272,4 +298,18 @@ ITKImage ITKImage::cloneSameSizeWithZeros() const
         return 0;
     });
     return clone;
+}
+
+uint ITKImage::linearIndex(Size size, PixelIndex index)
+{
+    return index.z *size.x*size.y + index.x + index.y * size.x;
+}
+ITKImage::PixelType ITKImage::getPixel(PixelType* image_data, Size size, PixelIndex index)
+{
+    return image_data[linearIndex(size, index)];
+}
+
+void ITKImage::setPixel(PixelType* image_data, Size size, PixelIndex index, PixelType value)
+{
+    image_data[linearIndex(size, index)] = value;
 }

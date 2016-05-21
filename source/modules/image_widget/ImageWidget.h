@@ -60,7 +60,7 @@ private:
     BaseModule* getModuleByName(QString module_title) const;
 
     SliceControlWidget* slice_control_widget;
-private slots:
+
     void on_load_button_clicked();
     void on_save_button_clicked();
 

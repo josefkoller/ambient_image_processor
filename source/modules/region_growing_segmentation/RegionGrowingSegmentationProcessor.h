@@ -3,6 +3,8 @@
 
 #include "ITKImage.h"
 
+#include <functional>
+
 class RegionGrowingSegmentationProcessor
 {
 private:
@@ -20,10 +22,22 @@ public:
             float tolerance);
 
 private:
+    static long grow_counter;
 
-    static void grow(const ITKImage& gradient_image,
-        LabelImage* output_labels, uint segment_index, Index index,
-        float tolerance);
+    static void grow(ITKImage::PixelType* gradient_image, ITKImage::Size size,
+                     LabelImage::PixelType* output_labels,
+                     uint segment_index,
+                     const ITKImage::PixelIndex& index,
+                     float tolerance,
+                     uint recursion_depth,
+                     uint max_recursion_depth,
+                     std::function<void(ITKImage::PixelIndex index)> max_recursion_depth_reached);
+    static bool growCondition(ITKImage::PixelType* gradient_image, ITKImage::Size size,
+                              LabelImage::PixelType* output_labels,
+                              const ITKImage::PixelIndex& index,
+                              float tolerance);
+
+    static bool setNeededStackSize();
 };
 
 #endif // REGIONGROWINGSEGMENTATIONPROCESSOR_H

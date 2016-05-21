@@ -20,6 +20,19 @@ public:
     uint width;
     uint height;
     uint depth;
+    uint voxel_count;
+
+    struct PixelIndex
+    {
+        uint x,y,z;
+        PixelIndex() : x(0), y(0), z(0) {}
+        PixelIndex(uint x, uint y, uint z) : x(x), y(y), z(z) {}
+        PixelIndex(Index index) : PixelIndex(index[0], index[1], index[2]) {}
+        PixelIndex(const PixelIndex& clone) : x(clone.x), y(clone.y), z(clone.z) {}
+        Index toITKIndex() { Index index = {{x, y, z}}; return index; }
+    };
+    typedef PixelIndex Size;
+
 private:
     InnerITKImage::Pointer inner_image;
 public:
@@ -30,6 +43,7 @@ public:
         this->width = image.width;
         this->height = image.height;
         this->depth = image.depth;
+        this->voxel_count = image.voxel_count;
         this->inner_image = image.inner_image;
         return *this;
     }
@@ -51,10 +65,12 @@ public:
     PixelType getPixel(uint x, uint y, uint z) const;
     void setPixel(uint x, uint y, uint z, PixelType value);
     void setPixel(Index index, PixelType value);
+    void setPixel(PixelIndex index, PixelType value);
 
     void setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher);
 
     PixelType getPixel(InnerITKImage::IndexType index) const;
+    PixelType getPixel(PixelIndex index) const;
 
     uint getImageDimension() const;
     uint getDepth() const;
@@ -70,9 +86,14 @@ public:
 
     uint linearIndex(uint x, uint y, uint z) const;
     bool contains(Index index) const;
+    bool contains(PixelIndex index) const;
 
     PixelType* cloneToPixelArray() const;
     ITKImage cloneSameSizeWithZeros() const;
+
+    static uint linearIndex(Size size, PixelIndex index);
+    static PixelType getPixel(PixelType* image_data, Size size, PixelIndex index);
+    static void setPixel(PixelType* image_data, Size size, PixelIndex index, PixelType value);
 };
 
 #endif // ITKIMAGE_H
