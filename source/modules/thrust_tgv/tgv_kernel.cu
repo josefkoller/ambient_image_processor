@@ -78,6 +78,15 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
 
   ThrustThrustImage* p_magnitude = u->clone_uninitialized(); // memory allocation
 
+
+  for(int i = 0; i < p_x->pixel_count; i++)
+  {
+      if(p_x->pixel_rows[i] != 0)
+          assert(true);
+      if(p_y->pixel_rows[i] != 0)
+          assert(true);
+  }
+
   for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
   {
       /* matlab primal dual TVL2
@@ -99,8 +108,10 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
       */
 
 
+      // u_old = u;
       u_previous->set_pixel_data_of(u);
 
+      //p = p + sigma*nabla*u_bar;
       u_bar->forward_difference_x(p_x_temp);
       u_bar->forward_difference_y(p_y_temp);
 
@@ -113,9 +124,12 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
 
      // ThrustThrustImage::projected_gradient(p_x_temp, p_y_temp, p_x, p_y);
 
+      // norm_p = sqrt(p(1:N).^2 + p(N+1:2*N).^2);
       thrust::transform(p_x_temp->pixel_rows.begin(), p_x_temp->pixel_rows.end(),
                         p_y_temp->pixel_rows.begin(), p_magnitude->pixel_rows.begin(),
                         GradientMagnitude<Pixel>() );
+
+      // p = p./max(1,[norm_p; norm_p]);
       thrust::transform(p_magnitude->pixel_rows.begin(), p_magnitude->pixel_rows.end(),
                         p_magnitude->pixel_rows.begin(),
                         MaxOperation<Pixel>(1.0) );
@@ -127,11 +141,11 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
                         p_magnitude->pixel_rows.begin(), p_y->pixel_rows.begin(),
                         thrust::divides<Pixel>() );
 
-
+      // u = u_old - tau * nabla_t * p;
       ThrustThrustImage::divergence(p_x, p_y, p_x_temp, p_y_temp, divergence_p);
 
       divergence_p->scale(-tau, divergence_p);
-      u->add(divergence_p, u);
+      u_previous->add(divergence_p, u);
 
       /*
       thrust::transform(divergence_p->pixel_rows.begin(), divergence_p->pixel_rows.end(),
@@ -150,19 +164,20 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
                         f->pixel_rows.begin(), u->pixel_rows.begin(),
                         L2DataTermOperation<Pixel>(tau*lambda) );
       */
+
+      // u = (u + tau * lambda .* f)/(1 + tau * lambda);
       thrust::transform(u->pixel_rows.begin(), u->pixel_rows.end(),
                         f->pixel_rows.begin(), u->pixel_rows.begin(),
                         L1DataTermOperation<Pixel>(tau*lambda) );
 
-
+      // u_bar = u + theta*(u - u_old);
       thrust::transform(u->pixel_rows.begin(), u->pixel_rows.end(),
                         u_previous->pixel_rows.begin(), u_bar->pixel_rows.begin(),
-                        MultiplyByConstantAndAddOperation<Pixel>(-1));
-      u_bar->scale(theta, u_bar);
-      u_bar->add(u, u_bar);
+                        thrust::minus<Pixel>());
 
-
-
+      thrust::transform(u_bar->pixel_rows.begin(), u_bar->pixel_rows.end(),
+                        u->pixel_rows.begin(), u_bar->pixel_rows.begin(),
+                        MultiplyByConstantAndAddOperation<Pixel>(theta) );
 
       printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
 

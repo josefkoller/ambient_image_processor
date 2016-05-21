@@ -114,5 +114,5 @@ void SliceControlWidget::setInputRanges()
 void SliceControlWidget::mouseWheelOnImage(int delta)
 {
     delta /= 8 * 15;
-    this->setSliceIndex(this->visible_slice_index + delta);
+    //this->setSliceIndex(this->visible_slice_index + delta);
 }

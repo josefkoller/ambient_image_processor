@@ -29,13 +29,20 @@ typedef double Pixel;
 template<typename PixelVector>
 struct ThrustImage
 {
+  typedef PixelVector Vector;
+
   PixelVector pixel_rows;
   const uint width;
   const uint height;
   const uint depth;
   const uint pixel_count;
+
   __host__ __device__
   ThrustImage(uint width, uint height, uint depth);
+  __host__ __device__
+  ThrustImage(uint width, uint height, uint depth, Vector pixel_rows);
+
+
   __host__ __device__
   void setPixel(uint x, uint y, uint z, Pixel pixel);
   __host__ __device__

@@ -49,17 +49,11 @@ void BaseModuleWidget::processInWorkerThread()
             this->setStatusText(this->getTitle() + " finished after "
                                 + QString::number(duration) + "ms");
         }
-        catch(std::runtime_error exception)
-        {
-            std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
-                         exception.what() << std::endl;
-            this->setStatusText("Error in " + this->getTitle());
-        }
         catch(std::exception exception)
         {
             std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
                          exception.what() << std::endl;
-            this->setStatusText("Error in " + this->getTitle());
+            this->setStatusText("Error in " + this->getTitle() + ". see console output");
         }
         emit this->fireWorkerFinished();
     });
