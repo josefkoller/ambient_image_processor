@@ -187,6 +187,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QRadioButton" name="tgv2_l2_algorithm_checkbox">
+           <property name="text">
+            <string>TGV2 L2</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="tgv1_l1_algorithm_checkbox">
            <property name="text">
             <string>TGV1 L1</string>

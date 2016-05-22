@@ -62,6 +62,13 @@ ITKImage TGVWidget::processImage(ITKImage image)
                                                     iteration_count,
                                                 paint_iteration_interval,
                                                 this->iteration_finished_callback);
+        if(this->ui->tgv2_l2_algorithm_checkbox->isChecked())
+            return TGVProcessor::processTGV2L2GPUCuda(image, lambda,
+                                                    alpha0,
+                                                    alpha1,
+                                                    iteration_count,
+                                                paint_iteration_interval,
+                                                this->iteration_finished_callback);
     }
 
     return TGVProcessor::processTVL2CPU(image,
