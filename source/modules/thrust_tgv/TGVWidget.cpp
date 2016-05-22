@@ -33,10 +33,18 @@ ITKImage TGVWidget::processImage(ITKImage image)
 
     bool perform_on_gpu = this->ui->gpu_radio_button->isChecked();
 
-    if(perform_on_gpu)
-        return TGVProcessor::processTVL2GPU(image, lambda, iteration_count,
+    if(perform_on_gpu) {
+        bool perform_using_thrust = this->ui->thrust_runtime_checkbox->isChecked();
+
+        if(perform_using_thrust)
+            return TGVProcessor::processTVL2GPUThrust(image, lambda, iteration_count,
+                                                paint_iteration_interval,
+                                                this->iteration_finished_callback);
+
+        return TGVProcessor::processTVL2GPUCuda(image, lambda, iteration_count,
                                             paint_iteration_interval,
                                             this->iteration_finished_callback);
+    }
 
     return TGVProcessor::processTVL2CPU(image,
                                         lambda, iteration_count,

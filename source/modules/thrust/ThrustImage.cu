@@ -115,7 +115,7 @@ void ThrustImage<PixelVector>::forward_difference_x(ThrustImage<PixelVector>* gr
 
 template<typename PixelVector>
 __host__ __device__
-void ThrustImage<PixelVector>::backward_difference_y(ThrustImage<PixelVector>* gradient_y)
+void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gradient_y)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_y->pixel_rows;
@@ -163,7 +163,7 @@ void ThrustImage<PixelVector>::backward_difference_y(ThrustImage<PixelVector>* g
 
 template<typename PixelVector>
 __host__ __device__
-void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gradient_y)
+void ThrustImage<PixelVector>::backward_difference_y(ThrustImage<PixelVector>* gradient_y)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_y->pixel_rows;
@@ -218,7 +218,7 @@ void ThrustImage<PixelVector>::forward_difference_y(ThrustImage<PixelVector>* gr
 
 template<typename PixelVector>
 __host__ __device__
-void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* gradient_z)
+void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gradient_z)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_z->pixel_rows;
@@ -268,7 +268,7 @@ void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* g
 
 template<typename PixelVector>
 __host__ __device__
-void ThrustImage<PixelVector>::forward_difference_z(ThrustImage<PixelVector>* gradient_z)
+void ThrustImage<PixelVector>::backward_difference_z(ThrustImage<PixelVector>* gradient_z)
 {
     PixelVector& data = this->pixel_rows;
     PixelVector& gradient_data = gradient_z->pixel_rows;

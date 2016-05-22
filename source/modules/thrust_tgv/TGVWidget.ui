@@ -132,6 +132,32 @@
        </widget>
       </item>
       <item>
+       <widget class="QGroupBox" name="groupBox_8">
+        <property name="title">
+         <string>GPU Runtime</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <widget class="QRadioButton" name="cuda_runtime_checkbox">
+           <property name="text">
+            <string>CUDA</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="thrust_runtime_checkbox">
+           <property name="text">
+            <string>Thrust</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_7">
         <property name="title">
          <string>Paint Image in every x Iteration</string>
