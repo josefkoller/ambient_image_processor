@@ -1,4 +1,5 @@
-
+#ifndef TGV_COMMON
+#define TGV_COMMON
 
 #include "cuda.h"
 
@@ -209,7 +210,7 @@ __global__ void tgv_kernel_part2(
     if(depth > 1)
         normalization += p_zz[index] * p_zz[index];
 
-    normalization = fmax(alpha1, sqrt(normalization));
+    normalization = fmax(1, sqrt(normalization)/alpha1);
 
     p_xx[index] /= normalization;
     p_yy[index] /= normalization;
@@ -244,17 +245,17 @@ void tgv_launch_part1(
     grid_dimension_y = dim3((depth*width + block_dimension.x - 1) / block_dimension.x);
     grid_dimension_z = dim3((width*height + block_dimension.x - 1) / block_dimension.x);
 
-    printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
-    printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
+    printf("block dimensions: x:%d \n", block_dimension.x);
+    printf("grid dimensions: x:%d  \n", grid_dimension.x);
 }
 
 template<typename Pixel>
 void tgv_launch_part2(Pixel* f_host,
           uint voxel_count, uint depth,
           Pixel** f, Pixel** u,
-          Pixel** u_previous, Pixel**u_bar,
-          Pixel**p_x, Pixel**p_y, Pixel**p_z,
-          Pixel**p_xx, Pixel**p_yy, Pixel**p_zz) {
+          Pixel** u_previous, Pixel** u_bar,
+          Pixel** p_x, Pixel** p_y, Pixel** p_z,
+          Pixel** p_xx, Pixel** p_yy, Pixel** p_zz) {
 
     printf("voxel_count: %d \n", voxel_count);
 
@@ -274,6 +275,7 @@ void tgv_launch_part2(Pixel* f_host,
         cudaCheckError( cudaMallocManaged(p_zz, size) )
     }
 }
+
 
 template<typename Pixel>
 void tgv_launch_forward_differences(Pixel* u_bar,
@@ -341,3 +343,5 @@ void tgv_launch_part3(
     cudaFree(f);
     cudaFree(u);
 }
+
+#endif //TGV_COMMON

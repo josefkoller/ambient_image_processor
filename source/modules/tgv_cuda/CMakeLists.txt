@@ -10,9 +10,11 @@ list(APPEND SOURCE_CPP_FILES
   )
 
 list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/tgv_common.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv1_l1.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv1_l2.cu
-  ${CMAKE_CURRENT_LIST_DIR}/tgv_common.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv2_common.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv2_l1.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

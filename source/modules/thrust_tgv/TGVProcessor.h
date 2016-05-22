@@ -59,6 +59,13 @@ public:
       const Pixel alpha1,
       const uint iteration_count,
       const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
+
+    static ITKImage processTGV2L1GPUCuda(ITKImage input_image,
+      const Pixel lambda,
+      const Pixel alpha0,
+      const Pixel alpha1,
+      const uint iteration_count,
+      const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
 };
 
 #endif // TGVPROCESSOR_H

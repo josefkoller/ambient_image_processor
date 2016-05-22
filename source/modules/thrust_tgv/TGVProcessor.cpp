@@ -35,6 +35,16 @@ Pixel* tgv1_l1_launch(Pixel* f_host,
                       Pixel alpha0,
                       Pixel alpha1);
 
+template<typename Pixel>
+Pixel* tgv2_l1_launch(Pixel* f_host,
+                      uint width, uint height, uint depth,
+                      Pixel lambda,
+                      uint iteration_count,
+                      uint paint_iteration_interval,
+                      TGVProcessor::IterationCallback<Pixel> iteration_finished_callback,
+                      Pixel alpha0,
+                      Pixel alpha1);
+
 TGVProcessor::TGVProcessor()
 {
 }
@@ -181,3 +191,24 @@ ITKImage TGVProcessor::processTVL1GPUCuda(ITKImage input_image,
     });
 }
 
+
+ITKImage TGVProcessor::processTGV2L1GPUCuda(ITKImage input_image,
+                                          const Pixel lambda,
+                                          const Pixel alpha0,
+                                          const Pixel alpha1,
+                                          const uint iteration_count,
+                                          const uint paint_iteration_interval,
+                                          IterationFinished iteration_finished_callback)
+{
+    return processTVGPUCuda(input_image, iteration_finished_callback,
+        [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1]
+        (Pixel* f, IterationCallback<Pixel> iteration_callback) {
+        return tgv2_l1_launch<Pixel>(f,
+                                     input_image.width, input_image.height, input_image.depth,
+                                     lambda,
+                                     iteration_count,
+                                     paint_iteration_interval,
+                                     iteration_callback,
+                                     alpha0, alpha1);
+    });
+}

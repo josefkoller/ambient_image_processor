@@ -177,12 +177,22 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
+          <widget class="QRadioButton" name="tgv2_l1_algorithm_checkbox">
+           <property name="text">
+            <string>TGV2 L1</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="tgv1_l1_algorithm_checkbox">
            <property name="text">
             <string>TGV1 L1</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
