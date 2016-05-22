@@ -41,7 +41,10 @@ ITKImage TGVWidget::processImage(ITKImage image)
                                                 paint_iteration_interval,
                                                 this->iteration_finished_callback);
 
-        return TGVProcessor::processTVL2GPUCuda(image, lambda, iteration_count,
+        return TGVProcessor::processTVL2GPUCuda(image, lambda,
+                                                alpha0,
+                                                alpha1,
+                                                iteration_count,
                                             paint_iteration_interval,
                                             this->iteration_finished_callback);
     }

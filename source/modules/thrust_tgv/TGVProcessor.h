@@ -32,7 +32,10 @@ public:
       const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
 
     static ITKImage processTVL2GPUCuda(ITKImage input_image,
-      const Pixel lambda, const uint iteration_count,
+      const Pixel lambda,
+      const Pixel alpha0,
+      const Pixel alpha1,
+      const uint iteration_count,
       const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
 
     static ITKImage processTVL2CPU(ITKImage input_image,

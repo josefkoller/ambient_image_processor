@@ -92,7 +92,10 @@ ITKImage TGVProcessor::processTVL2GPUThrust(ITKImage input_image,
 }
 
 ITKImage TGVProcessor::processTVL2GPUCuda(ITKImage input_image,
-                                          const Pixel lambda, const uint iteration_count,
+                                          const Pixel lambda,
+                                          const Pixel alpha0,
+                                          const Pixel alpha1,
+                                          const uint iteration_count,
                                           const uint paint_iteration_interval,
                                           IterationFinished iteration_finished_callback)
 {
@@ -110,7 +113,7 @@ ITKImage TGVProcessor::processTVL2GPUCuda(ITKImage input_image,
                           iteration_count,
                           paint_iteration_interval,
                           iteration_callback,
-                          2, 1); // TODO alpha0, alpha1
+                          alpha0, alpha1);
 
 
     delete f;

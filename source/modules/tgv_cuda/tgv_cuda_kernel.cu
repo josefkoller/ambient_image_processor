@@ -150,7 +150,7 @@ __global__ void backward_difference_y(
     for(uint y = 1; y < height; y++)
     {
         const uint index2 = offset + y * width;
-        p_y[index2] = u_bar[index2 - width] - u_bar[index2];
+        p_y[index2] = - u_bar[index2] + u_bar[index2 - width] ;
     }
 }
 
@@ -173,7 +173,7 @@ __global__ void backward_difference_z(
     for(uint z = 1; z < depth; z++)
     {
         const uint index2 = offset + z * width_x_height;
-        p_z[index2] = u_bar[index2 - width_x_height] - u_bar[index2];
+        p_z[index2] = - u_bar[index2] + u_bar[index2 - width_x_height];
     }
 }
 
@@ -205,26 +205,25 @@ __global__ void tgv_kernel_part2(
     if(depth > 1)
         p_zz[index] += sigma * p_z[index];
 
-    Pixel magnitude =
+    Pixel normalization =
             p_xx[index] * p_xx[index] +
             p_yy[index] * p_yy[index];
     if(depth > 1)
-        magnitude += p_zz[index] * p_zz[index];
+        normalization += p_zz[index] * p_zz[index];
 
-    magnitude = sqrtf(magnitude);
-    if(magnitude < 1)
-        magnitude = 1;
+    normalization = fmax(alpha1, sqrt(normalization));
 
-    p_x[index] /= magnitude; // TODO check maxd
-    p_y[index] /= magnitude;
+    p_xx[index] /= normalization;
+    p_yy[index] /= normalization;
     if(depth > 1)
-        p_z[index] /= magnitude;
+        p_zz[index] /= normalization;
 
     u_previous[index] = u[index];
 }
 
 template<typename Pixel>
 __global__ void tgv_kernel_part4(
+        Pixel* p_x, Pixel* p_y, Pixel* p_z,
         Pixel* p_xx, Pixel* p_yy, Pixel* p_zz,
         const Pixel tau, Pixel* u, Pixel* f,
         const Pixel lambda,
@@ -237,9 +236,9 @@ __global__ void tgv_kernel_part4(
         return;
 
     if(depth > 1)
-        u[index] -= tau * (p_xx[index] + p_yy[index] + p_zz[index]);
+        u[index] -= tau * (p_x[index] + p_y[index] + p_z[index]);
     else
-        u[index] -= tau * (p_xx[index] + p_yy[index]);
+        u[index] -= tau * (p_x[index] + p_y[index]);
 
     u[index] = (u[index] + tau*lambda*f[index]) / (1 + tau*lambda);
 
@@ -253,7 +252,6 @@ __global__ void tgv_kernel_part4(
           % overrelaxation
           u_bar = u + theta*(u - u_old);
     */
-
 }
 
 template<typename Pixel>
@@ -361,10 +359,10 @@ Pixel* tgv_launch(Pixel* f_host,
                                                                        p_yy, p_y, width, height, depth);
         if(depth > 1)
             backward_difference_z<<<grid_dimension_z, block_dimension>>>(
-                                                                           p_zz, p_z, width, height, depth);
+                                                                       p_zz, p_z, width, height, depth);
         cudaCheckError( cudaDeviceSynchronize() );
 
-        tgv_kernel_part4<<<grid_dimension, block_dimension>>>(
+        tgv_kernel_part4<<<grid_dimension, block_dimension>>>(  p_x, p_y, p_z,
                                                                 p_xx, p_yy, p_zz,
                                                                 tau, u, f,
                                                                 lambda,
