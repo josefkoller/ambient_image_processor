@@ -16,17 +16,24 @@ HostThrustImage* filterCPU(HostThrustImage* f, const Pixel lambda, const uint it
 #include <functional>
 
 template<typename Pixel>
-using IterationCallback = std::function<void(uint iteration_index, uint iteration_count, Pixel* u)>;
+Pixel* tgv1_l2_launch(Pixel* f_host,
+                      uint width, uint height, uint depth,
+                      Pixel lambda,
+                      uint iteration_count,
+                      uint paint_iteration_interval,
+                      TGVProcessor::IterationCallback<Pixel> iteration_finished_callback,
+                      Pixel alpha0,
+                      Pixel alpha1);
 
 template<typename Pixel>
-Pixel* tgv_launch(Pixel* f_host,
-                  uint width, uint height, uint depth,
-                  Pixel lambda,
-                  uint iteration_count,
-                  uint paint_iteration_interval,
-                  IterationCallback<Pixel> iteration_finished_callback,
-                  Pixel alpha0,
-                  Pixel alpha1);
+Pixel* tgv1_l1_launch(Pixel* f_host,
+                      uint width, uint height, uint depth,
+                      Pixel lambda,
+                      uint iteration_count,
+                      uint paint_iteration_interval,
+                      TGVProcessor::IterationCallback<Pixel> iteration_finished_callback,
+                      Pixel alpha0,
+                      Pixel alpha1);
 
 TGVProcessor::TGVProcessor()
 {
@@ -63,9 +70,9 @@ ITKImage TGVProcessor::convert(ThrustImage* image)
 }
 
 ITKImage TGVProcessor::processTVL2GPUThrust(ITKImage input_image,
-                                      const Pixel lambda, const uint iteration_count,
-                                      const uint paint_iteration_interval,
-                                      IterationFinished iteration_finished_callback)
+                                            const Pixel lambda, const uint iteration_count,
+                                            const uint paint_iteration_interval,
+                                            IterationFinished iteration_finished_callback)
 {
     try
     {
@@ -91,13 +98,9 @@ ITKImage TGVProcessor::processTVL2GPUThrust(ITKImage input_image,
     return ITKImage();
 }
 
-ITKImage TGVProcessor::processTVL2GPUCuda(ITKImage input_image,
-                                          const Pixel lambda,
-                                          const Pixel alpha0,
-                                          const Pixel alpha1,
-                                          const uint iteration_count,
-                                          const uint paint_iteration_interval,
-                                          IterationFinished iteration_finished_callback)
+ITKImage TGVProcessor::processTVGPUCuda(ITKImage input_image,
+                                        IterationFinished iteration_finished_callback,
+                                        TGVAlgorithm<Pixel> tgv_algorithm)
 {
     Pixel* f = input_image.cloneToPixelArray();
 
@@ -107,13 +110,7 @@ ITKImage TGVProcessor::processTVL2GPUCuda(ITKImage input_image,
         iteration_finished_callback(iteration_index, iteration_count, itk_u);
     };
 
-    Pixel* u = tgv_launch<Pixel>(f,
-                          input_image.width, input_image.height, input_image.depth,
-                          lambda,
-                          iteration_count,
-                          paint_iteration_interval,
-                          iteration_callback,
-                          alpha0, alpha1);
+    Pixel* u = tgv_algorithm(f, iteration_callback);
 
 
     delete f;
@@ -141,3 +138,46 @@ ITKImage TGVProcessor::processTVL2CPU(ITKImage input_image,
     delete u;
     return result;
 }
+
+ITKImage TGVProcessor::processTVL2GPUCuda(ITKImage input_image,
+                                          const Pixel lambda,
+                                          const Pixel alpha0,
+                                          const Pixel alpha1,
+                                          const uint iteration_count,
+                                          const uint paint_iteration_interval,
+                                          IterationFinished iteration_finished_callback)
+{
+    return processTVGPUCuda(input_image, iteration_finished_callback,
+        [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1]
+        (Pixel* f, IterationCallback<Pixel> iteration_callback) {
+        return tgv1_l2_launch<Pixel>(f,
+                                     input_image.width, input_image.height, input_image.depth,
+                                     lambda,
+                                     iteration_count,
+                                     paint_iteration_interval,
+                                     iteration_callback,
+                                     alpha0, alpha1);
+    });
+}
+
+ITKImage TGVProcessor::processTVL1GPUCuda(ITKImage input_image,
+                                          const Pixel lambda,
+                                          const Pixel alpha0,
+                                          const Pixel alpha1,
+                                          const uint iteration_count,
+                                          const uint paint_iteration_interval,
+                                          IterationFinished iteration_finished_callback)
+{
+    return processTVGPUCuda(input_image, iteration_finished_callback,
+        [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1]
+        (Pixel* f, IterationCallback<Pixel> iteration_callback) {
+        return tgv1_l1_launch<Pixel>(f,
+                                     input_image.width, input_image.height, input_image.depth,
+                                     lambda,
+                                     iteration_count,
+                                     paint_iteration_interval,
+                                     iteration_callback,
+                                     alpha0, alpha1);
+    });
+}
+

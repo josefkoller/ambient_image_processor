@@ -41,12 +41,20 @@ ITKImage TGVWidget::processImage(ITKImage image)
                                                 paint_iteration_interval,
                                                 this->iteration_finished_callback);
 
-        return TGVProcessor::processTVL2GPUCuda(image, lambda,
-                                                alpha0,
-                                                alpha1,
-                                                iteration_count,
-                                            paint_iteration_interval,
-                                            this->iteration_finished_callback);
+        if(this->ui->tgv1_l2_algorithm_checkbox->isChecked())
+            return TGVProcessor::processTVL2GPUCuda(image, lambda,
+                                                    alpha0,
+                                                    alpha1,
+                                                    iteration_count,
+                                                paint_iteration_interval,
+                                                this->iteration_finished_callback);
+        if(this->ui->tgv1_l1_algorithm_checkbox->isChecked())
+            return TGVProcessor::processTVL1GPUCuda(image, lambda,
+                                                    alpha0,
+                                                    alpha1,
+                                                    iteration_count,
+                                                paint_iteration_interval,
+                                                this->iteration_finished_callback);
     }
 
     return TGVProcessor::processTVL2CPU(image,
