@@ -96,20 +96,20 @@ __global__ void tgv_kernel_part22(
     u_old = u;
     */
 
+
     p_xx[index] += sigma * (p_x[index] - v_bar_x[index]);
     p_yy[index] += sigma * (p_y[index] - v_bar_y[index]);
     if(depth > 1)
         p_zz[index] += sigma * (p_z[index] - v_bar_z[index]);
 
 
-/*
+    /*
     /// TGV1
-
     p_xx[index] += sigma * (p_x[index]);
     p_yy[index] += sigma * (p_y[index]);
     if(depth > 1)
         p_zz[index] += sigma * (p_z[index]);
-*/
+    */
 
 
     Pixel normalization =
@@ -197,7 +197,7 @@ void tgv_launch_gradient2(
             width, height, depth);
 
     if(depth > 1) {
-        backward_difference_z<<<grid_dimension_y, block_dimension>>>(
+        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
               v_bar_z, q_z, width, height, depth);
 
         backward_difference_x<<<grid_dimension_x, block_dimension>>>(
