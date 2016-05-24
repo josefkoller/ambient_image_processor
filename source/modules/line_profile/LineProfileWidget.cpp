@@ -160,13 +160,13 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
     BaseModuleWidget::registerModule(image_widget);
 
     this->connect(this, &LineProfileWidget::profileLinesChanged,
-                  image_widget, &ImageWidget::handleRepaintImage);
+                  image_widget, &ImageWidget::repaintImage);
 
     this->connect(image_widget, &ImageWidget::mousePressedOnImage,
                   this, &LineProfileWidget::mousePressedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage& itk_image) {
+            this, [this] (ITKImage itk_image) {
         this->image = itk_image;
     });
 

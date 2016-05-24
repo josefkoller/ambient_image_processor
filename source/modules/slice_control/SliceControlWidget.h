@@ -24,7 +24,7 @@ public:
 private:
     Ui::SliceControlWidget *ui;
 
-    ITKImage& image;
+    ITKImage image;
     uint visible_slice_index;
 
     void setSliceIndex(uint slice_index);

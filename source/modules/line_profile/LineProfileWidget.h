@@ -30,7 +30,7 @@ private:
 
     LineProfileWidget* profile_line_parent;
 
-    ITKImage& image;
+    ITKImage image;
 
     bool setting_line_point;
 private slots:

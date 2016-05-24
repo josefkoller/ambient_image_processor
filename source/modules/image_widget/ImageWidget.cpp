@@ -4,10 +4,10 @@
 #include <QPainter>
 #include <QFileDialog>
 #include <QDateTime>
-#include <QMouseEvent>
 #include <QMenuBar>
-#include <QWheelEvent>
 
+#include "ImageViewWidget.h"
+#include "SliceControlWidget.h"
 #include "LineProfileWidget.h"
 #include "UnsharpMaskingWidget.h"
 #include "MultiScaleRetinexWidget.h"
@@ -23,7 +23,6 @@
 #include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
 #include "CrosshairModule.h"
-#include "SliceControlWidget.h"
 
 
 ImageWidget::ImageWidget(QWidget *parent) :
@@ -31,8 +30,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     ui(new Ui::ImageWidget),
     image(nullptr),
     output_widget(this),
-    inner_image_frame(nullptr),
-    q_image(nullptr),
     output_widget2(this)
 {
     ui->setupUi(this);
@@ -58,8 +55,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto deshade_segmented_widget = new DeshadeSegmentedWidget("Deshade Segmented", module_parent);
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
 
+    this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
 
+    modules.push_back(this->image_view_widget);
+    modules.push_back(this->slice_control_widget);
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
@@ -75,7 +75,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
     modules.push_back(new CrosshairModule("Bilateral Filter"));
-    modules.push_back(slice_control_widget);
 
     // register modules and add widget modules
     module_parent->hide();
@@ -84,15 +83,16 @@ ImageWidget::ImageWidget(QWidget *parent) :
     for(auto module : modules)
     {
         auto widget = dynamic_cast<BaseModuleWidget*>(module);
-        if(widget != nullptr && widget != slice_control_widget)
+        if(widget != nullptr &&
+                widget != slice_control_widget &&
+                widget != image_view_widget)
             module_parent->insertTab(index++, widget, module->getTitle());
 
         std::cout << "registering module: " << module->getTitle().toStdString() << std::endl;
         module->registerModule(this);
     }
 
-  //  module_parent->removeTab(module_parent->indexOf(slice_control_widget));
- //   slice_control_widget->setParent(this->ui->slice_control_widget_frame);
+    this->ui->image_frame->layout()->addWidget(image_view_widget);
     this->ui->slice_control_widget_frame->layout()->addWidget(slice_control_widget);
 
     module_parent->setUpdatesEnabled(true);
@@ -163,55 +163,6 @@ void ImageWidget::setImage(ITKImage image)
     this->setMinimumSizeToImage();
 
     emit this->imageChanged(this->image);
-
-    this->paintImage(true);
-}
-
-void ImageWidget::paintImage(bool repaint)
-{
-    if(this->image.isNull())
-        return;
-
-    if(repaint && q_image != nullptr) {
-        delete q_image;
-        q_image = nullptr;
-    }
-
-    if(q_image == nullptr)
-    {
-        q_image = ITKToQImageConverter::convert(this->image,
-                                                this->slice_control_widget->getVisibleSliceIndex());
-        if(inner_image_frame != nullptr)
-            delete inner_image_frame;
-        inner_image_frame = new QLabel(this->ui->image_frame);
-        inner_image_frame->setMouseTracking(true);
-        inner_image_frame->installEventFilter(this);
-        inner_image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        inner_image_frame->setMinimumSize(q_image->size());
-        //  frame->setMaximumSize(q_image.size());
-        //  frame->setBaseSize(q_image.size());
-        //  frame->setFixedSize(q_image.size());
-
-        QPixmap pixmap = QPixmap::fromImage(*q_image);
-        emit this->pixmapPainted(&pixmap);  // other modules paint into it here
-
-        inner_image_frame->setUpdatesEnabled(false);
-
-        inner_image_frame->setPixmap(pixmap);
-        inner_image_frame->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-        QVBoxLayout* layout = new QVBoxLayout();
-        layout->addWidget(inner_image_frame);
-        if(this->ui->image_frame->layout() != nullptr)
-            delete this->ui->image_frame->layout();
-        if(this->ui->image_frame->layout() != nullptr)
-            delete this->ui->image_frame->layout();
-        this->ui->image_frame->setLayout(layout);
-        this->ui->image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        this->ui->image_frame->setMinimumSize(q_image->size());
-
-        inner_image_frame->setUpdatesEnabled(true);
-
-    }
 }
 
 BaseModule* ImageWidget::getModuleByName(QString module_title) const
@@ -233,61 +184,6 @@ void ImageWidget::connectModule(QString module_title, ImageWidget* other_image_w
     module1->connectTo(module2);
 }
 
-
-void ImageWidget::mouseReleaseEvent(QMouseEvent *)
-{
-    emit this->mouseReleasedOnImage();
-}
-
-void ImageWidget::mousePressEvent(QMouseEvent * mouse_event)
-{
-    if(this->image.isNull() || this->inner_image_frame == nullptr)
-        return;
-
-    QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
-    // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
-    uint slice_index = this->slice_control_widget->getVisibleSliceIndex();
-
-    auto index = ITKImage::indexFromPoint(position, slice_index);
-    if(!this->image.contains(index))
-        return;
-
-    emit this->mousePressedOnImage(mouse_event->button(), index);
-}
-
-bool ImageWidget::eventFilter(QObject *target, QEvent *event)
-{
-    if(this->image.isNull())
-        return false;
-
-    if(event->type() == QEvent::Paint)
-        return false;
-
-    if(event->type() == QEvent::MouseMove && target == inner_image_frame)
-    {
-        QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
-        if(mouse_event == nullptr)
-            return false;
-
-        QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
-
-        //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
-        auto index = ITKImage::indexFromPoint(position,
-                                              this->slice_control_widget->getVisibleSliceIndex());
-        emit this->mouseMoveOnImage(mouse_event->buttons(), index);
-    }
-
-    if(event->type() == QEvent::Wheel && target == inner_image_frame)
-    {
-        QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
-        if(wheel_event == nullptr)
-            return false;
-
-        emit this->mouseWheelOnImage(wheel_event->delta());
-    }
-
-    return false; // always returning false, so the pixmap is painted
-}
 
 
 
@@ -344,11 +240,6 @@ void ImageWidget::setOutputWidget3(ImageWidget* output_widget)
     this->output_widget3 = output_widget;
 }
 
-void ImageWidget::paintEvent(QPaintEvent *paint_event)
-{
-    QWidget::paintEvent(paint_event);
-    this->paintImage();
-}
 
 void ImageWidget::handleStatusTextChange(QString text)
 {
@@ -364,9 +255,4 @@ void ImageWidget::handleImageChange(ITKImage image)
 void ImageWidget::setPage(unsigned char page_index)
 {
     this->ui->operations_panel->setCurrentIndex(page_index);
-}
-
-void ImageWidget::handleRepaintImage()
-{
-    this->paintImage(true);
 }

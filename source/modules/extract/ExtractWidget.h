@@ -19,7 +19,7 @@ public:
 private slots:
     void on_extract_button_clicked();
 
-    void imageChanged(ITKImage& image);
+    void imageChanged(ITKImage image);
     void updateExtractedSizeLabel(int);
 private:
     Ui::ExtractWidget *ui;

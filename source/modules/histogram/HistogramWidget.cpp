@@ -47,10 +47,10 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
     connect(image_widget, &ImageWidget::imageChanged,
             this, &HistogramWidget::handleImageChanged);
     connect(this, &HistogramWidget::fireImageRepaint,
-            image_widget, &ImageWidget::handleRepaintImage);
+            image_widget, &ImageWidget::repaintImage);
 }
 
-void HistogramWidget::handleImageChanged(ITKImage& image)
+void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
     this->calculateHistogram();

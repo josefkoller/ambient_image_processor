@@ -78,7 +78,7 @@ public:
     PixelType minimum() const;
     PixelType maximum() const;
 
-    static ITKImage Null;
+    static const ITKImage Null;
 
     static Index indexFromPoint(QPoint point, uint slice_index);
     static QPoint pointFromIndex(Index index);

@@ -22,6 +22,7 @@ MainWindow::MainWindow(std::string image_path) :
     this->ui->output_widget->connectModule("Slice Control", this->ui->image_widget);
     this->ui->output_widget->connectModule("Line Profile", this->ui->image_widget);
     this->ui->output_widget->setPage(0);
+    this->ui->output_widget->setImage(ITKImage::Null);
 }
 
 MainWindow::~MainWindow()

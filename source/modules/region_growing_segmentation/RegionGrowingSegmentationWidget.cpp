@@ -336,7 +336,7 @@ void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
             this, &RegionGrowingSegmentationWidget::mousePressedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage& image) {
+            this, [this] (ITKImage image) {
         this->image = image;
     });
 }

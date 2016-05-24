@@ -16,7 +16,7 @@ ImageInformationWidget::~ImageInformationWidget()
     delete ui;
 }
 
-void ImageInformationWidget::collectInformation(ITKImage& image)
+void ImageInformationWidget::collectInformation(ITKImage image)
 {
     auto information = ImageInformationProcessor::collectInformation(image);
 

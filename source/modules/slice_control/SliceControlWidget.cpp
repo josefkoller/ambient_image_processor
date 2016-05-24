@@ -18,7 +18,7 @@ SliceControlWidget::~SliceControlWidget()
 void SliceControlWidget::registerModule(ImageWidget *image_widget)
 {
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this](ITKImage& image){
+            this, [this](ITKImage image){
         this->image = image;
         this->setInputRanges();
 
@@ -29,9 +29,7 @@ void SliceControlWidget::registerModule(ImageWidget *image_widget)
     });
 
     connect(this, &SliceControlWidget::sliceIndexChanged,
-            this, [image_widget](uint ) {
-        image_widget->handleRepaintImage();
-    });
+            image_widget, &ImageWidget::sliceIndexChanged);
 
     connect(image_widget, &ImageWidget::mouseWheelOnImage,
             this, &SliceControlWidget::mouseWheelOnImage);

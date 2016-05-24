@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-ITKImage ITKImage::Null = ITKImage();
+const ITKImage ITKImage::Null = ITKImage();
 
 ITKImage::ITKImage(uint width, uint height, uint depth)
     : width(width), height(height), depth(depth),

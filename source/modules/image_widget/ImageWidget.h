@@ -15,6 +15,7 @@
 
 class BaseModule;
 class SliceControlWidget;
+class ImageViewWidget;
 
 namespace Ui {
 class ImageWidget;
@@ -52,40 +53,33 @@ private:
 
     ITKImage image;
 
-    QLabel* inner_image_frame;
-    QImage* q_image;
-
     void paintImage(bool repaint = false);
     void setMinimumSizeToImage();
     BaseModule* getModuleByName(QString module_title) const;
 
+    ImageViewWidget* image_view_widget;
     SliceControlWidget* slice_control_widget;
 
     void on_load_button_clicked();
     void on_save_button_clicked();
 
-protected:
-    void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    bool eventFilter(QObject *target, QEvent *event);
-
 signals:
     void fireStatusTextChange(QString text);
     void fireImageChange(ITKImage image);
-    void imageChanged(ITKImage& image);
-    void pixmapPainted(QPixmap* q_image);
+    void imageChanged(ITKImage image);
+
     void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index position);
     void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);
     void mouseReleasedOnImage();
     void mouseWheelOnImage(int delta);
 
+    void pixmapPainted(QPixmap* q_image);
+    void sliceIndexChanged(uint slice_index);
+
+    void repaintImage();
 private slots:
     void handleStatusTextChange(QString text);
     void handleImageChange(ITKImage image);
-
-public slots:
-    void handleRepaintImage();
 };
 
 #endif // IMAGEWIDGET_H

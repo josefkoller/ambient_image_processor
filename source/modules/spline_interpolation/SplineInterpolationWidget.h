@@ -24,7 +24,7 @@ public:
 private:
     Ui::SplineInterpolationWidget *ui;
 
-    ITKImage& image;
+    ITKImage image;
     bool adding_reference_roi;
     QList<QVector<Point>> reference_rois;
     std::vector<SplineInterpolationProcessor::ReferenceROIStatistic> reference_rois_statistic;

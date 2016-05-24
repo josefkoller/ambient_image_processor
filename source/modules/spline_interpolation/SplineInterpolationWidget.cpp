@@ -192,12 +192,12 @@ void SplineInterpolationWidget::registerModule(ImageWidget* image_widget)
             this, &SplineInterpolationWidget::mouseReleasedOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
-            this, [this] (ITKImage& itk_image) {
+            this, [this] (ITKImage itk_image) {
         this->image = itk_image;
     });
 
     connect(this, &SplineInterpolationWidget::repaintImage,
-            image_widget, &ImageWidget::handleRepaintImage);
+            image_widget, &ImageWidget::repaintImage);
 
 }
 
