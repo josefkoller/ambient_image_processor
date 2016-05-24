@@ -1,2 +1,6 @@
 
 - RegionGrowingSegmenentation: tolerance for each region
+
+- LineProfile: 3D option
+
+- LineProfile  -> draw cursor point on line in image and line profile
