@@ -102,7 +102,6 @@ void LineProfileWidget::paintSelectedProfileLine()
         graph2->setPen(QPen(cursor_color, 2));
         graph2->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
         graph2->setData(distancesQ, intensitiesQ);
-
     }
     this->ui->custom_plot_widget->rescaleAxes();
     this->ui->custom_plot_widget->replot();
@@ -290,15 +289,6 @@ void LineProfileWidget::connectTo(BaseModule* other)
 
 void LineProfileWidget::on_setting_line_point_button_clicked()
 {
-    if(this->setting_line_point) {
-        this->setting_line_point = false;
-        this->ui->setting_line_point_button->setFlat(false);
-    }
-}
-
-void LineProfileWidget::paintEvent(QPaintEvent* event)
-{
-    BaseModuleWidget::paintEvent(event);
-
-    QPainter painter(this->ui->custom_plot_widget);
+    this->setting_line_point = !this->setting_line_point;
+    this->ui->setting_line_point_button->setFlat(this->setting_line_point);
 }

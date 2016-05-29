@@ -56,9 +56,6 @@ public slots:
 public:
     virtual void registerModule(ImageWidget* image_widget);
     virtual void connectTo(BaseModule* other);
-
-protected:
-    virtual void paintEvent(QPaintEvent*);
 };
 
 #endif // LINEPROFILEWIDGET_H
