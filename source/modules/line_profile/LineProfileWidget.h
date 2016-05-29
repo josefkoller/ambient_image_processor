@@ -28,7 +28,10 @@ public:
 private:
     Ui::LineProfileWidget *ui;
 
+    QColor cursor_color;
     LineProfile::Point cursor_position;
+    QPointF projected_cursor_point;
+
     QList<LineProfile> profile_lines;
 
     LineProfileWidget* profile_line_parent;
@@ -53,6 +56,9 @@ public slots:
 public:
     virtual void registerModule(ImageWidget* image_widget);
     virtual void connectTo(BaseModule* other);
+
+protected:
+    virtual void paintEvent(QPaintEvent*);
 };
 
 #endif // LINEPROFILEWIDGET_H

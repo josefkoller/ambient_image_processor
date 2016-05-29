@@ -8,6 +8,7 @@ LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     ui(new Ui::LineProfileWidget),
     profile_line_parent(nullptr),
     setting_line_point(false),
+    cursor_color(QColor(255, 99, 49)), // orange
     image(ITKImage::Null)
 {
     ui->setupUi(this);
@@ -79,6 +80,30 @@ void LineProfileWidget::paintSelectedProfileLine()
     this->ui->custom_plot_widget->xAxis->setLabel("distance");
     this->ui->custom_plot_widget->yAxis->setLabel("intensity");
 
+    // cursor position ...
+
+    QPoint line_direction = ITKImage::pointFromIndex(line.position2()) -
+                            ITKImage::pointFromIndex(line.position1());
+    double line_length = std::sqrt(QPoint::dotProduct(line_direction, line_direction));
+    QPointF point1_to_cursor = this->projected_cursor_point - ITKImage::pointFromIndex(line.position1());
+    double point1_to_cursor_length = std::sqrt(QPointF::dotProduct(point1_to_cursor, point1_to_cursor));
+    double cursor_factor = point1_to_cursor_length / line_length;
+    if(cursor_factor >= 0 && cursor_factor <= 1 && distancesQ.size() > 0)
+    {
+        uint cursor_index = (distancesQ.size()-1) * cursor_factor;
+
+        double cursor_distance = distancesQ[cursor_index];
+        double cursor_intensity = intensitiesQ[cursor_index];
+        distancesQ.clear();
+        distancesQ.push_back(cursor_distance);
+        intensitiesQ.clear();
+        intensitiesQ.push_back(cursor_intensity);
+        QCPGraph *graph2 = this->ui->custom_plot_widget->addGraph();
+        graph2->setPen(QPen(cursor_color, 2));
+        graph2->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
+        graph2->setData(distancesQ, intensitiesQ);
+
+    }
     this->ui->custom_plot_widget->rescaleAxes();
     this->ui->custom_plot_widget->replot();
 }
@@ -233,27 +258,19 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     if(this->image.contains(cursor_position))
     {
         QPointF cursor_point = ITKImage::pointFromIndex(cursor_position);
-
-
+        QPointF cursor_direction = QPointF(point2.x() - cursor_point.x(),
+                                           point2.y() - cursor_point.y());
         QPointF line_direction = QPointF(
                     point2.x() - point1.x(),
                     point2.y() - point1.y());
-        line_direction /= std::sqrt(line_direction.x() * line_direction.x() +
-                          line_direction.y() * line_direction.y());
-
-        float projection = line_direction.x() * cursor_point.x() +
-                line_direction.y() * cursor_point.y();
-
-     //   projection /= line_direction.x() * line_direction.x() +
-     //                           line_direction.y() * line_direction.y();
-
-        std::cout << "projection: " << projection << std::endl;
-
-        cursor_point = QPointF(point1) + line_direction * projection;
-
-
-        painter.setPen(QPen(Qt::yellow,2));
-        painter.drawPoint(cursor_point);
+        float projection = QPointF::dotProduct(line_direction, cursor_direction);
+        projection /= QPointF::dotProduct(line_direction, line_direction);
+        if(projection >= 0 && projection <= 1)
+        {
+            this->projected_cursor_point = QPointF(point1) + line_direction * (1 - projection);
+            painter.setPen(QPen(cursor_color,2));
+            painter.drawPoint(projected_cursor_point);
+        }
     }
 
     this->paintSelectedProfileLine();
@@ -277,4 +294,11 @@ void LineProfileWidget::on_setting_line_point_button_clicked()
         this->setting_line_point = false;
         this->ui->setting_line_point_button->setFlat(false);
     }
+}
+
+void LineProfileWidget::paintEvent(QPaintEvent* event)
+{
+    BaseModuleWidget::paintEvent(event);
+
+    QPainter painter(this->ui->custom_plot_widget);
 }
