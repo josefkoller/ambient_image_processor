@@ -39,6 +39,9 @@ protected:
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
+    void setSourceImageFetcher(SourceImageFetcher source_image_fetcher);
+    void setResultProcessor(ResultProcessor result_processor);
+
 };
 
 #endif // BASEMODULEWIDGET_H

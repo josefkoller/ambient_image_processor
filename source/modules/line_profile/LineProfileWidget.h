@@ -21,11 +21,14 @@ public:
     int selectedProfileLineIndex();
 
     void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index index);
+    void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);
+
     void connectTo(LineProfileWidget* other);
     void paintSelectedProfileLine();
 private:
     Ui::LineProfileWidget *ui;
 
+    LineProfile::Point cursor_position;
     QList<LineProfile> profile_lines;
 
     LineProfileWidget* profile_line_parent;

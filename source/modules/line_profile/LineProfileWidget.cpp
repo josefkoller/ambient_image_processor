@@ -93,6 +93,14 @@ int LineProfileWidget::selectedProfileLineIndex()
     return this->ui->line_profile_list_widget->selectionModel()->selectedIndexes().at(0).row();
 }
 
+void LineProfileWidget::mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index)
+{
+    this->cursor_position = cursor_index;
+
+    if(this->selectedProfileLineIndex() > -1)
+        emit this->profileLinesChanged(); // repaint selected profile line in image
+}
+
 void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index)
 {
     int index = this->selectedProfileLineIndex();
@@ -160,10 +168,13 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
     BaseModuleWidget::registerModule(image_widget);
 
     this->connect(this, &LineProfileWidget::profileLinesChanged,
-                  image_widget, &ImageWidget::repaintImage);
+                  image_widget, &ImageWidget::repaintImageOverlays);
 
     this->connect(image_widget, &ImageWidget::mousePressedOnImage,
                   this, &LineProfileWidget::mousePressedOnImage);
+
+    this->connect(image_widget, &ImageWidget::mouseMoveOnImage,
+                  this, &LineProfileWidget::mouseMoveOnImage);
 
     connect(image_widget, &ImageWidget::imageChanged,
             this, [this] (ITKImage itk_image) {
@@ -218,6 +229,32 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     painter.drawPoint(point1);
     painter.setPen(QPen(Qt::green,2));
     painter.drawPoint(point2);
+
+    if(this->image.contains(cursor_position))
+    {
+        QPointF cursor_point = ITKImage::pointFromIndex(cursor_position);
+
+
+        QPointF line_direction = QPointF(
+                    point2.x() - point1.x(),
+                    point2.y() - point1.y());
+        line_direction /= std::sqrt(line_direction.x() * line_direction.x() +
+                          line_direction.y() * line_direction.y());
+
+        float projection = line_direction.x() * cursor_point.x() +
+                line_direction.y() * cursor_point.y();
+
+     //   projection /= line_direction.x() * line_direction.x() +
+     //                           line_direction.y() * line_direction.y();
+
+        std::cout << "projection: " << projection << std::endl;
+
+        cursor_point = QPointF(point1) + line_direction * projection;
+
+
+        painter.setPen(QPen(Qt::yellow,2));
+        painter.drawPoint(cursor_point);
+    }
 
     this->paintSelectedProfileLine();
 }

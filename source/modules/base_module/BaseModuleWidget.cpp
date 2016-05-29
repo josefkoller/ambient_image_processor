@@ -1,6 +1,5 @@
 #include "BaseModuleWidget.h"
 
-
 BaseModuleWidget::BaseModuleWidget(QString title, QWidget *parent) :
     QWidget(parent),
     BaseModule(title),
@@ -91,4 +90,14 @@ ITKImage BaseModuleWidget::getSourceImage() const
     if(this->source_image_fetcher == nullptr)
         return ITKImage();
     return this->source_image_fetcher();
+}
+
+void BaseModuleWidget::setSourceImageFetcher(SourceImageFetcher source_image_fetcher)
+{
+    this->source_image_fetcher = source_image_fetcher;
+}
+
+void BaseModuleWidget::setResultProcessor(ResultProcessor result_processor)
+{
+    this->result_processor = result_processor;
 }

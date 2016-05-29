@@ -68,8 +68,8 @@ Pixel* non_local_gradient_kernel_launch(Pixel* source,
     const dim3 grid_dimension(
                 (source_width*source_height*source_depth + block_dimension.x - 1) / block_dimension.x);
 
-    printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
-    printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
+    printf("block dimensions: %d \n", block_dimension.x);
+    printf("grid dimensions: %d \n", grid_dimension.x);
 
     Pixel* source_cuda, *kernel_cuda, *destination_cuda;
 

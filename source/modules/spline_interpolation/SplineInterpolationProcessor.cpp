@@ -59,6 +59,10 @@ ITKImage SplineInterpolationProcessor::process(
     numberOfControlPoints.Fill(spline_control_points);
     numberOfFittingLevels.Fill(spline_levels);
 
+    if(image.depth == 1) {
+        numberOfFittingLevels[2] = 1;
+    }
+
     ITKImage::InnerITKImage::SizeType size = itk_image->GetLargestPossibleRegion().GetSize();
 
     bspliner->SetOrigin(itk_image->GetOrigin());
@@ -78,7 +82,7 @@ ITKImage SplineInterpolationProcessor::process(
     catch(itk::ExceptionObject exception)
     {
         exception.Print(std::cout);
-        return ITKImage();
+        throw exception;
     }
 
     typedef itk::VectorIndexSelectionCastImageFilter<ScalarImageType, ITKImage::InnerITKImage> CastFilter;
@@ -141,8 +145,8 @@ SplineInterpolationProcessor::ReferenceROIStatistic
 SplineInterpolationProcessor::calculateStatisticInROI(QVector<Point> roi, ITKImage image)
 {
     ITKImage::InnerITKImage::RegionType region = image.getPointer()->GetLargestPossibleRegion();
-    ITKImage::Index start = region.GetIndex();
-    ITKImage::Index end = region.GetUpperIndex();
+    ITKImage::Index start = region.GetUpperIndex();
+    ITKImage::Index end = region.GetIndex();
 
     for(Point index : roi)
     {
@@ -170,9 +174,9 @@ SplineInterpolationProcessor::calculateStatisticInROI(QVector<Point> roi, ITKIma
     statistic_filter->Update();
 
     ReferenceROIStatistic statistic;
-    statistic.point[0] = (end[0] - start[0]) / 2;
-    statistic.point[1] = (end[1] - start[1]) / 2;
-    statistic.point[2] = (end[2] - start[2]) / 2;
+    statistic.point[0] = start[0] + (end[0] - start[0]) / 2;
+    statistic.point[1] = start[1] + (end[1] - start[1]) / 2;
+    statistic.point[2] = start[2] + (end[2] - start[2]) / 2;
     statistic.mean_value = statistic_filter->GetMean();
 
     return statistic;

@@ -47,6 +47,8 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
 
     connect(image_widget, &ImageWidget::repaintImage,
             this, &ImageViewWidget::repaintImage);
+    connect(image_widget, &ImageWidget::repaintImageOverlays,
+            this, &ImageViewWidget::repaintImageOverlays);
 }
 
 void ImageViewWidget::paintImage(bool repaint)
@@ -162,4 +164,18 @@ void ImageViewWidget::mousePressEvent(QMouseEvent * mouse_event)
 void ImageViewWidget::repaintImage()
 {
     this->paintImage(true);
+}
+
+void ImageViewWidget::repaintImageOverlays()
+{
+    if(this->image.isNull())
+        return;
+
+    if(q_image == nullptr)
+        this->paintImage(true);
+
+    QPixmap pixmap = QPixmap::fromImage(*q_image);
+    emit this->pixmapPainted(&pixmap);  // other modules paint into it here
+
+    inner_image_frame->setPixmap(pixmap);
 }

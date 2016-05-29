@@ -23,7 +23,8 @@
 #include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
 #include "CrosshairModule.h"
-
+#include "TGVL1ThresholdGradientWidget.h"
+#include "ManualMultiplicativeDeshade.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -75,6 +76,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
     modules.push_back(new CrosshairModule("Bilateral Filter"));
+    modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
+    modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
 
     // register modules and add widget modules
     module_parent->hide();

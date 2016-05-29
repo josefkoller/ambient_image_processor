@@ -77,6 +77,7 @@ signals:
     void sliceIndexChanged(uint slice_index);
 
     void repaintImage();
+    void repaintImageOverlays();
 private slots:
     void handleStatusTextChange(QString text);
     void handleImageChange(ITKImage image);

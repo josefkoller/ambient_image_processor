@@ -138,6 +138,9 @@ bool ITKImage::isNull() const
 
 void ITKImage::foreachPixel(std::function<void(uint x, uint y, uint z, PixelType pixel)> callback) const
 {
+    if(this->inner_image.IsNull())
+        return;
+
     itk::ImageRegionConstIteratorWithIndex<InnerITKImage> iterator(
                 this->inner_image, this->inner_image->GetLargestPossibleRegion());
     while(!iterator.IsAtEnd())
@@ -191,6 +194,9 @@ void ITKImage::setPixel(PixelIndex index, PixelType value)
 
 void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher)
 {
+    if(this->isNull())
+        return;
+
     itk::ImageRegionIteratorWithIndex<InnerITKImage> iterator(
                 this->inner_image, this->inner_image->GetLargestPossibleRegion());
     while(!iterator.IsAtEnd())
