@@ -154,9 +154,7 @@ void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::In
 void LineProfileWidget::connectedProfileLinesChanged()
 {
     if(this->profile_line_parent == nullptr)
-    {
         return;
-    }
 
     this->profile_lines = this->profile_line_parent->getProfileLines();
     this->ui->line_profile_list_widget->clear();
@@ -171,6 +169,8 @@ void LineProfileWidget::connectedProfileLinesChanged()
             item->setSelected(true);
         }
     }
+
+    this->cursor_position = this->profile_line_parent->cursor_position;
 
     emit this->profileLinesChanged();
 }
@@ -203,6 +203,7 @@ void LineProfileWidget::registerModule(ImageWidget* image_widget)
     connect(image_widget, &ImageWidget::imageChanged,
             this, [this] (ITKImage itk_image) {
         this->image = itk_image;
+        emit this->profileLinesChanged();
     });
 
     connect(image_widget, &ImageWidget::pixmapPainted,
