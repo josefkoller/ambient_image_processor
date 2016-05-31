@@ -54,6 +54,7 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
     }
     output_labels = LabelImage(output_labels.width, output_labels.height, output_labels.depth,
                                output_labels_raw);
+
     delete output_labels_raw;
     delete gradient_image_raw;
 

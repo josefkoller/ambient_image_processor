@@ -222,10 +222,13 @@ ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
 
 
     // action...
-    auto label_image = RegionGrowingSegmentationProcessor::process(
+    this->label_image = RegionGrowingSegmentationProcessor::process(
                 gradient_image,
                 this->region_growing_segmentation.getSegments(),
                 tolerance);
+
+    label_image.getPointer()->SetOrigin(source_image.getPointer()->GetOrigin());
+    label_image.getPointer()->SetSpacing(source_image.getPointer()->GetSpacing());
 
     return label_image;
 }
@@ -327,6 +330,10 @@ std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegm
     return this->region_growing_segmentation.getSegments();
 }
 
+RegionGrowingSegmentationWidget::LabelImage RegionGrowingSegmentationWidget::getLabelImage() const
+{
+    return this->label_image;
+}
 
 void RegionGrowingSegmentationWidget::registerModule(ImageWidget* image_widget)
 {

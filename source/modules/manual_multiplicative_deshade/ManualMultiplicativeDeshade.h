@@ -19,18 +19,13 @@ public:
 
     void registerModule(ImageWidget *image_widget);
 private slots:
-    void on_pushButton_clicked();
-
     void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index position);
-    void on_kernel_size_spinbox_valueChanged(const QString &arg1);
-
-    void on_kernel_sigma_spinbox_valueChanged(double arg1);
 
     void on_kernel_sigma_spinbox_editingFinished();
-
     void on_kernel_size_spinbox_editingFinished();
-
     void on_kernel_maximum_spinbox_editingFinished();
+
+    void on_reset_shading_button_clicked();
 
 private:
     Ui::ManualMultiplicativeDeshade *ui;

@@ -9,19 +9,13 @@ ManualMultiplicativeDeshade::ManualMultiplicativeDeshade(QString title, QWidget 
 {
     ui->setupUi(this);
 
-    this->initShading();
     this->generateKernel();
+    this->initShading();
 }
 
 ManualMultiplicativeDeshade::~ManualMultiplicativeDeshade()
 {
     delete ui;
-}
-
-void ManualMultiplicativeDeshade::on_pushButton_clicked()
-{
-    this->initShading();
-    this->processInWorkerThread();
 }
 
 void ManualMultiplicativeDeshade::initShading() {
@@ -32,7 +26,6 @@ void ManualMultiplicativeDeshade::initShading() {
         return 1.0;
     });
 }
-
 
 void ManualMultiplicativeDeshade::registerModule(ImageWidget *image_widget)
 {
@@ -47,18 +40,13 @@ void ManualMultiplicativeDeshade::registerModule(ImageWidget *image_widget)
 
 void ManualMultiplicativeDeshade::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index position)
 {
+    if(!this->ui->edit_kernel_checkbox->isChecked())
+        return;
+
     this->increase = button == Qt::LeftButton;
     this->cursor_position = position;
 
     this->processInWorkerThread();
-}
-
-void ManualMultiplicativeDeshade::on_kernel_size_spinbox_valueChanged(const QString&)
-{
-}
-
-void ManualMultiplicativeDeshade::on_kernel_sigma_spinbox_valueChanged(double)
-{
 }
 
 void ManualMultiplicativeDeshade::generateKernel()
@@ -86,10 +74,10 @@ void ManualMultiplicativeDeshade::generateKernel()
         return value;
     });
 
-    const ITKImage::PixelType offset = this->ui->kernel_maximum_spinbox->value() - 1;
+    const ITKImage::PixelType offset = (this->ui->kernel_maximum_spinbox->value() - 1);
 
     kernel.foreachPixel([this, offset] (uint x, uint y, uint z, ITKImage::PixelType value) {
-        this->kernel.setPixel(x,y,z, value + offset); // normalize to [1..maximum]
+        this->kernel.setPixel(x,y,z, value * offset + 1); // [0..1] to [1..maximum]
     });
 }
 
@@ -154,4 +142,9 @@ void ManualMultiplicativeDeshade::on_kernel_size_spinbox_editingFinished()
 void ManualMultiplicativeDeshade::on_kernel_maximum_spinbox_editingFinished()
 {
     this->generateKernel();
+}
+
+void ManualMultiplicativeDeshade::on_reset_shading_button_clicked()
+{
+    this->initShading();
 }

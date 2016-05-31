@@ -303,6 +303,10 @@ ITKImage ITKImage::cloneSameSizeWithZeros() const
     clone.setEachPixel([](uint, uint, uint) {
         return 0;
     });
+
+    clone.getPointer()->SetOrigin(this->getPointer()->GetOrigin());
+    clone.getPointer()->SetSpacing(this->getPointer()->GetSpacing());
+
     return clone;
 }
 

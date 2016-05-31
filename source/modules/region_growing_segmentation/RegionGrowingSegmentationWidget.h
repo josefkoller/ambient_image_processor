@@ -23,6 +23,8 @@ class RegionGrowingSegmentationWidget : public BaseModuleWidget
     Q_OBJECT
 
 public:
+    typedef RegionGrowingSegmentationProcessor::LabelImage LabelImage;
+
     explicit RegionGrowingSegmentationWidget(QString title, QWidget *parent = 0);
     ~RegionGrowingSegmentationWidget();
 
@@ -35,6 +37,8 @@ private:
 
     RegionGrowingSegmentation region_growing_segmentation;
     bool is_adding_seed_point;
+
+    LabelImage label_image;
 
     int selectedRow(QListWidget* list_widget) const;
     QString text(RegionGrowingSegmentation::Position point) const;
@@ -71,6 +75,7 @@ public:
     void setKernelSizeFetcher(std::function<uint()> kernel_size_fetcher);
 
     std::vector<std::vector<RegionGrowingSegmentation::Position> > getSegments() const;
+    LabelImage getLabelImage() const;
 
 protected:
     virtual ITKImage processImage(ITKImage image);
