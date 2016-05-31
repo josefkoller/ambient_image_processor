@@ -8,6 +8,7 @@ template<typename Pixel>
 __global__ void tgv_lambdas_kernel_part4(
         Pixel* p_x, Pixel* p_y, Pixel* p_z,
         Pixel* lambdas,
+        Pixel lambda_offset,
         Pixel lambda_factor,
         const Pixel tau, Pixel* u, Pixel* f,
         Pixel* u_previous, const Pixel theta, Pixel* u_bar,
@@ -23,14 +24,8 @@ __global__ void tgv_lambdas_kernel_part4(
     else
         u[index] -= tau * (p_x[index] + p_y[index]);
 
-    const Pixel tau_x_lambda = tau*lambdas[index]*lambda_factor;
-    const Pixel u_minus_f = u[index] - f[index];
-    if(u_minus_f > tau_x_lambda)
-        u[index] -= tau_x_lambda;
-    else if(u_minus_f < -tau_x_lambda)
-        u[index] += tau_x_lambda;
-    else
-        u[index] = f[index];
+    const Pixel tau_x_lambda = tau*(lambdas[index]*lambda_factor + lambda_offset);
+    u[index] = (u[index] + tau_x_lambda*f[index]) / (1 + tau_x_lambda);
 
     u_bar[index] = u[index] + theta*(u[index] - u_previous[index]);
 
@@ -53,6 +48,7 @@ template<typename Pixel>
 Pixel* tgv2_l1_lambdas_launch(Pixel* f_host,
                               Pixel* lambdas_host,
                               uint width, uint height, uint depth,
+                              Pixel lambda_offset,
                               Pixel lambda_factor,
                               uint iteration_count,
                               uint paint_iteration_interval,
@@ -158,6 +154,7 @@ Pixel* tgv2_l1_lambdas_launch(Pixel* f_host,
 
         tgv_lambdas_kernel_part4<<<grid_dimension, block_dimension>>>(p_x, p_y, p_z,
                                                                       lambdas,
+                                                                      lambda_offset,
                                                                       lambda_factor,
                                                                       tau, u, f,
                                                                       u_previous, theta, u_bar,
@@ -259,6 +256,7 @@ Pixel* tgv2_l1_lambdas_launch(Pixel* f_host,
 template float* tgv2_l1_lambdas_launch(float* f_host,
 float* lambdas_host,
 uint width, uint height, uint depth,
+float lambda_offset,
 float lambda_factor,
 uint iteration_count,
 uint paint_iteration_interval,
@@ -269,6 +267,7 @@ float alpha1);
 template double* tgv2_l1_lambdas_launch(double* f_host,
 double* lambdas_host,
 uint width, uint height, uint depth,
+double lambda_offset,
 double lambda_factor,
 uint iteration_count,
 uint paint_iteration_interval,

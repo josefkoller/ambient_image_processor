@@ -5,6 +5,7 @@ template<typename Pixel>
 Pixel* tgv2_l1_lambdas_launch(Pixel* f_host,
                               Pixel* lambdas_host,
                               uint width, uint height, uint depth,
+                              Pixel lambda_offset,
                               Pixel lambda_factor,
                               uint iteration_count,
                               uint paint_iteration_interval,
@@ -19,6 +20,7 @@ TGVLambdasProcessor::TGVLambdasProcessor()
 
 ITKImage TGVLambdasProcessor::processTGV2L1LambdasGPUCuda(ITKImage input_image,
                                                           ITKImage lambdas_image,
+                                                          const ITKImage::PixelType lambda_offset,
                                                           const ITKImage::PixelType lambda_factor,
                                                           const ITKImage::PixelType alpha0,
                                                           const ITKImage::PixelType alpha1,
@@ -36,6 +38,7 @@ ITKImage TGVLambdasProcessor::processTGV2L1LambdasGPUCuda(ITKImage input_image,
 
     Pixel* u = tgv2_l1_lambdas_launch(f, lambdas_host,
                                       input_image.width, input_image.height, input_image.depth,
+                                      lambda_offset,
                                       lambda_factor,
                                       iteration_count, paint_iteration_interval,
                                       iteration_callback,

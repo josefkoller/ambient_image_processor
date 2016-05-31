@@ -15,7 +15,7 @@ list(APPEND SOURCE_CPP_FILES
   )
 
 list(APPEND CUDA_CPP_FILES
-  ${CMAKE_CURRENT_LIST_DIR}/tgvl1_lambdas.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgvl2_lambdas.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

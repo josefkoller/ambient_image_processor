@@ -55,12 +55,13 @@ ITKImage TGVLambdasWidget::processImage(ITKImage image)
 
     const float alpha0 = this->ui->alpha0_spinbox->value();
     const float alpha1 = this->ui->alpha1_spinbox->value();
+    const float lambda_offset = this->ui->lambda_offset_spinbox->value();
     const float lambda_factor = this->ui->lambda_factor_spinbox->value();
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
     const uint paint_iteration_interval = this->ui->paint_iteration_interval_spinbox->value();
 
     auto result_image = TGVLambdasProcessor::processTGV2L1LambdasGPUCuda(
-                image, lambdas_image, lambda_factor,
+                image, lambdas_image, lambda_offset, lambda_factor,
                 alpha0, alpha1, iteration_count, paint_iteration_interval,
                 this->iteration_finished_callback);
     return result_image;

@@ -141,13 +141,32 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Offset</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QDoubleSpinBox" name="lambda_offset_spinbox">
+              <property name="decimals">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
-            <string>Lambda-Factor</string>
+            <string>Factor</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QDoubleSpinBox" name="lambda_factor_spinbox">
+              <property name="decimals">
+               <number>5</number>
+              </property>
               <property name="maximum">
                <double>99999.000000000000000</double>
               </property>

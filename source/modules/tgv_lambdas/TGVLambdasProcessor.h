@@ -18,6 +18,7 @@ public:
 
     static ITKImage processTGV2L1LambdasGPUCuda(ITKImage input_image,
                                                 ITKImage lambdas_image,
+                                                const ITKImage::PixelType lambda_offset,
       const ITKImage::PixelType lambda_factor,
       const ITKImage::PixelType alpha0,
       const ITKImage::PixelType alpha1,
