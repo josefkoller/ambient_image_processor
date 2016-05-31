@@ -31,6 +31,10 @@ ITKImage DeshadeSegmentedProcessor::process(
 {
     // reflectance is the mean inside the segments
     reflectance_image = source_image.cloneSameSizeWithZeros();
+    reflectance_image.setEachPixel([](uint,uint,uint) {
+        return -1;
+    });
+
     try
     {
         typedef itk::CastImageFilter<LabelImage::InnerITKImage, ITKLabelImage> CastLabelFilter;
@@ -51,14 +55,22 @@ ITKImage DeshadeSegmentedProcessor::process(
             computeReflectanceInSegment(segment, label_image, reflectance_image, statistics_filter);
         }
 
-        typedef itk::SubtractImageFilter<Image> SubtractFilter;
-        SubtractFilter::Pointer subtract_filter = SubtractFilter::New();
-        subtract_filter->SetInput1(source_image.getPointer());
-        subtract_filter->SetInput2(reflectance_image.getPointer());
-        subtract_filter->Update();
-        Image::Pointer shading_image = subtract_filter->GetOutput();
+        typedef itk::SubtractImageFilter<Image> ShadingExtractor;
+        ShadingExtractor::Pointer shading_extractor = ShadingExtractor::New();
+        shading_extractor->SetInput1(source_image.getPointer());
+        shading_extractor->SetInput2(reflectance_image.getPointer());
+        shading_extractor->Update();
+        Image::Pointer shading_image = shading_extractor->GetOutput();
         shading_image->DisconnectPipeline();
-        return ITKImage(shading_image);
+        auto itk_shading_image = ITKImage(shading_image);
+
+        itk_shading_image.setEachPixel([&itk_shading_image, &reflectance_image] (uint x, uint y, uint z) {
+            if(reflectance_image.getPixel(x,y,z) == -1)
+                return 0.0;
+            else
+                return itk_shading_image.getPixel(x,y,z);
+        });
+        return itk_shading_image;
     }
     catch(itk::ExceptionObject exception)
     {
