@@ -22,6 +22,7 @@ public:
     virtual void registerModule(ImageWidget* image_widget);
 
     void setImage(ITKImage image);
+    ITKImage getImage() const;
 private:
     Ui::ImageViewWidget *ui;
 

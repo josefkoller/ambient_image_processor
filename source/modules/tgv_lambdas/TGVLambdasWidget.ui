@@ -92,7 +92,7 @@
          <item>
           <widget class="QRadioButton" name="tgv2_l1_algorithm_checkbox">
            <property name="text">
-            <string>TGV2 L1</string>
+            <string>TGV2 L2</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -174,7 +174,7 @@
                <double>0.100000000000000</double>
               </property>
               <property name="value">
-               <double>1.000000000000000</double>
+               <double>2.000000000000000</double>
               </property>
              </widget>
             </item>

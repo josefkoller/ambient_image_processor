@@ -12,7 +12,9 @@ list(APPEND SOURCE_CPP_FILES
 
 
 list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/binary_operation.cu
   ${CMAKE_CURRENT_LIST_DIR}/multiply.cu
+  ${CMAKE_CURRENT_LIST_DIR}/divide.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

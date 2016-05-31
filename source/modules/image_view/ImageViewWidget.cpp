@@ -185,3 +185,8 @@ void ImageViewWidget::setImage(ITKImage image)
     this->image = image;
     this->paintImage(true);
 }
+
+ITKImage ImageViewWidget::getImage() const
+{
+    return this->image;
+}

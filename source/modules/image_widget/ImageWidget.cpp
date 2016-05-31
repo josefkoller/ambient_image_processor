@@ -26,6 +26,7 @@
 #include "TGVL1ThresholdGradientWidget.h"
 #include "ManualMultiplicativeDeshade.h"
 #include "TGVLambdasWidget.h"
+#include "BinaryOperationsWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -81,6 +82,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
     modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
     modules.push_back(tgv_lambdas_widget);
+    modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
 
 
     // register modules and add widget modules
