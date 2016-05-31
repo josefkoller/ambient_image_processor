@@ -25,6 +25,7 @@
 #include "CrosshairModule.h"
 #include "TGVL1ThresholdGradientWidget.h"
 #include "ManualMultiplicativeDeshade.h"
+#include "TGVLambdasWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -55,6 +56,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto non_local_gradient_widget = new NonLocalGradientWidget("Non-local Gradient", module_parent);
     auto deshade_segmented_widget = new DeshadeSegmentedWidget("Deshade Segmented", module_parent);
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
+    auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -78,6 +80,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new CrosshairModule("Bilateral Filter"));
     modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
     modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
+    modules.push_back(tgv_lambdas_widget);
+
 
     // register modules and add widget modules
     module_parent->hide();
@@ -143,12 +147,14 @@ ImageWidget::ImageWidget(QWidget *parent) :
         return region_growing_segmentation_widget->getLabelImage();
     });
 
-    tgv_widget->setIterationFinishedCallback([this](uint index, uint count, ITKImage u) {
+    auto iteration_finished_callback = [this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
                                             QString::number(index+1),
                                             QString::number(count)));
         emit this->output_widget->fireImageChange(u.getPointer());
-    });
+    };
+    tgv_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv_lambdas_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()

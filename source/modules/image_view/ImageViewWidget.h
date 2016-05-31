@@ -20,6 +20,8 @@ public:
     ~ImageViewWidget();
 
     virtual void registerModule(ImageWidget* image_widget);
+
+    void setImage(ITKImage image);
 private:
     Ui::ImageViewWidget *ui;
 

@@ -5,7 +5,7 @@
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
-
+#include <itkCastImageFilter.h>
 #include <iostream>
 
 const ITKImage ITKImage::Null = ITKImage();
@@ -83,7 +83,7 @@ ITKImage ITKImage::clone() const
 }
 
 
-ITKImage ITKImage::read(std::string image_file_path)
+ITKImage ITKImage::read(std::string image_file_path, bool rescale)
 {
     typedef itk::ImageFileReader<InnerITKImage> FileReader;
     FileReader::Pointer reader = FileReader::New();
@@ -100,35 +100,58 @@ ITKImage ITKImage::read(std::string image_file_path)
         return ITKImage(nullptr);
     }
 
-    // rescaling is necessary for png files...
-    typedef itk::RescaleIntensityImageFilter<InnerITKImage,InnerITKImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(reader->GetOutput());
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(1);
-    rescale_filter->Update();
+    if(rescale)
+    {
+        // rescaling is necessary for png files...
+        typedef itk::RescaleIntensityImageFilter<InnerITKImage,InnerITKImage> RescaleFilter;
+        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
+        rescale_filter->SetInput(reader->GetOutput());
+        rescale_filter->SetOutputMinimum(0);
+        rescale_filter->SetOutputMaximum(1);
+        rescale_filter->Update();
 
-    InnerITKImage::Pointer image = rescale_filter->GetOutput();
+        InnerITKImage::Pointer image = rescale_filter->GetOutput();
+        image->DisconnectPipeline();
+        return ITKImage(image);
+    }
+    InnerITKImage::Pointer image = reader->GetOutput();
     image->DisconnectPipeline();
     return ITKImage(image);
 }
 
 void ITKImage::write(std::string image_file_path)
 {
-    // writing 32bit png
-    unsigned short MAX_PIXEL_VALUE = 65535;
-    typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(this->inner_image);
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
-    rescale_filter->Update();
+    if(QString::fromStdString(image_file_path).endsWith("png"))
+    {
+        // writing 32bit png
+        unsigned short MAX_PIXEL_VALUE = 65535;
+        typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
+        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
+        rescale_filter->SetInput(this->inner_image);
+        rescale_filter->SetOutputMinimum(0);
+        rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
+        rescale_filter->Update();
 
-    typedef itk::ImageFileWriter<InnerITKImage> WriterType;
-    WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName(image_file_path);
-    writer->SetInput(rescale_filter->GetOutput());
-    writer->Update();
+        typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> PNGImage;
+        typedef itk::CastImageFilter<InnerITKImage, PNGImage> CastFilter;
+        CastFilter::Pointer cast_filter = CastFilter::New();
+        cast_filter->SetInput(rescale_filter->GetOutput());
+        cast_filter->Update();
+
+        typedef itk::ImageFileWriter<PNGImage> WriterType;
+        WriterType::Pointer writer = WriterType::New();
+        writer->SetFileName(image_file_path);
+        writer->SetInput(cast_filter->GetOutput());
+        writer->Update();
+    }
+    else
+    {
+        typedef itk::ImageFileWriter<InnerITKImage> WriterType;
+        WriterType::Pointer writer = WriterType::New();
+        writer->SetFileName(image_file_path);
+        writer->SetInput(this->inner_image);
+        writer->Update();
+    }
 }
 
 bool ITKImage::isNull() const

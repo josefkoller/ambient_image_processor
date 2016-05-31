@@ -78,6 +78,7 @@ include(source/modules/image_view/CMakeLists.txt)
 include(source/modules/tgvl1_threshold_gradient/CMakeLists.txt)
 include(source/modules/manual_multiplicative_deshade/CMakeLists.txt)
 include(source/modules/cuda_image_operations/CMakeLists.txt)
+include(source/modules/tgv_lambdas/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

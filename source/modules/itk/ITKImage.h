@@ -55,7 +55,7 @@ public:
     InnerITKImage::Pointer getPointer() const;
     ITKImage clone() const;
 
-    static ITKImage read(std::string image_file_path);
+    static ITKImage read(std::string image_file_path, bool rescale = true);
     void write(std::string image_file_path);
 
     bool isNull() const;

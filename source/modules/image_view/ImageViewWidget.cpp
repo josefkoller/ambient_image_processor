@@ -179,3 +179,9 @@ void ImageViewWidget::repaintImageOverlays()
 
     inner_image_frame->setPixmap(pixmap);
 }
+
+void ImageViewWidget::setImage(ITKImage image)
+{
+    this->image = image;
+    this->paintImage(true);
+}
