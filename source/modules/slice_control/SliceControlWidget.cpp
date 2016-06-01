@@ -22,7 +22,7 @@ void SliceControlWidget::registerModule(ImageWidget *image_widget)
         this->image = image;
         this->setInputRanges();
 
-        if(this->image.getImageDimension() < 3) {
+        if(this->image.depth == 1) {
             auto container = dynamic_cast<QWidget*>(this->parent());
             container->setVisible(false);
         }
