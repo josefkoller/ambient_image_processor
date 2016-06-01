@@ -143,6 +143,12 @@ void LineProfileWidget::mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Inde
 
 void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index)
 {
+    if(this->profile_line_parent != nullptr)
+    {
+        this->profile_line_parent->mousePressedOnImage(button, cursor_index);
+        return;
+    }
+
     int index = this->selectedProfileLineIndex();
     if( index == -1 || !setting_line_point)
     {
