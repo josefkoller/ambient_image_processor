@@ -3,12 +3,17 @@
 
 #include "LineProfileProcessor.h"
 
+const QColor LineProfileWidget::line_with_parent_color = QColor(0, 102, 101);
+const QColor LineProfileWidget::line_color = QColor(0, 51, 153);
+const QColor LineProfileWidget::cursor_color = QColor(255, 99, 49);
+const QColor LineProfileWidget::start_point_color = QColor(202, 0, 50);
+const QColor LineProfileWidget::end_point_color = QColor(255, 204, 51);
+
 LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::LineProfileWidget),
     profile_line_parent(nullptr),
     setting_line_point(false),
-    cursor_color(QColor(255, 99, 49)), // orange
     image(ITKImage::Null)
 {
     ui->setupUi(this);
@@ -67,13 +72,24 @@ void LineProfileWidget::paintSelectedProfileLine()
                                             distances);
     this->ui->custom_plot_widget->clearGraphs();
 
+    if(this->profile_line_parent != nullptr)
+    {
+        QCPGraph *parent_graph = this->ui->custom_plot_widget->addGraph();
+        parent_graph->setData(this->profile_line_parent->distancesQ,
+                              this->profile_line_parent->intensitiesQ);
+        parent_graph->setPen(QPen(line_color,1));
+        parent_graph->setLineStyle(QCPGraph::lsStepCenter);
+        parent_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
+    }
+
     QCPGraph *graph = this->ui->custom_plot_widget->addGraph();
 
-    QVector<double> intensitiesQ = QVector<double>::fromStdVector(intensities);
-    QVector<double> distancesQ = QVector<double>::fromStdVector(distances);
+    this->intensitiesQ = QVector<double>::fromStdVector(intensities);
+    this->distancesQ = QVector<double>::fromStdVector(distances);
     graph->setData(distancesQ, intensitiesQ);
 
-    graph->setPen(QPen(Qt::blue));
+    auto pen_color = this->profile_line_parent == nullptr ? line_color : line_with_parent_color;
+    graph->setPen(QPen(pen_color));
     graph->setLineStyle(QCPGraph::lsLine);
     graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
 
@@ -94,14 +110,14 @@ void LineProfileWidget::paintSelectedProfileLine()
 
         double cursor_distance = distancesQ[cursor_index];
         double cursor_intensity = intensitiesQ[cursor_index];
-        distancesQ.clear();
-        distancesQ.push_back(cursor_distance);
-        intensitiesQ.clear();
-        intensitiesQ.push_back(cursor_intensity);
+        QVector<double> cursor_distance_vector;
+        cursor_distance_vector.push_back(cursor_distance);
+        QVector<double> cursor_intensity_vector;
+        cursor_intensity_vector.push_back(cursor_intensity);
         QCPGraph *graph2 = this->ui->custom_plot_widget->addGraph();
         graph2->setPen(QPen(cursor_color, 2));
         graph2->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
-        graph2->setData(distancesQ, intensitiesQ);
+        graph2->setData(cursor_distance_vector, cursor_intensity_vector);
     }
     this->ui->custom_plot_widget->rescaleAxes();
     this->ui->custom_plot_widget->replot();
@@ -241,7 +257,8 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
 
     QPainter painter(pixmap);
 
-    QPen pen(Qt::blue);
+    auto pen_color = this->profile_line_parent == nullptr ? line_color : line_with_parent_color;
+    QPen pen(pen_color);
     pen.setWidth(1);
     painter.setPen(pen);
 
@@ -250,9 +267,9 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
 
     painter.drawLine(point1, point2);
 
-    painter.setPen(QPen(Qt::red,2));
+    painter.setPen(QPen(start_point_color,2));
     painter.drawPoint(point1);
-    painter.setPen(QPen(Qt::green,2));
+    painter.setPen(QPen(end_point_color,2));
     painter.drawPoint(point2);
 
     if(this->image.contains(cursor_position))

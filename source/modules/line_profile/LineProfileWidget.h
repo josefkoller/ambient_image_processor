@@ -28,7 +28,6 @@ public:
 private:
     Ui::LineProfileWidget *ui;
 
-    QColor cursor_color;
     LineProfile::Point cursor_position;
     QPointF projected_cursor_point;
 
@@ -39,6 +38,9 @@ private:
     ITKImage image;
 
     bool setting_line_point;
+
+    QVector<double> intensitiesQ;
+    QVector<double> distancesQ;
 private slots:
     void line_profile_mouse_move(QMouseEvent*);
     void on_add_profile_line_button_clicked();
@@ -56,6 +58,13 @@ public slots:
 public:
     virtual void registerModule(ImageWidget* image_widget);
     virtual void connectTo(BaseModule* other);
+
+private:
+    static const QColor line_color;
+    static const QColor line_with_parent_color;
+    static const QColor cursor_color;
+    static const QColor start_point_color;
+    static const QColor end_point_color;
 };
 
 #endif // LINEPROFILEWIDGET_H
