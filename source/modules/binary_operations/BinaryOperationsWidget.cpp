@@ -42,6 +42,8 @@ ITKImage BinaryOperationsWidget::processImage(ITKImage image1)
         return CudaImageOperationsProcessor::divide(image1, image2);
     if(this->ui->multiply_checkbox->isChecked())
         return CudaImageOperationsProcessor::multiply(image1, image2);
+    if(this->ui->add_checkbox->isChecked())
+        return CudaImageOperationsProcessor::add(image1, image2);
 
 
     return ITKImage();

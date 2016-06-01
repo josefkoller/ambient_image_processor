@@ -21,6 +21,13 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QRadioButton" name="add_checkbox">
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="divide_checkbox">
         <property name="text">
          <string>Divide</string>

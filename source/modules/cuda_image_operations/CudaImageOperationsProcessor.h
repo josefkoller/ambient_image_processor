@@ -17,6 +17,7 @@ private:
 public:
     static ITKImage multiply(ITKImage image1, ITKImage image2);
     static ITKImage divide(ITKImage image1, ITKImage image2);
+    static ITKImage add(ITKImage image1, ITKImage image2);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H
