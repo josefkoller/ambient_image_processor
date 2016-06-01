@@ -72,7 +72,7 @@ void LineProfileWidget::paintSelectedProfileLine()
                                             distances);
     this->ui->custom_plot_widget->clearGraphs();
 
-    if(this->profile_line_parent != nullptr && this->ui->paint_parent_lines_checkbox->isChecked())
+    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
     {
         QCPGraph *parent_graph = this->ui->custom_plot_widget->addGraph();
         parent_graph->setData(this->profile_line_parent->distancesQ,
@@ -143,7 +143,7 @@ void LineProfileWidget::mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Inde
 
 void LineProfileWidget::mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index)
 {
-    if(this->profile_line_parent != nullptr)
+    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
     {
         this->profile_line_parent->mousePressedOnImage(button, cursor_index);
         return;
@@ -317,7 +317,8 @@ void LineProfileWidget::on_setting_line_point_button_clicked()
     this->ui->setting_line_point_button->setFlat(this->setting_line_point);
 }
 
-void LineProfileWidget::on_paint_parent_lines_checkbox_toggled(bool)
+void LineProfileWidget::on_connected_to_parent_checkbox_clicked()
 {
-    this->paintSelectedProfileLine();
+    this->connectedProfileLinesChanged();
+    emit this->profileLinesChanged();
 }

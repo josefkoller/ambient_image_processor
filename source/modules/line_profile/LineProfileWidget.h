@@ -50,7 +50,7 @@ private slots:
     void paintSelectedProfileLineInImage(QPixmap* pixmap);
     void on_setting_line_point_button_clicked();
 
-    void on_paint_parent_lines_checkbox_toggled(bool checked);
+    void on_connected_to_parent_checkbox_clicked();
 
 signals:
     void profileLinesChanged();
