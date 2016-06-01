@@ -13,14 +13,30 @@ TGVWidget::~TGVWidget()
     delete ui;
 }
 
+void TGVWidget::registerModule(ImageWidget *image_widget)
+{
+    BaseModuleWidget::registerModule(image_widget);
+
+    connect(this, &BaseModuleWidget::fireWorkerFinished,
+            this, [this]() {
+        this->ui->stop_button->setEnabled(false);
+    });
+}
+
 void TGVWidget::setIterationFinishedCallback(TGVProcessor::IterationFinished iteration_finished_callback)
 {
-    this->iteration_finished_callback = iteration_finished_callback;
+    this->iteration_finished_callback = [this, iteration_finished_callback](uint iteration_index, uint iteration_count,
+            ITKImage u){
+        iteration_finished_callback(iteration_index, iteration_count, u);
+        return this->stop_after_next_iteration;
+    };
 }
 
 void TGVWidget::on_perform_button_clicked()
 {
+    this->stop_after_next_iteration = false;
     this->processInWorkerThread();
+    this->ui->stop_button->setEnabled(true);
 }
 
 ITKImage TGVWidget::processImage(ITKImage image)
@@ -75,4 +91,9 @@ ITKImage TGVWidget::processImage(ITKImage image)
                                         lambda, iteration_count,
                                         paint_iteration_interval,
                                         this->iteration_finished_callback);
+}
+
+void TGVWidget::on_stop_button_clicked()
+{
+    this->stop_after_next_iteration = true;
 }

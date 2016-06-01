@@ -22,6 +22,11 @@ TGVLambdasWidget::~TGVLambdasWidget()
 void TGVLambdasWidget::registerModule(ImageWidget *image_widget)
 {
     BaseModuleWidget::registerModule(image_widget);
+
+    connect(this, &BaseModuleWidget::fireWorkerFinished,
+            this, [this]() {
+        this->ui->stop_button->setEnabled(false);
+    });
 }
 
 void TGVLambdasWidget::on_load_button_clicked()
@@ -36,7 +41,9 @@ void TGVLambdasWidget::on_load_button_clicked()
 
 void TGVLambdasWidget::on_perform_button_clicked()
 {
+    this->stop_after_next_iteration = false;
     this->processInWorkerThread();
+    this->ui->stop_button->setEnabled(true);
 }
 
 ITKImage TGVLambdasWidget::processImage(ITKImage image)
@@ -69,5 +76,14 @@ ITKImage TGVLambdasWidget::processImage(ITKImage image)
 
 void TGVLambdasWidget::setIterationFinishedCallback(TGVLambdasProcessor::IterationFinished iteration_finished_callback)
 {
-    this->iteration_finished_callback = iteration_finished_callback;
+    this->iteration_finished_callback = [this, iteration_finished_callback](uint iteration_index, uint iteration_count,
+            ITKImage u){
+        iteration_finished_callback(iteration_index, iteration_count, u);
+        return this->stop_after_next_iteration;
+    };
+}
+
+void TGVLambdasWidget::on_stop_button_clicked()
+{
+    this->stop_after_next_iteration = true;
 }

@@ -101,7 +101,7 @@ ITKImage TGVProcessor::processTVL2GPUThrust(ITKImage input_image,
         DeviceThrustImage* u = filterGPU(f, lambda, iteration_count, paint_iteration_interval,
                                          [iteration_finished_callback](uint index, uint count, DeviceThrustImage* u) {
                 ITKImage itk_u = convert(u);
-                iteration_finished_callback(index, count, itk_u);
+                return iteration_finished_callback(index, count, itk_u);
     });
         delete f;
 
@@ -127,7 +127,7 @@ ITKImage TGVProcessor::processTVGPUCuda(ITKImage input_image,
     IterationCallback<Pixel> iteration_callback = [&input_image, iteration_finished_callback] (
             uint iteration_index, uint iteration_count, Pixel* u) {
         auto itk_u = ITKImage(input_image.width, input_image.height, input_image.depth, u);
-        iteration_finished_callback(iteration_index, iteration_count, itk_u);
+        return iteration_finished_callback(iteration_index, iteration_count, itk_u);
     };
 
     Pixel* u = tgv_algorithm(f, iteration_callback);
@@ -149,7 +149,7 @@ ITKImage TGVProcessor::processTVL2CPU(ITKImage input_image,
     HostThrustImage* u = filterCPU(f, lambda, iteration_count, paint_iteration_interval,
                                    [iteration_finished_callback](uint index, uint count, HostThrustImage* u) {
             ITKImage itk_u = convert(u);
-            iteration_finished_callback(index, count, itk_u);
+            return iteration_finished_callback(index, count, itk_u);
 });
 
     delete f;

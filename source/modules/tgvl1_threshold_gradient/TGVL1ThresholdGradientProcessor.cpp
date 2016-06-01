@@ -19,7 +19,7 @@ void gradient_kernel_launch(Pixel* f_host,
 #include <functional>
 
 template<typename Pixel>
-using IterationCallback = std::function<void(uint iteration_index, uint iteration_count, Pixel* u)>;
+using IterationCallback = std::function<bool(uint iteration_index, uint iteration_count, Pixel* u)>;
 
 
 template<typename Pixel>
@@ -123,7 +123,7 @@ ITKImage TGVL1ThresholdGradientProcessor::tgv2_l1_threshold_gradient(ITKImage f_
     IterationCallback<ITKImage::PixelType> iteration_callback = [&f_host, iteration_finished_callback] (
             uint iteration_index, uint iteration_count, ITKImage::PixelType* u) {
         auto itk_u = ITKImage(f_host.width, f_host.height, f_host.depth, u);
-        iteration_finished_callback(iteration_index, iteration_count, itk_u);
+        return iteration_finished_callback(iteration_index, iteration_count, itk_u);
     };
 
     auto result_pixels = tgv2_l1_threshold_gradient_launch(f,

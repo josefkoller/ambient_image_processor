@@ -81,6 +81,7 @@ ITKImage TGVL1ThresholdGradientWidget::processImage(ITKImage source_image)
         this->setResult(QString("TGVL1 Thresholded Gradient, iteration %0/%1").arg(
                             QString::number(iteration_index),
                             QString::number(iteration_count)), u);
+        return false;
     };
 
     result_images["Shading"] = TGVL1ThresholdGradientProcessor::tgv2_l1_threshold_gradient(

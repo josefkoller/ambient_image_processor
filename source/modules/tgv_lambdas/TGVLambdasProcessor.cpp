@@ -33,7 +33,7 @@ ITKImage TGVLambdasProcessor::processTGV2L1LambdasGPUCuda(ITKImage input_image,
     IterationCallback<Pixel> iteration_callback = [&input_image, iteration_finished_callback] (
             uint iteration_index, uint iteration_count, Pixel* u) {
         auto itk_u = ITKImage(input_image.width, input_image.height, input_image.depth, u);
-        iteration_finished_callback(iteration_index, iteration_count, itk_u);
+        return iteration_finished_callback(iteration_index, iteration_count, itk_u);
     };
 
     Pixel* u = tgv2_l1_lambdas_launch(f, lambdas_host,

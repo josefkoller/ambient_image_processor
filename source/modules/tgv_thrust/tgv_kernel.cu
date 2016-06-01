@@ -34,7 +34,7 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
                                  const Pixel lambda,
                                  const unsigned int iteration_count,
                                  const unsigned int paint_iteration_interval,
-                                 std::function<void(uint iteration_index, uint iteration_count, ThrustImage<PixelVector>*)> iteration_finished_callback
+                                 std::function<bool(uint iteration_index, uint iteration_count, ThrustImage<PixelVector>*)> iteration_finished_callback
                                  )
 {
     typedef ThrustImage<PixelVector> ThrustThrustImage;
@@ -206,7 +206,11 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
         if(iteration_finished_callback != nullptr &&
            paint_iteration_interval > 0 &&
            iteration_index % paint_iteration_interval == 0 )
-            iteration_finished_callback(iteration_index, iteration_count, u);
+        {
+            bool stop = iteration_finished_callback(iteration_index, iteration_count, u);
+            if(stop)
+                break;
+        }
     }
 
     delete p_x_temp;
@@ -233,7 +237,7 @@ ThrustImage<PixelVector>* filter(ThrustImage<PixelVector>* f,
 ThrustImage<DevicePixelVector>* filterGPU(ThrustImage<DevicePixelVector>* f,
                                           const Pixel lambda, const unsigned int iteration_count,
                                           const unsigned int paint_iteration_interval,
-                                          std::function<void(uint iteration_index, uint iteration_count, ThrustImage<DevicePixelVector>*)>
+                                          std::function<bool(uint iteration_index, uint iteration_count, ThrustImage<DevicePixelVector>*)>
                                           iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, paint_iteration_interval, iteration_finished_callback);
@@ -242,7 +246,7 @@ ThrustImage<DevicePixelVector>* filterGPU(ThrustImage<DevicePixelVector>* f,
 ThrustImage<HostPixelVector>* filterCPU(ThrustImage<HostPixelVector>* f,
                                         const Pixel lambda, const unsigned int iteration_count,
                                         const unsigned int paint_iteration_interval,
-                                        std::function<void(uint iteration_index, uint iteration_count, ThrustImage<HostPixelVector>*)> iteration_finished_callback)
+                                        std::function<bool(uint iteration_index, uint iteration_count, ThrustImage<HostPixelVector>*)> iteration_finished_callback)
 {
     return filter(f, lambda, iteration_count, paint_iteration_interval, iteration_finished_callback);
 }

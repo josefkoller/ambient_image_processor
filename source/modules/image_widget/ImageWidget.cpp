@@ -154,6 +154,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
                                             QString::number(index+1),
                                             QString::number(count)));
         emit this->output_widget->fireImageChange(u.getPointer());
+        return false;
     };
     tgv_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_lambdas_widget->setIterationFinishedCallback(iteration_finished_callback);

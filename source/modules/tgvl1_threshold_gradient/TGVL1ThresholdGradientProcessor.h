@@ -8,7 +8,7 @@ class TGVL1ThresholdGradientProcessor
 public:
     TGVL1ThresholdGradientProcessor();
 
-    typedef std::function<void(uint iteration_index, uint iteration_count,
+    typedef std::function<bool(uint iteration_index, uint iteration_count,
                                ITKImage u)> IterationFinished;
 
     static ITKImage gradient_magnitude(ITKImage source_image);

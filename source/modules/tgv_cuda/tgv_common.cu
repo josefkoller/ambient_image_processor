@@ -6,7 +6,7 @@
 #include <functional>
 
 template<typename Pixel>
-using IterationCallback = std::function<void(uint iteration_index, uint iteration_count, Pixel* u)>;
+using IterationCallback = std::function<bool(uint iteration_index, uint iteration_count, Pixel* u)>;
 
 #include "cuda_helper.cuh"
 

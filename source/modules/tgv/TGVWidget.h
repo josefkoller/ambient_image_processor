@@ -23,13 +23,17 @@ public:
 private slots:
     void on_perform_button_clicked();
 
+    void on_stop_button_clicked();
+
 private:
     Ui::TGVWidget *ui;
     TGVProcessor::IterationFinished iteration_finished_callback;
 
+    bool stop_after_next_iteration;
 public:
     void setIterationFinishedCallback(TGVProcessor::IterationFinished iteration_finished_callback);
 
+    void registerModule(ImageWidget *image_widget);
 protected:
     virtual ITKImage processImage(ITKImage image);
 };
