@@ -24,6 +24,8 @@ private slots:
 
     void on_perform_button_clicked();
 
+    void on_load_mean_setting_button_clicked();
+
 private:
     Ui::ConvolutionWidget *ui;
 

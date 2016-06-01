@@ -51,5 +51,21 @@ ITKImage ConvolutionWidget::processImage(ITKImage image)
     kernel[1] = kernel[3] = kernel[5] = kernel[7] = this->ui->k12->value();
     kernel[4] = this->ui->k22->value();
 
+    // normalize...
+    ITKImage::PixelType sum = 0;
+    for(int i = 0; i < 9; i++)
+        sum+= kernel[i];
+
+    if(std::abs(sum) > 1e-3)
+        for(int i = 0; i < 9; i++)
+            kernel[i] /= sum;
+
     return CudaImageOperationsProcessor::convolution3x3(image, kernel);
+}
+
+void ConvolutionWidget::on_load_mean_setting_button_clicked()
+{
+    this->ui->k22->setValue(1);
+    this->ui->k11->setValue(1);
+    this->ui->k12->setValue(1);
 }

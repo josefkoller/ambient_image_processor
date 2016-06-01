@@ -75,6 +75,19 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="paint_parent_lines_checkbox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Paint Parent Lines</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

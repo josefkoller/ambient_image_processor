@@ -72,13 +72,13 @@ void LineProfileWidget::paintSelectedProfileLine()
                                             distances);
     this->ui->custom_plot_widget->clearGraphs();
 
-    if(this->profile_line_parent != nullptr)
+    if(this->profile_line_parent != nullptr && this->ui->paint_parent_lines_checkbox->isChecked())
     {
         QCPGraph *parent_graph = this->ui->custom_plot_widget->addGraph();
         parent_graph->setData(this->profile_line_parent->distancesQ,
                               this->profile_line_parent->intensitiesQ);
         parent_graph->setPen(QPen(line_color,1));
-        parent_graph->setLineStyle(QCPGraph::lsStepCenter);
+        parent_graph->setLineStyle(QCPGraph::lsLine);
         parent_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
     }
 
@@ -315,4 +315,9 @@ void LineProfileWidget::on_setting_line_point_button_clicked()
 {
     this->setting_line_point = !this->setting_line_point;
     this->ui->setting_line_point_button->setFlat(this->setting_line_point);
+}
+
+void LineProfileWidget::on_paint_parent_lines_checkbox_toggled(bool)
+{
+    this->paintSelectedProfileLine();
 }
