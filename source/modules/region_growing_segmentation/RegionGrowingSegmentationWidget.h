@@ -85,6 +85,7 @@ public:
 
 private slots:
     void mousePressedOnImage(Qt::MouseButton button, ITKImage::Index cursor_index);
+    void on_toleranceSpinbox_valueChanged(double arg1);
 };
 
 #endif // REGIONGROWINGSEGMENTATIONWIDGET_H

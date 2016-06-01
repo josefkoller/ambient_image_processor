@@ -21,7 +21,7 @@ void RegionGrowingSegmentation::removeSegment(uint index)
 
 void RegionGrowingSegmentation::removeSeedPoint(uint segment_index, uint seed_point_index)
 {
-    std::vector<Position>& seed_points = this->segments[segment_index].seed_points;
+    auto& seed_points = this->segments[segment_index].seed_points;
     seed_points.erase(seed_points.begin() + seed_point_index);
 }
 
@@ -30,12 +30,12 @@ void RegionGrowingSegmentation::setSegmentName(uint index, std::string name)
     this->segments[index].name = name;
 }
 
-void RegionGrowingSegmentation::addSeedPoint(uint segment_index, Position position)
+void RegionGrowingSegmentation::addSeedPoint(uint segment_index, SeedPoint position)
 {
     this->segments[segment_index].seed_points.push_back(position);
 }
 
-std::vector<RegionGrowingSegmentation::Position> RegionGrowingSegmentation::getSeedPointsOfSegment(uint segment_index) const
+std::vector<RegionGrowingSegmentation::SeedPoint> RegionGrowingSegmentation::getSeedPointsOfSegment(uint segment_index) const
 {
     return this->segments[segment_index].seed_points;
 }
@@ -45,7 +45,10 @@ std::vector<std::vector<RegionGrowingSegmentation::Position> > RegionGrowingSegm
     std::vector<std::vector<RegionGrowingSegmentation::Position> > segments;
     for(Segment segment : this->segments)
     {
-        segments.push_back(segment.seed_points);
+        std::vector<RegionGrowingSegmentation::Position> segment_points;
+        for(auto point : segment.seed_points)
+            segment_points.push_back(point.position);
+        segments.push_back(segment_points);
     }
     return segments;
 }
@@ -58,4 +61,15 @@ std::vector<RegionGrowingSegmentation::Segment> RegionGrowingSegmentation::getSe
 void RegionGrowingSegmentation::clear()
 {
     this->segments.clear();
+}
+
+RegionGrowingSegmentation::Pixel RegionGrowingSegmentation::getSeedPointTolerance(uint segment_index,
+                                                                                  uint seed_point_index) const
+{
+    return this->segments[segment_index].seed_points[seed_point_index].tolerance;
+}
+
+void RegionGrowingSegmentation::setSeedPointTolerance(uint segment_index, uint point_index, Pixel tolerance)
+{
+    this->segments[segment_index].seed_points[point_index].tolerance = tolerance;
 }

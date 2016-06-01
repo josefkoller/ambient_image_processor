@@ -15,8 +15,7 @@ RegionGrowingSegmentationProcessor::RegionGrowingSegmentationProcessor()
 
 RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcessor::process(
         const ITKImage& gradient_image,
-        std::vector<std::vector<Index> > input_segments,
-        float tolerance)
+        Segments input_segments)
 {
     ITKImage::PixelType* gradient_image_raw = gradient_image.cloneToPixelArray();
     auto size = ITKImage::Size(gradient_image.width,
@@ -35,21 +34,22 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
 
     for(unsigned int segment_index = 0; segment_index <  input_segments.size(); segment_index++)
     {
-        std::vector<Index> seed_points = input_segments[segment_index];
+        auto seed_points = input_segments[segment_index].seed_points;
 
-        std::queue<Index> seed_point_queue;
-        for(Index seed_point : seed_points)
+        std::queue<SeedPoint> seed_point_queue;
+        for(auto seed_point : seed_points)
             seed_point_queue.push(seed_point);
 
-        auto max_recursion_depth_reached = [&seed_point_queue] (ITKImage::PixelIndex index) {
-            seed_point_queue.push(index.toITKIndex());
+        auto max_recursion_depth_reached = [&seed_point_queue] (SeedPoint point) {
+            seed_point_queue.push(point);
         };
 
         while(!seed_point_queue.empty()) {
-            auto seed_point = ITKImage::PixelIndex(seed_point_queue.front());
+            auto seed_point = seed_point_queue.front();
             seed_point_queue.pop();
-            grow(gradient_image_raw, size, output_labels_raw, segment_index+1, seed_point,
-                 tolerance, 0, max_recursion_depth, max_recursion_depth_reached);
+
+            grow(gradient_image_raw, size, output_labels_raw, segment_index+1, seed_point.position,
+                 seed_point.tolerance, 0, max_recursion_depth, max_recursion_depth_reached);
         }
     }
     output_labels = LabelImage(output_labels.width, output_labels.height, output_labels.depth,
@@ -65,17 +65,17 @@ void RegionGrowingSegmentationProcessor::grow(
         ITKImage::PixelType* gradient_image, ITKImage::Size size,
         LabelImage::PixelType* output_labels,
         uint segment_index,
-        const ITKImage::PixelIndex& index,
+        const ITKImage::Index& index,
         float tolerance,
         uint recursion_depth,
         uint max_recursion_depth,
-        std::function<void(ITKImage::PixelIndex index)> max_recursion_depth_reached)
+        std::function<void(SeedPoint point)> max_recursion_depth_reached)
 {
     grow_counter++;
 
 
     if(recursion_depth > max_recursion_depth) {
-        max_recursion_depth_reached(index);
+        max_recursion_depth_reached(SeedPoint(index, tolerance));
         return;
     }
     recursion_depth++;
@@ -92,32 +92,32 @@ void RegionGrowingSegmentationProcessor::grow(
     */
     ITKImage::setPixel(output_labels, size, index, segment_index);
 
-    LabelImage::PixelIndex index2 = index; index2.x --;
+    LabelImage::Index index2 = {index[0] - 1, index[1], index[2]};
     if(growCondition(gradient_image, size, output_labels, index2, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index2, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
-    LabelImage::PixelIndex index3 = index; index3.x ++;
+    LabelImage::Index index3 = {index[0] + 1, index[1], index[2]};
     if(growCondition(gradient_image, size, output_labels, index3, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index3, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
-    LabelImage::PixelIndex index4 = index; index4.y ++;
+    LabelImage::Index index4 = {index[0], index[1] + 1, index[2]};
     if(growCondition(gradient_image, size, output_labels, index4, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index4, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
-    LabelImage::PixelIndex index5 = index; index5.y --;
+    LabelImage::Index index5 = {index[0], index[1] - 1, index[2]};
     if(growCondition(gradient_image, size, output_labels, index5, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index5, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
-    LabelImage::PixelIndex index6 = index; index6.z --;
+    LabelImage::Index index6 = {index[0], index[1], index[2] - 1};
     if(growCondition(gradient_image, size, output_labels, index6, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index6, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
-    LabelImage::PixelIndex index7 = index; index7.z ++;
+    LabelImage::Index index7 = {index[0], index[1], index[2] + 1};
     if(growCondition(gradient_image, size, output_labels, index7, tolerance))
         grow(gradient_image, size, output_labels, segment_index, index7, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
@@ -126,14 +126,14 @@ void RegionGrowingSegmentationProcessor::grow(
 bool RegionGrowingSegmentationProcessor::growCondition(
         ITKImage::PixelType* gradient_image, ITKImage::Size size,
         LabelImage::PixelType* output_labels,
-        const ITKImage::PixelIndex& index,
+        const ITKImage::InnerITKImage::IndexType& index,
         float tolerance)
 {
     return
             //index >= ITKImage::PixelIndex() && index < size
-            index.x >= 0 && index.x < size.x &&
-            index.y >= 0 && index.y < size.y &&
-            index.z >= 0 && index.z < size.z &&
+            index[0] >= 0 && index[0] < size.x &&
+            index[1] >= 0 && index[1] < size.y &&
+            index[2] >= 0 && index[2] < size.z &&
             ITKImage::getPixel(output_labels, size, index) < 1e-4 &&
             ITKImage::getPixel(gradient_image, size, index) < tolerance;
 }

@@ -17,9 +17,9 @@ SegmentsToLabelImageConverter::LabelImage
     LabelImage::PixelType segment_pixel_value = 1;
     for(RegionGrowingSegmentation::Segment segment : segments)
     {
-        for(RegionGrowingSegmentation::Position index : segment.seed_points)
+        for(auto seed_point : segment.seed_points)
         {
-            label_image.setPixel(index, segment_pixel_value);
+            label_image.setPixel(seed_point.position, segment_pixel_value);
         }
         segment_pixel_value++;
     }

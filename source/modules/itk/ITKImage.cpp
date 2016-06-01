@@ -333,16 +333,16 @@ ITKImage ITKImage::cloneSameSizeWithZeros() const
     return clone;
 }
 
-uint ITKImage::linearIndex(Size size, PixelIndex index)
+uint ITKImage::linearIndex(Size size, ITKImage::InnerITKImage::IndexType index)
 {
-    return index.z *size.x*size.y + index.x + index.y * size.x;
+    return index[2] *size.x*size.y + index[0] + index[1] * size.x;
 }
-ITKImage::PixelType ITKImage::getPixel(PixelType* image_data, Size size, PixelIndex index)
+ITKImage::PixelType ITKImage::getPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index)
 {
     return image_data[linearIndex(size, index)];
 }
 
-void ITKImage::setPixel(PixelType* image_data, Size size, PixelIndex index, PixelType value)
+void ITKImage::setPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index, PixelType value)
 {
     image_data[linearIndex(size, index)] = value;
 }

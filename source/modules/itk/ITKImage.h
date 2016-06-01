@@ -91,9 +91,9 @@ public:
     PixelType* cloneToPixelArray() const;
     ITKImage cloneSameSizeWithZeros() const;
 
-    static uint linearIndex(Size size, PixelIndex index);
-    static PixelType getPixel(PixelType* image_data, Size size, PixelIndex index);
-    static void setPixel(PixelType* image_data, Size size, PixelIndex index, PixelType value);
+    static uint linearIndex(Size size, ITKImage::InnerITKImage::IndexType index);
+    static PixelType getPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index);
+    static void setPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index, PixelType value);
 };
 
 #endif // ITKIMAGE_H

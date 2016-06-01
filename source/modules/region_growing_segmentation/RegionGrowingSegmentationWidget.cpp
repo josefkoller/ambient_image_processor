@@ -105,7 +105,10 @@ void RegionGrowingSegmentationWidget::addSeedPointAt(RegionGrowingSegmentation::
         this->setStatusText("No segment selected");
         return;
     }
-    this->region_growing_segmentation.addSeedPoint(segment_index, position);
+
+    auto tolerance = this->ui->toleranceSpinbox->value();
+    auto point = RegionGrowingSegmentation::SeedPoint(position, tolerance);
+    this->region_growing_segmentation.addSeedPoint(segment_index, point);
     this->refreshSeedPointList();
 
     //this->stopAddingSeedPoint();
@@ -123,11 +126,11 @@ void RegionGrowingSegmentationWidget::refreshSeedPointList()
     int segment_index = this->selectedRow(this->ui->segmentsListWidget);
     if(segment_index == -1)
         return;
-    std::vector<RegionGrowingSegmentation::Position> seed_points =
+    auto seed_points =
             this->region_growing_segmentation.getSeedPointsOfSegment(segment_index);
     for(uint row = 0; row < seed_points.size(); row++)
     {
-        QString text = this->text(seed_points[row]);
+        QString text = this->text(seed_points[row].position);
         this->ui->seedsListWidget->addItem(text);
     }
 }
@@ -178,6 +181,16 @@ void RegionGrowingSegmentationWidget::on_seedsListWidget_itemSelectionChanged()
     // remove button enabled state...
     int point_index = this->selectedRow(this->ui->seedsListWidget);
     this->ui->removeSeedButton->setEnabled(point_index > -1);
+
+    if(point_index < 0)
+        return;
+
+    auto segment_index = this->selectedRow(this->ui->segmentsListWidget);
+    if(segment_index < 0)
+        return;
+
+    auto tolerance = this->region_growing_segmentation.getSeedPointTolerance(segment_index, point_index);
+    this->ui->toleranceSpinbox->setValue(tolerance);
 }
 
 void RegionGrowingSegmentationWidget::on_removeSeedButton_clicked()
@@ -212,8 +225,6 @@ ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
     // input...
     typedef SegmentsToLabelImageConverter::LabelImage LabelImage;
 
-    float tolerance = this->ui->toleranceSpinbox->value();
-
     float kernel_sigma = this->kernel_sigma_fetcher();
     float kernel_size = this->kernel_size_fetcher();
 
@@ -224,8 +235,7 @@ ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
     // action...
     this->label_image = RegionGrowingSegmentationProcessor::process(
                 gradient_image,
-                this->region_growing_segmentation.getSegments(),
-                tolerance);
+                this->region_growing_segmentation.getSegmentObjects());
 
     label_image.getPointer()->SetOrigin(source_image.getPointer()->GetOrigin());
     label_image.getPointer()->SetSpacing(source_image.getPointer()->GetSpacing());
@@ -253,11 +263,13 @@ void RegionGrowingSegmentationWidget::on_saveParameterButton_clicked()
     for(RegionGrowingSegmentation::Segment segment : segments)
     {
         data += QString::fromStdString(segment.name) + ":";
-        for(RegionGrowingSegmentation::Position seed_point : segment.seed_points)
+        for(auto seed_point : segment.seed_points)
         {
-            data += QString::number(seed_point[0]) + "|" +
-                    QString::number(seed_point[1]) + "|" +
-                    QString::number(seed_point[2]) + ";";
+            auto position = seed_point.position;
+            data += QString::number(position[0]) + "|" +
+                    QString::number(position[1]) + "|" +
+                    QString::number(position[2]) + "<" +
+                    QString::number(seed_point.tolerance) + ";";
         }
         data += "\n";
     }
@@ -307,14 +319,19 @@ void RegionGrowingSegmentationWidget::on_load_ParameterButton_clicked()
             if(seed_points_elements[s].trimmed() == "")
                 continue;
 
-            QStringList seed_point_elements = seed_points_elements[s].split("|");
-            uint x = seed_point_elements[0].toInt();
-            uint y = seed_point_elements[1].toInt();
-            uint z = seed_point_elements[2].toInt();
-            RegionGrowingSegmentation::Position seed_point;
-            seed_point[0] = x;
-            seed_point[1] = y;
-            seed_point[2] = z;
+            QStringList seed_point_elements = seed_points_elements[s].split("<");
+
+            QStringList position_elements = seed_point_elements[0].split("|");
+            uint x = position_elements[0].toInt();
+            uint y = position_elements[1].toInt();
+            uint z = position_elements[2].toInt();
+            RegionGrowingSegmentation::Position position;
+            position[0] = x;
+            position[1] = y;
+            position[2] = z;
+
+            auto tolerance = seed_point_elements[1].toFloat();
+            auto seed_point = RegionGrowingSegmentation::SeedPoint(position, tolerance);
 
             this->region_growing_segmentation.addSeedPoint(segment_index, seed_point);
         }
@@ -358,3 +375,16 @@ void RegionGrowingSegmentationWidget::mousePressedOnImage(Qt::MouseButton button
 
 }
 
+
+void RegionGrowingSegmentationWidget::on_toleranceSpinbox_valueChanged(double tolerance)
+{
+    auto segment_index = this->selectedRow(this->ui->segmentsListWidget);
+    if(segment_index < 0)
+        return;
+
+    int point_index = this->selectedRow(this->ui->seedsListWidget);
+    if(point_index < 0)
+        return;
+
+    this->region_growing_segmentation.setSeedPointTolerance(segment_index, point_index, tolerance);
+}
