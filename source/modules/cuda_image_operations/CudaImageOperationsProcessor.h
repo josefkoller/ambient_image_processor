@@ -18,6 +18,8 @@ public:
     static ITKImage multiply(ITKImage image1, ITKImage image2);
     static ITKImage divide(ITKImage image1, ITKImage image2);
     static ITKImage add(ITKImage image1, ITKImage image2);
+
+    static ITKImage convolution3x3(ITKImage image, ITKImage::PixelType* kernel);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

@@ -9,6 +9,10 @@ Pixel* divide_kernel_launch(Pixel* image1, Pixel* image2,
 template<typename Pixel>
 Pixel* add_kernel_launch(Pixel* image1, Pixel* image2,
                               uint width, uint height, uint depth);
+template<typename Pixel>
+Pixel* convolution3x3_kernel_launch(Pixel* image1,
+                              uint width, uint height, uint depth,
+                                    Pixel* kernel);
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
@@ -55,6 +59,20 @@ ITKImage CudaImageOperationsProcessor::perform(ITKImage image1, ITKImage image2,
     delete[] image1_pixels;
     delete[] image2_pixels;
     delete[] result_pixels;
+
+    return result;
+}
+
+
+ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
+{
+    auto image_pixels = image.cloneToPixelArray();
+
+    auto result_pixels = convolution3x3_kernel_launch(image_pixels,
+                                                      image.width, image.height, image.depth, kernel);
+    auto result = ITKImage(image.width, image.height, image.depth, result_pixels);
+    delete[] result_pixels;
+    delete[] image_pixels;
 
     return result;
 }
