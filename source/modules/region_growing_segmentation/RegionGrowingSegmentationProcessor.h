@@ -12,17 +12,18 @@ class RegionGrowingSegmentationProcessor
 {
 private:
     RegionGrowingSegmentationProcessor();
+public:
 
     typedef RegionGrowingSegmentation::Segments Segments;
     typedef RegionGrowingSegmentation::SeedPoint SeedPoint;
-public:
 
     typedef ITKImage::Index Index;
 
     typedef ITKImage LabelImage;
 
-    typedef std::unordered_map<uint, bool> SegmentEdgePixelsCollection;
-    typedef std::vector<SegmentEdgePixelsCollection> EdgePixelsCollection;
+    typedef std::unordered_map<uint, bool> SegmentEdgePixelsMap;
+    typedef std::vector<Index> SegmentEdgePixelsVector;
+    typedef std::vector<SegmentEdgePixelsVector> EdgePixelsCollection;
 
     static LabelImage process(
             const ITKImage& source_image,
@@ -41,11 +42,13 @@ private:
                      uint recursion_depth,
                      uint max_recursion_depth,
                      std::function<void(SeedPoint point)> max_recursion_depth_reached,
-                     SegmentEdgePixelsCollection& edge_pixels);
+                     SegmentEdgePixelsMap& edge_pixels);
     static bool growCondition(ITKImage::PixelType* source_image, ITKImage::Size size,
                               LabelImage::PixelType* output_labels,
                               const Index& index,
-                              float tolerance);
+                              float tolerance,
+                              bool& already_was_part_of_the_region,
+                              bool& z_index_out_of_range);
 
     static bool setNeededStackSize();
 };

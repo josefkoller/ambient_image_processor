@@ -215,6 +215,12 @@ void ITKImage::setPixel(PixelIndex index, PixelType value)
     this->setPixel(index.toITKIndex(), value);
 }
 
+void ITKImage::setPixel(uint linear_index, PixelType value)
+{
+    this->setPixel(ITKImage::linearTo3DIndex(linear_index), value);
+}
+
+
 void ITKImage::setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher)
 {
     if(this->isNull())
@@ -295,6 +301,16 @@ uint ITKImage::linearIndex(Index index) const
 uint ITKImage::linearIndex(uint x, uint y, uint z) const
 {
     return z * this->width*this->height + (x + y * this->width);
+}
+
+ITKImage::Index ITKImage::linearTo3DIndex(uint linear_index) const
+{
+    const int z = std::floor(linear_index / (width*height));
+    int index_rest = linear_index - z * (width*height);
+    const int y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const int x = index_rest;
+    return {x, y, z};
 }
 
 bool ITKImage::contains(Index index) const

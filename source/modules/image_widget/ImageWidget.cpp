@@ -28,6 +28,7 @@
 #include "TGVLambdasWidget.h"
 #include "BinaryOperationsWidget.h"
 #include "ConvolutionWidget.h"
+#include "RegionCurvatureEdgeCorrection.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -85,7 +86,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgv_lambdas_widget);
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
     modules.push_back(new ConvolutionWidget("3x3 Convolution", module_parent));
-
+    modules.push_back(new RegionCurvatureEdgeCorrection("Region Curvature Edge Correction", module_parent));
 
     // register modules and add widget modules
     module_parent->hide();

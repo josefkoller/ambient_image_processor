@@ -20,8 +20,8 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
 {
     ITKImage::PixelType* source_image_raw = source_image.cloneToPixelArray();
     auto size = ITKImage::Size(source_image.width,
-                                         source_image.height,
-                                         source_image.depth);
+                               source_image.height,
+                               source_image.depth);
     LabelImage output_labels = source_image.cloneSameSizeWithZeros();
     LabelImage::PixelType* output_labels_raw = output_labels.cloneToPixelArray();
 
@@ -35,7 +35,7 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
 
     for(unsigned int segment_index = 0; segment_index <  input_segments.size(); segment_index++)
     {
-        SegmentEdgePixelsCollection segment_edge_pixels;
+        SegmentEdgePixelsMap segment_edge_pixels;
 
         auto seed_points = input_segments[segment_index].seed_points;
 
@@ -56,7 +56,13 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
                  segment_edge_pixels);
         }
 
-        edge_pixels.push_back(segment_edge_pixels);
+        // copy map keys to vector and transform the linear index...
+        SegmentEdgePixelsVector segment_edge_pixels_vector;
+        for(auto iterator = segment_edge_pixels.begin(); iterator != segment_edge_pixels.end(); ++iterator) {
+            auto linear_index = iterator->first;
+            segment_edge_pixels_vector.push_back(source_image.linearTo3DIndex(linear_index));
+        }
+        edge_pixels.push_back(segment_edge_pixels_vector);
     }
 
     output_labels = LabelImage(output_labels.width, output_labels.height, output_labels.depth,
@@ -77,7 +83,7 @@ void RegionGrowingSegmentationProcessor::grow(
         uint recursion_depth,
         uint max_recursion_depth,
         std::function<void(SeedPoint point)> max_recursion_depth_reached,
-        SegmentEdgePixelsCollection& edge_pixels)
+        SegmentEdgePixelsMap& edge_pixels)
 {
     grow_counter++;
 
@@ -91,47 +97,31 @@ void RegionGrowingSegmentationProcessor::grow(
     ITKImage::setPixel(output_labels, size, index, segment_index);
 
     bool is_edge_pixel = false;
-    LabelImage::Index index2 = {index[0] - 1, index[1], index[2]};
-    if(growCondition(source_image, size, output_labels, index2, tolerance))
-        grow(source_image, size, output_labels, segment_index, index2, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
+    bool already_was_part_of_the_region = false;
+    bool z_index_out_of_range = false;
 
-    LabelImage::Index index3 = {index[0] + 1, index[1], index[2]};
-    if(growCondition(source_image, size, output_labels, index3, tolerance))
-        grow(source_image, size, output_labels, segment_index, index3, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
+    auto grow_step = [source_image, &size, output_labels, tolerance, segment_index, &is_edge_pixel,
+            recursion_depth, max_recursion_depth, max_recursion_depth_reached,
+            &edge_pixels, &already_was_part_of_the_region, &z_index_out_of_range] (
+            const ITKImage::Index& grow_index){
+        if(growCondition(source_image, size, output_labels, grow_index, tolerance,
+                         already_was_part_of_the_region, z_index_out_of_range))
+        {
+            grow(source_image, size, output_labels, segment_index, grow_index, tolerance,
+                 recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
+        }
+        else if (!already_was_part_of_the_region && (size.z == 1 && !z_index_out_of_range))
+        {
+            is_edge_pixel = true;
+        }
+    };
 
-    LabelImage::Index index4 = {index[0], index[1] + 1, index[2]};
-    if(growCondition(source_image, size, output_labels, index4, tolerance))
-        grow(source_image, size, output_labels, segment_index, index4, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
-
-    LabelImage::Index index5 = {index[0], index[1] - 1, index[2]};
-    if(growCondition(source_image, size, output_labels, index5, tolerance))
-        grow(source_image, size, output_labels, segment_index, index5, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
-
-    LabelImage::Index index6 = {index[0], index[1], index[2] - 1};
-    if(growCondition(source_image, size, output_labels, index6, tolerance))
-        grow(source_image, size, output_labels, segment_index, index6, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
-
-    LabelImage::Index index7 = {index[0], index[1], index[2] + 1};
-    if(growCondition(source_image, size, output_labels, index7, tolerance))
-        grow(source_image, size, output_labels, segment_index, index7, tolerance,
-             recursion_depth, max_recursion_depth, max_recursion_depth_reached, edge_pixels);
-    else
-        is_edge_pixel = true;
+    grow_step({index[0] - 1, index[1], index[2]});
+    grow_step({index[0] + 1, index[1], index[2]});
+    grow_step({index[0], index[1] + 1, index[2]});
+    grow_step({index[0], index[1] - 1, index[2]});
+    grow_step({index[0], index[1], index[2] - 1});
+    grow_step({index[0], index[1], index[2] + 1});
 
     if(is_edge_pixel)
         edge_pixels[ITKImage::linearIndex(size, index)] = true;
@@ -141,15 +131,21 @@ bool RegionGrowingSegmentationProcessor::growCondition(
         ITKImage::PixelType* source_image, ITKImage::Size size,
         LabelImage::PixelType* output_labels,
         const ITKImage::InnerITKImage::IndexType& index,
-        float tolerance)
+        float tolerance,
+        bool& already_was_part_of_the_region,
+        bool& z_index_out_of_range)
 {
-    return
-            //index >= ITKImage::PixelIndex() && index < size
-            index[0] >= 0 && index[0] < size.x &&
-            index[1] >= 0 && index[1] < size.y &&
-            index[2] >= 0 && index[2] < size.z &&
-            ITKImage::getPixel(output_labels, size, index) < 1e-4 &&
-            ITKImage::getPixel(source_image, size, index) < tolerance;
+    already_was_part_of_the_region = false;
+    z_index_out_of_range = index[2] < 0 || index[2] >= size.z;
+    if( index[0] >= 0 && index[0] < size.x &&
+        index[1] >= 0 && index[1] < size.y &&
+        !z_index_out_of_range)
+    {
+        already_was_part_of_the_region = ITKImage::getPixel(output_labels, size, index) > 1e-4;
+        if(!already_was_part_of_the_region)
+            return ITKImage::getPixel(source_image, size, index) < tolerance;
+    }
+    return false;
 }
 
 bool RegionGrowingSegmentationProcessor::setNeededStackSize()

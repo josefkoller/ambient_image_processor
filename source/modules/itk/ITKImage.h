@@ -66,6 +66,7 @@ public:
     void setPixel(uint x, uint y, uint z, PixelType value);
     void setPixel(Index index, PixelType value);
     void setPixel(PixelIndex index, PixelType value);
+    void setPixel(uint linear_index, PixelType value);
 
     void setEachPixel(std::function<PixelType(uint x, uint y, uint z)> pixel_fetcher);
 
@@ -88,6 +89,8 @@ public:
     uint linearIndex(uint x, uint y, uint z) const;
     bool contains(Index index) const;
     bool contains(PixelIndex index) const;
+
+    ITKImage::Index linearTo3DIndex(uint linear_index) const;
 
     PixelType* cloneToPixelArray() const;
     ITKImage cloneSameSizeWithZeros() const;
