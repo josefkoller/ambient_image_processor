@@ -14,14 +14,14 @@ RegionGrowingSegmentationProcessor::RegionGrowingSegmentationProcessor()
 
 
 RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcessor::process(
-        const ITKImage& gradient_image,
+        const ITKImage& source_image,
         Segments input_segments)
 {
-    ITKImage::PixelType* gradient_image_raw = gradient_image.cloneToPixelArray();
-    auto size = ITKImage::Size(gradient_image.width,
-                                         gradient_image.height,
-                                         gradient_image.depth);
-    LabelImage output_labels = gradient_image.cloneSameSizeWithZeros();
+    ITKImage::PixelType* source_image_raw = source_image.cloneToPixelArray();
+    auto size = ITKImage::Size(source_image.width,
+                                         source_image.height,
+                                         source_image.depth);
+    LabelImage output_labels = source_image.cloneSameSizeWithZeros();
     LabelImage::PixelType* output_labels_raw = output_labels.cloneToPixelArray();
 
     if(output_labels_raw == nullptr)
@@ -48,7 +48,7 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
             auto seed_point = seed_point_queue.front();
             seed_point_queue.pop();
 
-            grow(gradient_image_raw, size, output_labels_raw, segment_index+1, seed_point.position,
+            grow(source_image_raw, size, output_labels_raw, segment_index+1, seed_point.position,
                  seed_point.tolerance, 0, max_recursion_depth, max_recursion_depth_reached);
         }
     }
@@ -56,13 +56,13 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
                                output_labels_raw);
 
     delete output_labels_raw;
-    delete gradient_image_raw;
+    delete source_image_raw;
 
     return output_labels;
 }
 
 void RegionGrowingSegmentationProcessor::grow(
-        ITKImage::PixelType* gradient_image, ITKImage::Size size,
+        ITKImage::PixelType* source_image, ITKImage::Size size,
         LabelImage::PixelType* output_labels,
         uint segment_index,
         const ITKImage::Index& index,
@@ -87,44 +87,44 @@ void RegionGrowingSegmentationProcessor::grow(
     if(output_labels->getPixel(index) > 1e-4) // != 0
         return; // already visited
 
-    if(gradient_image.getPixel(index) < tolerance )
+    if(source_image.getPixel(index) < tolerance )
     {
     */
     ITKImage::setPixel(output_labels, size, index, segment_index);
 
     LabelImage::Index index2 = {index[0] - 1, index[1], index[2]};
-    if(growCondition(gradient_image, size, output_labels, index2, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index2, tolerance,
+    if(growCondition(source_image, size, output_labels, index2, tolerance))
+        grow(source_image, size, output_labels, segment_index, index2, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
     LabelImage::Index index3 = {index[0] + 1, index[1], index[2]};
-    if(growCondition(gradient_image, size, output_labels, index3, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index3, tolerance,
+    if(growCondition(source_image, size, output_labels, index3, tolerance))
+        grow(source_image, size, output_labels, segment_index, index3, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
     LabelImage::Index index4 = {index[0], index[1] + 1, index[2]};
-    if(growCondition(gradient_image, size, output_labels, index4, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index4, tolerance,
+    if(growCondition(source_image, size, output_labels, index4, tolerance))
+        grow(source_image, size, output_labels, segment_index, index4, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
     LabelImage::Index index5 = {index[0], index[1] - 1, index[2]};
-    if(growCondition(gradient_image, size, output_labels, index5, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index5, tolerance,
+    if(growCondition(source_image, size, output_labels, index5, tolerance))
+        grow(source_image, size, output_labels, segment_index, index5, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
     LabelImage::Index index6 = {index[0], index[1], index[2] - 1};
-    if(growCondition(gradient_image, size, output_labels, index6, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index6, tolerance,
+    if(growCondition(source_image, size, output_labels, index6, tolerance))
+        grow(source_image, size, output_labels, segment_index, index6, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 
     LabelImage::Index index7 = {index[0], index[1], index[2] + 1};
-    if(growCondition(gradient_image, size, output_labels, index7, tolerance))
-        grow(gradient_image, size, output_labels, segment_index, index7, tolerance,
+    if(growCondition(source_image, size, output_labels, index7, tolerance))
+        grow(source_image, size, output_labels, segment_index, index7, tolerance,
              recursion_depth, max_recursion_depth, max_recursion_depth_reached);
 }
 
 bool RegionGrowingSegmentationProcessor::growCondition(
-        ITKImage::PixelType* gradient_image, ITKImage::Size size,
+        ITKImage::PixelType* source_image, ITKImage::Size size,
         LabelImage::PixelType* output_labels,
         const ITKImage::InnerITKImage::IndexType& index,
         float tolerance)
@@ -135,7 +135,7 @@ bool RegionGrowingSegmentationProcessor::growCondition(
             index[1] >= 0 && index[1] < size.y &&
             index[2] >= 0 && index[2] < size.z &&
             ITKImage::getPixel(output_labels, size, index) < 1e-4 &&
-            ITKImage::getPixel(gradient_image, size, index) < tolerance;
+            ITKImage::getPixel(source_image, size, index) < tolerance;
 }
 
 bool RegionGrowingSegmentationProcessor::setNeededStackSize()

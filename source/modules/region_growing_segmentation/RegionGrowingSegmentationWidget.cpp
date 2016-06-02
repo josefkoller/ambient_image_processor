@@ -6,9 +6,6 @@
 #include "RegionGrowingSegmentationProcessor.h"
 #include "SegmentsToLabelImageConverter.h"
 
-
-#include "../non_local_gradient/NonLocalGradientProcessor.h"
-
 #include <QFileDialog>
 #include <QTextStream>
 
@@ -16,8 +13,6 @@ RegionGrowingSegmentationWidget::RegionGrowingSegmentationWidget(QString title, 
     BaseModuleWidget(title, parent),
     ui(new Ui::RegionGrowingSegmentationWidget),
     is_adding_seed_point(false),
-    kernel_sigma_fetcher(nullptr),
-    kernel_size_fetcher(nullptr),
     image(ITKImage::Null)
 {
     ui->setupUi(this);
@@ -219,39 +214,14 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 
 ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
 {
-    if(this->kernel_sigma_fetcher == nullptr || this->kernel_size_fetcher == nullptr)
-        return ITKImage();
-
-    // input...
-    typedef SegmentsToLabelImageConverter::LabelImage LabelImage;
-
-    float kernel_sigma = this->kernel_sigma_fetcher();
-    float kernel_size = this->kernel_size_fetcher();
-
-    ITKImage gradient_image = NonLocalGradientProcessor::process(
-                source_image, kernel_size, kernel_sigma);
-
-
-    // action...
     this->label_image = RegionGrowingSegmentationProcessor::process(
-                gradient_image,
+                source_image,
                 this->region_growing_segmentation.getSegmentObjects());
 
     label_image.getPointer()->SetOrigin(source_image.getPointer()->GetOrigin());
     label_image.getPointer()->SetSpacing(source_image.getPointer()->GetSpacing());
 
     return label_image;
-}
-
-void RegionGrowingSegmentationWidget::setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher)
-{
-    this->kernel_sigma_fetcher = kernel_sigma_fetcher;
-}
-
-void RegionGrowingSegmentationWidget::setKernelSizeFetcher(
-        std::function<uint()> kernel_size_fetcher)
-{
-    this->kernel_size_fetcher = kernel_size_fetcher;
 }
 
 void RegionGrowingSegmentationWidget::on_saveParameterButton_clicked()

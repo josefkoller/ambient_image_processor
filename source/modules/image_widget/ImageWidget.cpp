@@ -137,12 +137,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->layout()->setMenuBar(menu_bar);
 
     // connect modules...
-    region_growing_segmentation_widget->setKernelSigmaFetcher([non_local_gradient_widget]() {
-        return non_local_gradient_widget->getKernelSigma();
-    });
-    region_growing_segmentation_widget->setKernelSizeFetcher([non_local_gradient_widget]() {
-        return non_local_gradient_widget->getKernelSize();
-    });
 
     deshade_segmented_widget->setSegmentsFetcher([region_growing_segmentation_widget]() {
         return region_growing_segmentation_widget->getSegments();
@@ -151,6 +145,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
         return region_growing_segmentation_widget->getLabelImage();
     });
 
+    // iteration finished callback...
     auto iteration_finished_callback = [this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
                                             QString::number(index+1),

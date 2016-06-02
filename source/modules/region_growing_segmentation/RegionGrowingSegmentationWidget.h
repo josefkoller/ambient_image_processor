@@ -66,14 +66,7 @@ private slots:
 
     void on_load_ParameterButton_clicked();
 
-private:
-    std::function<float()> kernel_sigma_fetcher;
-    std::function<uint()> kernel_size_fetcher;
-
 public:
-    void setKernelSigmaFetcher(std::function<float()> kernel_sigma_fetcher);
-    void setKernelSizeFetcher(std::function<uint()> kernel_size_fetcher);
-
     std::vector<std::vector<RegionGrowingSegmentation::Position> > getSegments() const;
     LabelImage getLabelImage() const;
 
