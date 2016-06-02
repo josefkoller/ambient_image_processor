@@ -84,6 +84,7 @@ public:
     static QPoint pointFromIndex(Index index);
     static QString indexToText(Index index);
 
+    uint linearIndex(Index index) const;
     uint linearIndex(uint x, uint y, uint z) const;
     bool contains(Index index) const;
     bool contains(PixelIndex index) const;

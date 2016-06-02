@@ -4,6 +4,7 @@
 #include "ITKImage.h"
 
 #include <functional>
+#include <unordered_map>
 
 #include "RegionGrowingSegmentation.h"
 
@@ -16,13 +17,17 @@ private:
     typedef RegionGrowingSegmentation::SeedPoint SeedPoint;
 public:
 
-    typedef ITKImage::InnerITKImage::IndexType Index;
+    typedef ITKImage::Index Index;
 
     typedef ITKImage LabelImage;
 
+    typedef std::unordered_map<uint, bool> SegmentEdgePixelsCollection;
+    typedef std::vector<SegmentEdgePixelsCollection> EdgePixelsCollection;
+
     static LabelImage process(
             const ITKImage& source_image,
-            Segments input_segments);
+            Segments input_segments,
+            EdgePixelsCollection& edge_pixels);
 
 private:
 
@@ -35,7 +40,8 @@ private:
                      float tolerance,
                      uint recursion_depth,
                      uint max_recursion_depth,
-                     std::function<void(SeedPoint point)> max_recursion_depth_reached);
+                     std::function<void(SeedPoint point)> max_recursion_depth_reached,
+                     SegmentEdgePixelsCollection& edge_pixels);
     static bool growCondition(ITKImage::PixelType* source_image, ITKImage::Size size,
                               LabelImage::PixelType* output_labels,
                               const Index& index,

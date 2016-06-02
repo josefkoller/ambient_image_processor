@@ -288,6 +288,10 @@ QString ITKImage::indexToText(Index index)
 
 }
 
+uint ITKImage::linearIndex(Index index) const
+{
+    return this->linearIndex(index[0], index[1], index[2]);
+}
 uint ITKImage::linearIndex(uint x, uint y, uint z) const
 {
     return z * this->width*this->height + (x + y * this->width);

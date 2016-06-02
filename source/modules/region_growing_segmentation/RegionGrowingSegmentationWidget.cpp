@@ -214,9 +214,12 @@ void RegionGrowingSegmentationWidget::on_performSegmentationButton_clicked()
 
 ITKImage RegionGrowingSegmentationWidget::processImage(ITKImage source_image)
 {
+    RegionGrowingSegmentationProcessor::EdgePixelsCollection edge_pixels;
+
     this->label_image = RegionGrowingSegmentationProcessor::process(
                 source_image,
-                this->region_growing_segmentation.getSegmentObjects());
+                this->region_growing_segmentation.getSegmentObjects(),
+                edge_pixels);
 
     label_image.getPointer()->SetOrigin(source_image.getPointer()->GetOrigin());
     label_image.getPointer()->SetSpacing(source_image.getPointer()->GetSpacing());
