@@ -87,6 +87,7 @@ Pixel* convolution3x3_kernel_launch(Pixel* image_host,
 
     cudaFree(image);
     cudaFree(kernel);
+    cudaFree(result);
 
     return result_host;
 }

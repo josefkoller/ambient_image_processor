@@ -7,6 +7,8 @@
 #include <QPoint>
 #include <QString>
 
+#include "PixelIndex.h"
+
 class ITKImage
 {
 public:
@@ -17,20 +19,13 @@ public:
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
     typedef InnerITKImage::IndexType Index;
 
+    typedef PixelIndex IndexType;
+
     uint width;
     uint height;
     uint depth;
     uint voxel_count;
 
-    struct PixelIndex
-    {
-        uint x,y,z;
-        PixelIndex() : x(0), y(0), z(0) {}
-        PixelIndex(uint x, uint y, uint z) : x(x), y(y), z(z) {}
-        PixelIndex(Index index) : PixelIndex(index[0], index[1], index[2]) {}
-        PixelIndex(const PixelIndex& clone) : x(clone.x), y(clone.y), z(clone.z) {}
-        Index toITKIndex() { Index index = {{x, y, z}}; return index; }
-    };
     typedef PixelIndex Size;
 
 private:

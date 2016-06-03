@@ -3,6 +3,8 @@
 
 #include "ITKImage.h"
 
+#include <math.h>
+
 struct Vector3
 {
     typedef ITKImage::PixelType ValueType;
@@ -11,6 +13,7 @@ struct Vector3
     ValueType y;
     ValueType z;
     Vector3(ValueType x, ValueType y, ValueType z) : x(x), y(y), z(z) {}
+    Vector3(ITKImage::IndexType index) : Vector3(index.x, index.y, index.z) {}
     Vector3(ITKImage::Index index) : Vector3(index[0], index[1], index[2]) {}
 
     Vector3& operator+=(ITKImage::Index index)
@@ -39,12 +42,12 @@ struct Vector3
         z += step.z;
         return *this;
     }
-    ITKImage::Index roundToIndex()
+    ITKImage::IndexType roundToIndex()
     {
         return {
-            std::round(x),
-            std::round(y),
-            std::round(z)
+            (uint)std::round(x),
+            (uint)std::round(y),
+            (uint)std::round(z)
         };
     }
     Vector3 operator*(ValueType factor)

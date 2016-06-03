@@ -32,14 +32,10 @@ private:
     static void interpolate_edge_pixel(ITKImage image, ITKImage::Index edge_pixel, Vector3 centroid,
                                        uint count_of_pixels_to_leave, uint count_of_node_pixels,
                                        uint count_of_pixels_to_generate);
-
-    static std::vector<ITKImage::PixelIndex> collect_neighbourhood_indices(ITKImage::Index center,
-                                                                      ITKImage::Size size);
-
     static Node interpolate_neighbourhood(
-            ITKImage image, ITKImage::Index center, Vector3 position, ITKImage::Size size);
+            ITKImage image, ITKImage::IndexType center, Vector3 position, ITKImage::Size size);
 
-    static ITKImage::PixelType neighbour_weight(ITKImage::Index index, Vector3 position);
+    static ITKImage::PixelType neighbour_weight(ITKImage::IndexType index, Vector3 position);
 public:
     static ITKImage process(ITKImage image, ITKImage::Index seed_point, ITKImage::PixelType tolerance,
                             uint count_of_pixels_to_leave, uint count_of_node_pixels,

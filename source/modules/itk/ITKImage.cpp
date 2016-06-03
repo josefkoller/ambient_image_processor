@@ -193,7 +193,7 @@ ITKImage::PixelType ITKImage::getPixel(InnerITKImage::IndexType index) const
 
 ITKImage::PixelType ITKImage::getPixel(PixelIndex index) const
 {
-    return this->getPixel(index.toITKIndex());
+    return this->getPixel(index.x, index.y, index.z);
 }
 
 void ITKImage::setPixel(uint x, uint y, uint z, PixelType value)
@@ -212,7 +212,7 @@ void ITKImage::setPixel(Index index, PixelType value)
 
 void ITKImage::setPixel(PixelIndex index, PixelType value)
 {
-    this->setPixel(index.toITKIndex(), value);
+    this->setPixel(index.x, index.y, index.z, value);
 }
 
 void ITKImage::setPixel(uint linear_index, PixelType value)
@@ -320,7 +320,9 @@ bool ITKImage::contains(Index index) const
 
 bool ITKImage::contains(PixelIndex index) const
 {
-    return this->inner_image->GetLargestPossibleRegion().IsInside(index.toITKIndex());
+    return index.z >= 0 && index.z < depth &&
+           index.x >= 0 && index.x < width &&
+           index.y >= 0 && index.y < height;
 }
 
 

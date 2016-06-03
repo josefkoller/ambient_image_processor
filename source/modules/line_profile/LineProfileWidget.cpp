@@ -199,6 +199,13 @@ void LineProfileWidget::connectedProfileLinesChanged()
 
 void LineProfileWidget::on_add_profile_line_button_clicked()
 {
+    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
+    {
+        this->profile_line_parent->on_add_profile_line_button_clicked();
+        return;
+    }
+
+
     LineProfile line;
     this->profile_lines.push_back(line);
     this->ui->line_profile_list_widget->addItem(line.text());

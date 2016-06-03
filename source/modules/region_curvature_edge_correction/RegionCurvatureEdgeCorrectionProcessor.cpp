@@ -3,6 +3,8 @@
 #include "CudaImageOperationsProcessor.h"
 #include "RegionGrowingSegmentationProcessor.h"
 
+#include <QuickView.h>
+
 RegionCurvatureEdgeCorrectionProcessor::RegionCurvatureEdgeCorrectionProcessor()
 {
 }
@@ -50,118 +52,23 @@ Vector3 RegionCurvatureEdgeCorrectionProcessor::findCentroid(EdgePixelsCollectio
 }
 
 
-std::vector<ITKImage::PixelIndex> RegionCurvatureEdgeCorrectionProcessor::collect_neighbourhood_indices(
-        ITKImage::Index center, ITKImage::Size size)
 
-{
-    std::vector<ITKImage::PixelIndex> indices;
-
-    bool is_not_left = center[0] > 0;
-    bool is_not_top = center[1] > 0;
-    bool is_not_bottom = center[1] < size.y - 1;
-    bool is_not_right = center[0] < size.x - 1;
-    bool is_not_front = center[2] > 0;
-    bool is_not_back = center[2] < size.z - 1;
-
-    indices.push_back({ center[0], center[1], center[2] });
-    if(is_not_left)
-    {
-        indices.push_back({ center[0]-1, center[1], center[2] });
-        if(is_not_top)
-            indices.push_back({ center[0]-1, center[1]+1, center[2] });
-        if(is_not_bottom)
-            indices.push_back({ center[0]-1, center[1]-1, center[2] });
-    }
-    if(is_not_top)
-        indices.push_back({ center[0], center[1]-1, center[2] });
-    if(is_not_bottom)
-        indices.push_back({ center[0], center[1]+1, center[2] });
-
-    if(is_not_right)
-    {
-        indices.push_back({ center[0]+1, center[1], center[2] });
-
-        if(is_not_top)
-            indices.push_back({ center[0]+1, center[1]-1, center[2] });
-
-        if(is_not_bottom)
-            indices.push_back({ center[0]+1, center[1]-1, center[2] });
-    }
-
-    if(is_not_front)
-    {
-        indices.push_back({ center[0], center[1], center[2]-1 });
-        if(is_not_left)
-        {
-            indices.push_back({ center[0]-1, center[1], center[2]-1 });
-            if(is_not_top)
-                indices.push_back({ center[0]-1, center[1]+1, center[2]-1 });
-            if(is_not_bottom)
-                indices.push_back({ center[0]-1, center[1]-1, center[2]-1 });
-        }
-        if(is_not_top)
-            indices.push_back({ center[0], center[1]-1, center[2]-1 });
-        if(is_not_bottom)
-            indices.push_back({ center[0], center[1]+1, center[2]-1 });
-
-        if(is_not_right)
-        {
-            indices.push_back({ center[0]+1, center[1], center[2]-1 });
-
-            if(is_not_top)
-                indices.push_back({ center[0]+1, center[1]-1, center[2]-1 });
-
-            if(is_not_bottom)
-                indices.push_back({ center[0]+1, center[1]-1, center[2]-1 });
-        }
-    }
-
-    if(is_not_back)
-    {
-        indices.push_back({ center[0], center[1], center[2]+1 });
-        if(is_not_left)
-        {
-            indices.push_back({ center[0]-1, center[1], center[2]+1 });
-            if(is_not_top)
-                indices.push_back({ center[0]-1, center[1]+1, center[2]+1 });
-            if(is_not_bottom)
-                indices.push_back({ center[0]-1, center[1]-1, center[2]+1 });
-        }
-        if(is_not_top)
-            indices.push_back({ center[0], center[1]-1, center[2]+1 });
-        if(is_not_bottom)
-            indices.push_back({ center[0], center[1]+1, center[2]+1 });
-
-        if(is_not_right)
-        {
-            indices.push_back({ center[0]+1, center[1], center[2]+1 });
-
-            if(is_not_top)
-                indices.push_back({ center[0]+1, center[1]-1, center[2]+1 });
-
-            if(is_not_bottom)
-                indices.push_back({ center[0]+1, center[1]-1, center[2]+1 });
-        }
-    }
-    return indices;
-}
-
-ITKImage::PixelType RegionCurvatureEdgeCorrectionProcessor::neighbour_weight(ITKImage::Index index, Vector3 position)
+ITKImage::PixelType RegionCurvatureEdgeCorrectionProcessor::neighbour_weight(ITKImage::IndexType index, Vector3 position)
 {
     return 1 / ( (position - Vector3(index)).length() + 1);
 }
 
 RegionCurvatureEdgeCorrectionProcessor::Node RegionCurvatureEdgeCorrectionProcessor::interpolate_neighbourhood(
-        ITKImage image, ITKImage::Index center, Vector3 position, ITKImage::Size size)
+        ITKImage image, ITKImage::IndexType center, Vector3 position, ITKImage::Size size)
 {
-    std::vector<ITKImage::PixelIndex> indices = collect_neighbourhood_indices(center, size);
+    std::vector<ITKImage::IndexType> indices = center.collectNeighbours(size);
 
     typedef ITKImage::PixelType Weight;
     std::vector<Weight> weights;
     Weight weight_sum = 0;
     for(auto index : indices)
     {
-        Weight weight = neighbour_weight(index.toITKIndex(), position);
+        Weight weight = neighbour_weight(index, position);
         weights.push_back(weight);
         weight_sum += weight;
     }
@@ -194,9 +101,16 @@ void RegionCurvatureEdgeCorrectionProcessor::interpolate_edge_pixel(ITKImage ima
     {
         position += step;
         auto index = position.roundToIndex();
+
+        if(!index.isInside(size))
+            continue;
+
         auto node = interpolate_neighbourhood(image, index, position, size);
         nodes.push_back(node);
     }
+
+    if(nodes.size() < 2)
+        return;
 
     // linear regression
     typedef ITKImage::PixelType Value;
@@ -223,6 +137,9 @@ void RegionCurvatureEdgeCorrectionProcessor::interpolate_edge_pixel(ITKImage ima
     {
         position += step;
         auto index = position.roundToIndex();
+
+        if(!index.isInside(size))
+            continue;
 
         int x = -step_index - 1;
         Value y = k * x + d;
@@ -259,21 +176,22 @@ ITKImage RegionCurvatureEdgeCorrectionProcessor::process(ITKImage image,
         std::cerr << "no edge pixels detected" << std::endl;
         return ITKImage();
     }
-    /*
-    ITKImage edge_pixels_image = image.cloneSameSizeWithZeros();
-    for(auto iterator = edge_pixels.begin(); iterator != edge_pixels.end(); ++iterator) {
-        auto index = iterator->first;
-        edge_pixels_image.setPixel(index, 1.23);
-    }
-    return edge_pixels_image;
-    */
 
     // 3. find centroid
     Vector3 centroid = findCentroid(edge_pixels);
+
     /*
+    // Visualize
+    ITKImage edge_pixels_image = image.cloneSameSizeWithZeros();
+    for(auto index : edge_pixels)
+        edge_pixels_image.setPixel(index, 1.23);
     ITKImage centroid_image = image.cloneSameSizeWithZeros();
-    centroid_image.setPixel(centroid_x,centroid_y,centroid_z, 1);
-    return centroid_image;
+    centroid_image.setPixel(centroid.x,centroid.y,centroid.z, 1);
+    QuickView quick_view;
+    quick_view.AddImage(edge_pixels_image.getPointer().GetPointer(), true, "Edge Pixels");
+    quick_view.AddImage(centroid_image.getPointer().GetPointer(), true, "Centroid");
+    quick_view.InterpolateOff();
+    quick_view.Visualize();
     */
 
     ITKImage result = image.clone();
