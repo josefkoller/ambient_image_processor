@@ -58,7 +58,11 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
 void ImageViewWidget::paintImage(bool repaint)
 {
     if(this->image.isNull())
+    {
+        if(inner_image_frame != nullptr)
+            inner_image_frame->setPixmap(QPixmap());
         return;
+    }
 
     if(repaint && q_image != nullptr) {
         delete q_image;
