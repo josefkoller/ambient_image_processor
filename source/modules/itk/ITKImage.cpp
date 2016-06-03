@@ -100,6 +100,10 @@ ITKImage ITKImage::read(std::string image_file_path, bool rescale)
         return ITKImage(nullptr);
     }
 
+    bool is_mha = QString::fromStdString(image_file_path).endsWith("mha");
+    if(is_mha)
+        rescale = false;
+
     if(rescale)
     {
         // rescaling is necessary for png files...

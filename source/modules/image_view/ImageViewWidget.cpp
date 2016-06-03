@@ -27,6 +27,10 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
     connect(image_widget, &ImageWidget::imageChanged,
             this, [this](ITKImage image) {
         this->image = image;
+
+        if(slice_index >= this->image.depth)
+            this->slice_index = 0;
+
         this->repaintImage();
     });
     connect(image_widget, &ImageWidget::sliceIndexChanged,

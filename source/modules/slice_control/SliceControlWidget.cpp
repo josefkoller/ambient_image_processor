@@ -22,10 +22,8 @@ void SliceControlWidget::registerModule(ImageWidget *image_widget)
         this->image = image;
         this->setInputRanges();
 
-        if(this->image.depth == 1) {
-            auto container = dynamic_cast<QWidget*>(this->parent());
-            container->setVisible(false);
-        }
+        auto container = dynamic_cast<QWidget*>(this->parent());
+        container->setVisible(this->image.depth > 1);
     });
 
     connect(this, &SliceControlWidget::sliceIndexChanged,
@@ -101,6 +99,9 @@ void SliceControlWidget::setInputRanges()
 {
     if(this->image.isNull())
         return;
+
+    if(visible_slice_index >= this->image.depth)
+        this->setSliceIndex(0);
 
     this->ui->slice_slider->setMinimum(0); // first slice gets slice index 0
     this->ui->slice_slider->setMaximum(this->image.depth - 1);
