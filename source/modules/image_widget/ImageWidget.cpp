@@ -128,7 +128,10 @@ ImageWidget::ImageWidget(QWidget *parent) :
     for(auto module : modules)
     {
         auto widget = dynamic_cast<BaseModuleWidget*>(module);
-        if(widget == nullptr && widget != slice_control_widget)
+
+        if(widget == nullptr ||
+           widget == slice_control_widget ||
+           widget == image_view_widget)
             continue;
 
         QAction* module_action = tools_menu->addAction(module->getTitle());
