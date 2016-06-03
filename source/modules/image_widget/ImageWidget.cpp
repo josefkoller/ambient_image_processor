@@ -71,8 +71,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new CrosshairModule("Bilateral Filter"));
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
-    modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
+    modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
     modules.push_back(new ConvolutionWidget("3x3 Convolution", module_parent));
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));
@@ -118,11 +118,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     // create menu entry for widget modules
     QMenuBar* menu_bar = new QMenuBar();
     this->image_menu = new QMenu("Image");
-    QAction* load_action = image_menu->addAction("Load");
+    QAction* load_action = image_menu->addAction("Load File");
     this->connect(load_action, &QAction::triggered, this, [this]() {
         this->on_load_button_clicked();
     });
-    QAction* save_action = image_menu->addAction("Save");
+    QAction* save_action = image_menu->addAction("Save File");
     this->connect(save_action, &QAction::triggered, this, [this]() {
         this->on_save_button_clicked();
     });
@@ -138,6 +138,14 @@ ImageWidget::ImageWidget(QWidget *parent) :
             continue;
 
         QAction* module_action = tools_menu->addAction(module->getTitle());
+
+        if(widget->getTitle() == "Histogram" ||
+           widget->getTitle() == "Rescale Intensity" ||
+           widget->getTitle() == "Extract" ||
+           widget->getTitle() == "TGV Lambdas" ||
+           widget->getTitle() == "Multiscale Retinex" )
+            tools_menu->addSeparator();
+
         this->connect(module_action, &QAction::triggered, this, [this, widget]() {
             this->ui->operations_panel->setCurrentWidget(widget);
         });
@@ -240,12 +248,14 @@ void ImageWidget::setOutputWidget(ImageWidget* output_widget)
 {
     this->output_widget = output_widget;
 
+    output_widget->image_menu->addSeparator();
     auto action = output_widget->image_menu->addAction("Swap Input and Output");
     this->connect(action, &QAction::triggered, this, [this, output_widget]() {
         auto source_image = this->getImage();
         this->setImage(this->output_widget->getImage());
         output_widget->setImage(source_image);
     });
+    this->image_menu->addSeparator();
     this->image_menu->addAction(action);
 }
 
