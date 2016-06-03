@@ -114,16 +114,16 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
     // create menu entry for widget modules
     QMenuBar* menu_bar = new QMenuBar();
-    QMenu *file_menu = new QMenu("File");
-    QAction* load_action = file_menu->addAction("Load");
+    this->image_menu = new QMenu("Image");
+    QAction* load_action = image_menu->addAction("Load");
     this->connect(load_action, &QAction::triggered, this, [this]() {
         this->on_load_button_clicked();
     });
-    QAction* save_action = file_menu->addAction("Save");
+    QAction* save_action = image_menu->addAction("Save");
     this->connect(save_action, &QAction::triggered, this, [this]() {
         this->on_save_button_clicked();
     });
-    menu_bar->addMenu(file_menu);
+    menu_bar->addMenu(image_menu);
     QMenu *tools_menu = new QMenu("Tools");
     for(auto module : modules)
     {
@@ -233,6 +233,14 @@ void ImageWidget::setMinimumSizeToImage()
 void ImageWidget::setOutputWidget(ImageWidget* output_widget)
 {
     this->output_widget = output_widget;
+
+    auto action = output_widget->image_menu->addAction("Swap Input and Output");
+    this->connect(action, &QAction::triggered, this, [this, output_widget]() {
+        auto source_image = this->getImage();
+        this->setImage(this->output_widget->getImage());
+        output_widget->setImage(source_image);
+    });
+    this->image_menu->addAction(action);
 }
 
 ImageWidget* ImageWidget::getOutputWidget() const

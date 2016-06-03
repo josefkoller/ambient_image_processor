@@ -60,6 +60,8 @@ private:
     ImageViewWidget* image_view_widget;
     SliceControlWidget* slice_control_widget;
 
+    QMenu *image_menu;
+
     void on_load_button_clicked();
     void on_save_button_clicked();
 
