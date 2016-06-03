@@ -68,27 +68,30 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(this->image_view_widget);
     modules.push_back(this->slice_control_widget);
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
+    modules.push_back(new CrosshairModule("Bilateral Filter"));
+    modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
-    modules.push_back(new LineProfileWidget("Line Profile", module_parent));
+    modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
+    modules.push_back(new ConvolutionWidget("3x3 Convolution", module_parent));
+    modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));
     modules.push_back(new ExtractWidget("Extract", module_parent));
-    modules.push_back(new UnsharpMaskingWidget("Unsharp Masking", module_parent));
-    modules.push_back(new MultiScaleRetinexWidget("Multiscale Retinex", module_parent));
     modules.push_back(non_local_gradient_widget);
     modules.push_back(region_growing_segmentation_widget);
-    modules.push_back(deshade_segmented_widget);
     modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
-    modules.push_back(new CrosshairModule("Bilateral Filter"));
-    modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
-    modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
     modules.push_back(tgv_lambdas_widget);
-    modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
-    modules.push_back(new ConvolutionWidget("3x3 Convolution", module_parent));
+
+    modules.push_back(new UnsharpMaskingWidget("Unsharp Masking", module_parent));
+    modules.push_back(new MultiScaleRetinexWidget("Multiscale Retinex", module_parent));
+
     modules.push_back(new RegionCurvatureEdgeCorrection("Region Curvature Edge Correction", module_parent));
-    modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
+    modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
+    modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
+    modules.push_back(deshade_segmented_widget);
+
 
     // register modules and add widget modules
     module_parent->hide();
