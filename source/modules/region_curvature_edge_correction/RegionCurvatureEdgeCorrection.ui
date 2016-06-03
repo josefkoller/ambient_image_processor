@@ -14,8 +14,14 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <item>
+   <item alignment="Qt::AlignTop">
     <widget class="QGroupBox" name="groupBox_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Find Edge Pixels</string>
      </property>
@@ -68,8 +74,14 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignTop">
     <widget class="QGroupBox" name="groupBox_4">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Edge Interpolation</string>
      </property>
@@ -125,7 +137,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignTop">
     <widget class="QPushButton" name="perform_button">
      <property name="text">
       <string>Perform</string>
