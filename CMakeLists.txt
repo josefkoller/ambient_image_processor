@@ -82,6 +82,7 @@ include(source/modules/tgv_lambdas/CMakeLists.txt)
 include(source/modules/binary_operations/CMakeLists.txt)
 include(source/modules/convolution/CMakeLists.txt)
 include(source/modules/region_curvature_edge_correction/CMakeLists.txt)
+include(source/modules/rescale_intensity/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
