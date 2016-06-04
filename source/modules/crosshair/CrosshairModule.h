@@ -2,7 +2,9 @@
 #define CROSSHAIRMODULE_H
 
 #include "BaseModule.h"
-#include "ITKImage.h"
+
+class ImageViewWidget;
+class ImageWidget;
 
 class CrosshairModule : public QObject, public BaseModule
 {
@@ -12,7 +14,7 @@ private:
 public:
     CrosshairModule(QString title);
 
-    virtual void registerModule(ImageWidget* image_widget);
+    void registerModule(ImageViewWidget* image_view_widget, ImageWidget* image_widget);
 
 private slots:
     void mouseMoveOnImage(Qt::MouseButtons button, ITKImage::Index cursor_index);

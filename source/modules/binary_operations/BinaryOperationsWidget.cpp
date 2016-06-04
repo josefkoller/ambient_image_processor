@@ -55,4 +55,6 @@ void BinaryOperationsWidget::registerModule(ImageWidget *image_widget)
 
     connect(image_widget, &ImageWidget::sliceIndexChanged,
             this->second_image_widget, &ImageViewWidget::sliceIndexChanged);
+
+    this->second_image_widget->registerCrosshairSubmodule(image_widget);
 }

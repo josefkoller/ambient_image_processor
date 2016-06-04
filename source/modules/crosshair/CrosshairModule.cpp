@@ -1,5 +1,7 @@
 #include "CrosshairModule.h"
 
+#include "ImageViewWidget.h"
+
 CrosshairModule::CrosshairModule(QString title) :
     BaseModule(title),
     image(ITKImage::Null)
@@ -7,16 +9,16 @@ CrosshairModule::CrosshairModule(QString title) :
 }
 
 
-void CrosshairModule::registerModule(ImageWidget* image_widget)
+void CrosshairModule::registerModule(ImageViewWidget* image_view_widget, ImageWidget* image_widget)
 {
     BaseModule::registerModule(image_widget);
 
-    connect(image_widget, &ImageWidget::imageChanged,
+    connect(image_view_widget, &ImageViewWidget::imageChanged,
             this, [this] (ITKImage image) {
         this->image = image;
     });
 
-    connect(image_widget, &ImageWidget::mouseMoveOnImage,
+    connect(image_view_widget, &ImageViewWidget::mouseMoveOnImage,
             this, &CrosshairModule::mouseMoveOnImage);
 }
 

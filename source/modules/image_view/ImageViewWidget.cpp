@@ -4,6 +4,8 @@
 #include "ITKToQImageConverter.h"
 #include <QVBoxLayout>
 
+#include "CrosshairModule.h"
+
 ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::ImageViewWidget),
@@ -13,6 +15,8 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     slice_index(0)
 {
     ui->setupUi(this);
+
+    this->crosshair_module = new CrosshairModule(title + " Crosshair");
 }
 
 ImageViewWidget::~ImageViewWidget()
@@ -32,6 +36,7 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
             this->slice_index = 0;
 
         this->repaintImage();
+        emit this->imageChanged(image);
     });
     connect(image_widget, &ImageWidget::sliceIndexChanged,
             this, &ImageViewWidget::sliceIndexChanged);
@@ -50,6 +55,13 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
             this, &ImageViewWidget::repaintImage);
     connect(image_widget, &ImageWidget::repaintImageOverlays,
             this, &ImageViewWidget::repaintImageOverlays);
+
+    this->registerCrosshairSubmodule(image_widget);
+}
+
+void ImageViewWidget::registerCrosshairSubmodule(ImageWidget* image_widget)
+{
+    this->crosshair_module->registerModule(this, image_widget);
 }
 
 void ImageViewWidget::sliceIndexChanged(uint slice_index)
@@ -195,6 +207,7 @@ void ImageViewWidget::setImage(ITKImage image)
 {
     this->image = image;
     this->paintImage(true);
+    emit this->imageChanged(image);
 }
 
 ITKImage ImageViewWidget::getImage() const

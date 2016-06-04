@@ -22,7 +22,6 @@
 #include "BilateralFilterWidget.h"
 #include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
-#include "CrosshairModule.h"
 #include "TGVL1ThresholdGradientWidget.h"
 #include "ManualMultiplicativeDeshade.h"
 #include "TGVLambdasWidget.h"
@@ -70,7 +69,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(this->image_view_widget);
     modules.push_back(this->slice_control_widget);
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
-    modules.push_back(new CrosshairModule("Bilateral Filter"));
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));

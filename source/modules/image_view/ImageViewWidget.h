@@ -11,6 +11,8 @@ namespace Ui {
 class ImageViewWidget;
 }
 
+class CrosshairModule;
+
 class ImageViewWidget : public BaseModuleWidget
 {
     Q_OBJECT
@@ -20,11 +22,14 @@ public:
     ~ImageViewWidget();
 
     virtual void registerModule(ImageWidget* image_widget);
+    void registerCrosshairSubmodule(ImageWidget* image_widget);
 
     void setImage(ITKImage image);
     ITKImage getImage() const;
 private:
     Ui::ImageViewWidget *ui;
+
+    CrosshairModule* crosshair_module;
 
     ITKImage image;
     QLabel* inner_image_frame;
@@ -48,6 +53,7 @@ signals:
     void mouseReleasedOnImage();
     void mouseWheelOnImage(int delta);
 
+    void imageChanged(ITKImage image);
 public slots:
     void repaintImage();
     void repaintImageOverlays();
