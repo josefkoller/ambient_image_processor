@@ -193,7 +193,10 @@ void shading_growing(Pixel* f,
     {
         auto label = label_image[i];
         if(label > 0)
+        {
             seed_point_queue.push({ PixelIndex(i, size), label });
+            label_image[i] = 0;
+        }
     }
     std::cout << "Shading Growing: #seeds=" << seed_point_queue.size() << std::endl;
 
@@ -212,6 +215,10 @@ void shading_growing(Pixel* f,
     while(!seed_point_queue.empty()) {
         auto seed_point = seed_point_queue.front();
         seed_point_queue.pop();
+
+        auto seed_point_label = label_image[seed_point.index.linearIndex(size)];
+        if(seed_point_label > 0) // already in segment
+            continue;
 
         grow(gradient_magnitude,
              size,
