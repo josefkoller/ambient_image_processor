@@ -18,6 +18,7 @@ public:
     BinaryOperationsWidget(QString title, QWidget *parent);
     ~BinaryOperationsWidget();
 
+    void registerModule(ImageWidget *image_widget);
 private slots:
     void on_load_button_clicked();
 

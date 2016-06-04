@@ -51,6 +51,7 @@ signals:
 public slots:
     void repaintImage();
     void repaintImageOverlays();
+    void sliceIndexChanged(uint slice_index);
 };
 
 #endif // IMAGEVIEWWIDGET_H

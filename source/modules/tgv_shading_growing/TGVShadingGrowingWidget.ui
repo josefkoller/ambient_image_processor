@@ -41,7 +41,7 @@
             <item>
              <widget class="QSpinBox" name="kernel_size_spinbox">
               <property name="value">
-               <number>3</number>
+               <number>9</number>
               </property>
              </widget>
             </item>
@@ -57,7 +57,7 @@
             <item>
              <widget class="QDoubleSpinBox" name="kernel_sigma_spinbox">
               <property name="value">
-               <double>0.500000000000000</double>
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -79,7 +79,7 @@
                <double>0.000001000000000</double>
               </property>
               <property name="value">
-               <double>0.000016000000000</double>
+               <double>0.000300000000000</double>
               </property>
              </widget>
             </item>
@@ -107,7 +107,7 @@
                <double>0.000001000000000</double>
               </property>
               <property name="value">
-               <double>0.005500000000000</double>
+               <double>0.005000000000000</double>
               </property>
              </widget>
             </item>

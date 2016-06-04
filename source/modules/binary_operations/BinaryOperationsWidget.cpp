@@ -48,3 +48,11 @@ ITKImage BinaryOperationsWidget::processImage(ITKImage image1)
 
     return ITKImage();
 }
+
+void BinaryOperationsWidget::registerModule(ImageWidget *image_widget)
+{
+    BaseModuleWidget::registerModule(image_widget);
+
+    connect(image_widget, &ImageWidget::sliceIndexChanged,
+            this->second_image_widget, &ImageViewWidget::sliceIndexChanged);
+}

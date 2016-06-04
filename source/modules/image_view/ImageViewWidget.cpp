@@ -34,10 +34,7 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
         this->repaintImage();
     });
     connect(image_widget, &ImageWidget::sliceIndexChanged,
-            this, [this](uint slice_index) {
-        this->slice_index = slice_index;
-        this->repaintImage();
-    });
+            this, &ImageViewWidget::sliceIndexChanged);
     connect(this, &ImageViewWidget::pixmapPainted,
             image_widget, &ImageWidget::pixmapPainted);
     connect(this, &ImageViewWidget::mousePressedOnImage,
@@ -53,6 +50,12 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
             this, &ImageViewWidget::repaintImage);
     connect(image_widget, &ImageWidget::repaintImageOverlays,
             this, &ImageViewWidget::repaintImageOverlays);
+}
+
+void ImageViewWidget::sliceIndexChanged(uint slice_index)
+{
+    this->slice_index = slice_index;
+    this->repaintImage();
 }
 
 void ImageViewWidget::paintImage(bool repaint)
