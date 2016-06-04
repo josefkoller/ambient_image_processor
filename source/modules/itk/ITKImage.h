@@ -2,6 +2,7 @@
 #define ITKIMAGE_H
 
 #include <itkImage.h>
+
 #include <string>
 
 #include <QPoint>

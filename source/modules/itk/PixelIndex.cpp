@@ -1,13 +1,27 @@
 #include "PixelIndex.h"
 
-bool PixelIndex::isInside(PixelIndex size)
+PixelIndex::PixelIndex(uint linear_index, PixelIndex size)
+{
+    z = linear_index / (size.x*size.y);
+    int index_rest = linear_index - z * (size.x*size.y);
+    y = index_rest / size.x;
+    index_rest = index_rest - y * size.x;
+    x = index_rest;
+}
+
+bool PixelIndex::isInside(PixelIndex size) const
 {
     return z >= 0 && z < size.z &&
            x >= 0 && x < size.x &&
            y >= 0 && y < size.y;
 }
 
-std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size)
+PixelIndex::uint PixelIndex::linearIndex(PixelIndex size) const
+{
+    return z * size.x*size.y + x + y * size.x;
+}
+
+std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size) const
 {
     std::vector<PixelIndex> indices;
 
