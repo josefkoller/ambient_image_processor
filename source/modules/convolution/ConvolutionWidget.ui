@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>3x3 Kernel</string>
+      <string>3x3x3 Kernel</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
@@ -156,7 +156,20 @@
       <item>
        <widget class="QPushButton" name="perform_button">
         <property name="text">
-         <string>Perform 2D in each Layer</string>
+         <string>Perform</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="correct_center_checkbox">
+        <property name="whatsThis">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the center kernel element will be adjusted in the first and last layer by summing up the used kernel values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Correct center element in inner layers</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

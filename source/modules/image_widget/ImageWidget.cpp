@@ -73,7 +73,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
-    modules.push_back(new ConvolutionWidget("3x3 Convolution", module_parent));
+    modules.push_back(new ConvolutionWidget("3x3x3 Convolution", module_parent));
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));
     modules.push_back(new ExtractWidget("Extract", module_parent));

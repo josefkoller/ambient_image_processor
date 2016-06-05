@@ -17,6 +17,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/divide.cu
   ${CMAKE_CURRENT_LIST_DIR}/add.cu
   ${CMAKE_CURRENT_LIST_DIR}/convolution3x3.cu
+  ${CMAKE_CURRENT_LIST_DIR}/convolution3x3x3.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

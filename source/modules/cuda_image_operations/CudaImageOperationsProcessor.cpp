@@ -13,6 +13,10 @@ template<typename Pixel>
 Pixel* convolution3x3_kernel_launch(Pixel* image1,
                               uint width, uint height, uint depth,
                                     Pixel* kernel);
+template<typename Pixel>
+Pixel* convolution3x3x3_kernel_launch(Pixel* image1,
+                              uint width, uint height, uint depth,
+                                    Pixel* kernel, bool correct_center);
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
@@ -63,16 +67,32 @@ ITKImage CudaImageOperationsProcessor::perform(ITKImage image1, ITKImage image2,
     return result;
 }
 
-
-ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
+ITKImage CudaImageOperationsProcessor::perform(ITKImage image, UnaryPixelsOperation operation)
 {
     auto image_pixels = image.cloneToPixelArray();
 
-    auto result_pixels = convolution3x3_kernel_launch(image_pixels,
-                                                      image.width, image.height, image.depth, kernel);
+    auto result_pixels = operation(image_pixels);
+
     auto result = ITKImage(image.width, image.height, image.depth, result_pixels);
     delete[] result_pixels;
     delete[] image_pixels;
 
     return result;
+}
+
+ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
+{
+    return perform(image, [&image, kernel](Pixels image_pixels) {
+        return convolution3x3_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth, kernel);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel,
+                                                        bool correct_center)
+{
+    return perform(image, [&image, kernel, correct_center](Pixels image_pixels) {
+        return convolution3x3x3_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth, kernel, correct_center);
+    });
 }
