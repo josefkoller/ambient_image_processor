@@ -258,6 +258,20 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                 p_x, p_y, p_z,
                 p_xx, p_yy, p_zz,
                 f, u);
+
+    // copy v from the device to the host memory...
+    *v_x_host = new Pixel[voxel_count];
+    *v_y_host = new Pixel[voxel_count];
+    size_t size = sizeof(Pixel) * voxel_count;
+    cudaCheckError( cudaMemcpy(*v_x_host, v_x, size, cudaMemcpyDeviceToHost) );
+    cudaCheckError( cudaMemcpy(*v_y_host, v_y, size, cudaMemcpyDeviceToHost) );
+    if(depth > 1)
+    {
+        *v_z_host = new Pixel[voxel_count];
+        cudaCheckError( cudaMemcpy(*v_z_host, v_z, size, cudaMemcpyDeviceToHost) );
+    }
+    cudaCheckError( cudaDeviceSynchronize() );
+
     tgv_launch_part32<Pixel>( depth,
               v_bar_x, v_bar_y, v_bar_z,
               v_previous_x, v_previous_y, v_previous_z,
@@ -266,20 +280,6 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                 q_xy, q_xz, q_yz,
               q_x2, q_y2, q_z2,
               q_xy2, q_xz2, q_yz2, q_temp);
-
-    // copy v from the device to the host memory...
-    *v_x_host = new Pixel[voxel_count];
-    *v_y_host = new Pixel[voxel_count];
-    size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMemcpy(v_x_host, v_x, size, cudaMemcpyDeviceToHost) );
-    cudaCheckError( cudaMemcpy(v_y_host, v_y, size, cudaMemcpyDeviceToHost) );
-    if(depth > 1)
-    {
-        *v_z_host = new Pixel[voxel_count];
-        cudaCheckError( cudaMemcpy(v_z_host, v_z, size, cudaMemcpyDeviceToHost) );
-    }
-    cudaCheckError( cudaDeviceSynchronize() );
-
 
     return destination;
 }
