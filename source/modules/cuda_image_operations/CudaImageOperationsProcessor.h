@@ -26,6 +26,14 @@ public:
 
     static ITKImage convolution3x3(ITKImage image, ITKImage::PixelType* kernel);
     static ITKImage convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel, bool correct_center);
+
+    static ITKImage cosineTransform(ITKImage image);
+    static ITKImage inverseCosineTransform(ITKImage image);
+
+    static Pixel* divergence(Pixel* dx, Pixel* dy, Pixel* dz,
+                               const uint width, const uint height, const uint depth);
+
+    static ITKImage solvePoissonInCosineDomain(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

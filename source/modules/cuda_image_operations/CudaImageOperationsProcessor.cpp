@@ -26,6 +26,22 @@ Pixel* add_constant_kernel_launch(Pixel* image1,
                               uint width, uint height, uint depth,
                               Pixel constant);
 
+template<typename Pixel>
+Pixel* cosine_transform_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+template<typename Pixel>
+Pixel* inverse_cosine_transform_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+
+template<typename Pixel>
+Pixel* divergence_kernel_launch(
+        Pixel* dx, Pixel* dy, Pixel* dz,
+        const uint width, const uint height, const uint depth);
+
+template<typename Pixel>
+Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
+                              uint width, uint height, uint depth);
+
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
 }
@@ -120,5 +136,37 @@ ITKImage CudaImageOperationsProcessor::convolution3x3x3(ITKImage image, ITKImage
     return perform(image, [&image, kernel, correct_center](Pixels image_pixels) {
         return convolution3x3x3_kernel_launch(image_pixels,
                                      image.width, image.height, image.depth, kernel, correct_center);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return cosine_transform_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return inverse_cosine_transform_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth);
+    });
+}
+
+ITKImage::PixelType* CudaImageOperationsProcessor::divergence(
+        ITKImage::PixelType* dx, ITKImage::PixelType* dy, ITKImage::PixelType* dz,
+        const uint width, const uint height, const uint depth)
+{
+    return divergence_kernel_launch(dx, dy, dz, width, height, depth);
+
+}
+
+ITKImage CudaImageOperationsProcessor::solvePoissonInCosineDomain(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return solve_poisson_in_cosine_domain_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth);
     });
 }

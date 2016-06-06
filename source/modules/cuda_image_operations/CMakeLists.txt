@@ -20,6 +20,10 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/convolution3x3.cu
   ${CMAKE_CURRENT_LIST_DIR}/convolution3x3x3.cu
   ${CMAKE_CURRENT_LIST_DIR}/add_constant.cu
+  ${CMAKE_CURRENT_LIST_DIR}/cosine_transform.cu
+  ${CMAKE_CURRENT_LIST_DIR}/inverse_cosine_transform.cu
+  ${CMAKE_CURRENT_LIST_DIR}/divergence.cu
+  ${CMAKE_CURRENT_LIST_DIR}/solve_poisson_in_cosine_domain.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
