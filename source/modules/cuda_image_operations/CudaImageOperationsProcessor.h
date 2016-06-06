@@ -20,6 +20,9 @@ public:
     static ITKImage multiply(ITKImage image1, ITKImage image2);
     static ITKImage divide(ITKImage image1, ITKImage image2);
     static ITKImage add(ITKImage image1, ITKImage image2);
+    static ITKImage subtract(ITKImage image1, ITKImage image2);
+
+    static ITKImage addConstant(ITKImage image, ITKImage::PixelType constant);
 
     static ITKImage convolution3x3(ITKImage image, ITKImage::PixelType* kernel);
     static ITKImage convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel, bool correct_center);

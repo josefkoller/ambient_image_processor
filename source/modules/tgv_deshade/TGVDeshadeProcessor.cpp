@@ -1,5 +1,7 @@
 #include "TGVDeshadeProcessor.h"
 
+#include "CudaImageOperationsProcessor.h"
+
 template<typename Pixel>
 Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                       uint width, uint height, uint depth,
@@ -42,7 +44,9 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                        ITKImage(input_image.width, input_image.height, input_image.depth, v_z);
         auto l = integrate_image_gradients(itk_v_x, itk_v_y, itk_v_z);
 
-        return iteration_finished_callback(iteration_index, iteration_count, l);
+        auto r = CudaImageOperationsProcessor::subtract(u, l);
+
+        return iteration_finished_callback(iteration_index, iteration_count, r);
     };
 
     Pixel* v_x, *v_y, *v_z;
@@ -58,12 +62,14 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                    ITKImage(input_image.width, input_image.height, input_image.depth, v_z);
     auto l = integrate_image_gradients(itk_v_x, itk_v_y, itk_v_z);
 
+    auto r = CudaImageOperationsProcessor::subtract(u, l);
+
     delete v_x;
     delete v_y;
     if(input_image.depth > 1)
         delete v_z;
     delete u; // TODO: u is not used by now
-    return l;
+    return r;
 }
 
 

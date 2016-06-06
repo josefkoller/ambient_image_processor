@@ -10,6 +10,9 @@ template<typename Pixel>
 Pixel* add_kernel_launch(Pixel* image1, Pixel* image2,
                               uint width, uint height, uint depth);
 template<typename Pixel>
+Pixel* subtract_kernel_launch(Pixel* image1, Pixel* image2,
+                              uint width, uint height, uint depth);
+template<typename Pixel>
 Pixel* convolution3x3_kernel_launch(Pixel* image1,
                               uint width, uint height, uint depth,
                                     Pixel* kernel);
@@ -17,6 +20,11 @@ template<typename Pixel>
 Pixel* convolution3x3x3_kernel_launch(Pixel* image1,
                               uint width, uint height, uint depth,
                                     Pixel* kernel, bool correct_center);
+
+template<typename Pixel>
+Pixel* add_constant_kernel_launch(Pixel* image1,
+                              uint width, uint height, uint depth,
+                              Pixel constant);
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
@@ -52,6 +60,16 @@ ITKImage CudaImageOperationsProcessor::add(ITKImage image1, ITKImage image2)
     });
 }
 
+ITKImage CudaImageOperationsProcessor::subtract(ITKImage image1, ITKImage image2)
+{
+    return perform(image1, image2, [&image1](Pixels pixels1, Pixels pixels2) {
+        return subtract_kernel_launch(pixels1, pixels2,
+                                      image1.width,
+                                      image1.height,
+                                      image1.depth);
+    });
+}
+
 ITKImage CudaImageOperationsProcessor::perform(ITKImage image1, ITKImage image2, BinaryPixelsOperation operation)
 {
     auto image1_pixels = image1.cloneToPixelArray();
@@ -78,6 +96,14 @@ ITKImage CudaImageOperationsProcessor::perform(ITKImage image, UnaryPixelsOperat
     delete[] image_pixels;
 
     return result;
+}
+
+ITKImage CudaImageOperationsProcessor::addConstant(ITKImage image, ITKImage::PixelType constant)
+{
+    return perform(image, [&image, constant](Pixels image_pixels) {
+        return add_constant_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth, constant);
+    });
 }
 
 ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
