@@ -44,7 +44,7 @@ ITKImage TGVDeshadeProcessor::deshade(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v
 ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                                        const uint width,
                                        const uint height,
-                                       const uint depth)
+                                       const uint depth, bool is_host_data)
 {
     auto itk_u = ITKImage(width, height, depth, u);
 
@@ -58,7 +58,7 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* 
 
 
     auto l = integrate_image_gradients_poisson_cosine_transform(v_x, v_y, v_z,
-                                                                width, height, depth);
+                                                                width, height, depth, is_host_data);
 
     return l;
 
@@ -86,7 +86,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
     delete[] f;
 
     auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
-                                              input_image.width, input_image.height, input_image.depth);
+                                              input_image.width, input_image.height, input_image.depth, true);
 
     delete[] v_x;
     delete[] v_y;
@@ -147,11 +147,11 @@ ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform
                                                                                  Pixel* gradient_z,
                                                                                  const uint width,
                                                                                  const uint height,
-                                                                                 const uint depth)
+                                                                                 const uint depth,
+                                                                                 bool is_host_data)
 {
-
     Pixel* divergence = CudaImageOperationsProcessor::divergence(gradient_x, gradient_y, gradient_z,
-                                                                 width, height, depth);
+                                                                 width, height, depth, is_host_data);
     ITKImage divergence_image = ITKImage(width, height, depth, divergence);
     delete[] divergence;
 

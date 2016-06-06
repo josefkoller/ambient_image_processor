@@ -34,7 +34,7 @@ private:
     static ITKImage deshade_poisson_cosine_transform(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                              const uint width,
                              const uint height,
-                             const uint depth);
+                             const uint depth, bool is_host_data=false);
 public:
     static ITKImage processTGV2L1GPUCuda(ITKImage input_image,
       const Pixel lambda,
@@ -58,7 +58,7 @@ public:
                                                                                      Pixel* gradient_z,
                                                                                      const uint width,
                                                                                      const uint height,
-                                                                                     const uint depth);
+                                                                                     const uint depth, bool is_host_data=false);
 };
 
 #endif // TGVDESHADEPROCESSOR_H

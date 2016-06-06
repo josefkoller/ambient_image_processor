@@ -31,7 +31,7 @@ public:
     static ITKImage inverseCosineTransform(ITKImage image);
 
     static Pixel* divergence(Pixel* dx, Pixel* dy, Pixel* dz,
-                               const uint width, const uint height, const uint depth);
+                               const uint width, const uint height, const uint depth, bool is_host_data=false);
 
     static ITKImage solvePoissonInCosineDomain(ITKImage image);
 };

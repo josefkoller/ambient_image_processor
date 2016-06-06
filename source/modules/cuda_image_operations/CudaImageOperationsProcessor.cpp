@@ -36,7 +36,7 @@ Pixel* inverse_cosine_transform_kernel_launch(Pixel* image,
 template<typename Pixel>
 Pixel* divergence_kernel_launch(
         Pixel* dx, Pixel* dy, Pixel* dz,
-        const uint width, const uint height, const uint depth);
+        const uint width, const uint height, const uint depth, bool is_host_data=false);
 
 template<typename Pixel>
 Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
@@ -181,9 +181,9 @@ ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
 
 ITKImage::PixelType* CudaImageOperationsProcessor::divergence(
         ITKImage::PixelType* dx, ITKImage::PixelType* dy, ITKImage::PixelType* dz,
-        const uint width, const uint height, const uint depth)
+        const uint width, const uint height, const uint depth, bool is_host_data)
 {
-    return divergence_kernel_launch(dx, dy, dz, width, height, depth);
+    return divergence_kernel_launch(dx, dy, dz, width, height, depth, is_host_data);
 
 }
 
