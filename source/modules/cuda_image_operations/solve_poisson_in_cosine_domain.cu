@@ -26,10 +26,10 @@ __global__  void solve_poisson_in_cosine_domain_kernel(Pixel* image,
 
     result[index] = image[index]
             /
-            (4.0
+            (6.0
              - 2.0*cospi(x / width)
-             - 2.0*cospi(y / height) );
-          //   - 2*cospi(z / depth) );
+             - 2.0*cospi(y / height)
+             - 2.0*cospi(z / depth) );
 }
 
 template<typename Pixel>

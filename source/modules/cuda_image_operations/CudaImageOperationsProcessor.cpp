@@ -158,10 +158,10 @@ ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
    //     return cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
 
-        Pixels result = new Pixel[image.width * image.height];
-        fftw_plan plan = fftw_plan_r2r_2d((int) image.height, (int) image.width,
+        Pixels result = new Pixel[image.width * image.height * image.depth];
+        fftw_plan plan = fftw_plan_r2r_3d((int)image.depth, (int) image.height, (int) image.width,
                                    image_pixels, result,
-                                   FFTW_REDFT10, FFTW_REDFT10,
+                                   FFTW_REDFT10, FFTW_REDFT10, FFTW_REDFT10,
                                    FFTW_ESTIMATE | FFTW_DESTROY_INPUT);
         fftw_execute(plan);
 
@@ -177,10 +177,10 @@ ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
        // return inverse_cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
 
-        Pixels result = new Pixel[image.width * image.height];
-        fftw_plan plan = fftw_plan_r2r_2d((int) image.height, (int) image.width,
+        Pixels result = new Pixel[image.width * image.height * image.depth];
+        fftw_plan plan = fftw_plan_r2r_3d((int)image.depth, (int) image.height, (int) image.width,
                                    image_pixels, result,
-                                   FFTW_REDFT01, FFTW_REDFT01,
+                                   FFTW_REDFT01, FFTW_REDFT01, FFTW_REDFT01,
                                    FFTW_ESTIMATE | FFTW_DESTROY_INPUT);
         fftw_execute(plan);
 
