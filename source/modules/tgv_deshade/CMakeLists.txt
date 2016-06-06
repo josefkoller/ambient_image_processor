@@ -14,4 +14,8 @@ list(APPEND SOURCE_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/TGVDeshadeProcessor.cpp
   )
 
+list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/tgv2_l1_deshade.cu
+  )
+
 include_directories(${CMAKE_CURRENT_LIST_DIR})
