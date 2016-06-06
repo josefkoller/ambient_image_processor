@@ -111,5 +111,5 @@ target_link_libraries(ambient_application
   Qt5::Core
   Qt5::Widgets
   ${ITK_LIBRARIES}
-  -lfftw3f
+  -lfftw3
 )

@@ -45,10 +45,10 @@ ITKImage TGVLambdasProcessor::processTGV2L1LambdasGPUCuda(ITKImage input_image,
                                       alpha0,
                                       alpha1);
 
-    delete lambdas_host;
-    delete f;
+    delete[] lambdas_host;
+    delete[] f;
 
     auto result = ITKImage(input_image.width, input_image.height, input_image.depth, u);
-    delete u;
+    delete[] u;
     return result;
 }

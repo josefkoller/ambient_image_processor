@@ -20,9 +20,9 @@ __global__  void solve_poisson_in_cosine_domain_kernel(Pixel* image,
 
     result[index] = image[index] /
             (4
-             - cospi(x / ((Pixel)width))
-             - cospi(y / ((Pixel)height))
-             - cospi(z / ((Pixel)depth)) );
+             - 2*cospi(x / ((Pixel)width))
+             - 2*cospi(y / ((Pixel)height))
+             - 2*cospi(z / ((Pixel)depth)) );
 }
 
 template<typename Pixel>
@@ -58,6 +58,7 @@ Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
 
     cudaFree(image);
     cudaFree(result);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     return result_host;
 }

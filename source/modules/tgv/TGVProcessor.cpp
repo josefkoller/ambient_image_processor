@@ -133,10 +133,10 @@ ITKImage TGVProcessor::processTVGPUCuda(ITKImage input_image,
     Pixel* u = tgv_algorithm(f, iteration_callback);
 
 
-    delete f;
+    delete[] f;
 
     auto result = ITKImage(input_image.width, input_image.height, input_image.depth, u);
-    delete u;
+    delete[] u;
     return result;
 }
 

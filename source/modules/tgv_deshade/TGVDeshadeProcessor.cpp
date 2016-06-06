@@ -49,15 +49,19 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* 
     auto itk_u = ITKImage(width, height, depth, u);
 
 
+    /*
     return  CudaImageOperationsProcessor::inverseCosineTransform(
                 CudaImageOperationsProcessor::cosineTransform(itk_u));
-
+    */
 
 
 
 
     auto l = integrate_image_gradients_poisson_cosine_transform(v_x, v_y, v_z,
                                                                 width, height, depth);
+
+    return l;
+
     return CudaImageOperationsProcessor::subtract(itk_u, l);
 }
 
@@ -79,16 +83,16 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
     Pixel* u = tgv_algorithm(f, iteration_callback, &v_x, &v_y, &v_z);
 
 
-    delete f;
+    delete[] f;
 
     auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                               input_image.width, input_image.height, input_image.depth);
 
-    delete v_x;
-    delete v_y;
+    delete[] v_x;
+    delete[] v_y;
     if(input_image.depth > 1)
-        delete v_z;
-    delete u;
+        delete[] v_z;
+    delete[] u;
 
     return r;
 }
@@ -149,13 +153,15 @@ ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform
     Pixel* divergence = CudaImageOperationsProcessor::divergence(gradient_x, gradient_y, gradient_z,
                                                                  width, height, depth);
     ITKImage divergence_image = ITKImage(width, height, depth, divergence);
-    delete divergence;
+    delete[] divergence;
+
+    return divergence_image;
 
     ITKImage divergence_image_cosine = CudaImageOperationsProcessor::cosineTransform(divergence_image);
 
     ITKImage result_cosine_domain = CudaImageOperationsProcessor::solvePoissonInCosineDomain(divergence_image_cosine);
 
-    return CudaImageOperationsProcessor::cosineTransform(result_cosine_domain); // inverse
+    return CudaImageOperationsProcessor::inverseCosineTransform(result_cosine_domain); // inverse
 }
 
 ITKImage TGVDeshadeProcessor::integrate_image_gradients(ITKImage gradient_x, ITKImage gradient_y, ITKImage gradient_z)

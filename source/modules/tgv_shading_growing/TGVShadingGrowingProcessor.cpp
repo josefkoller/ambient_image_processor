@@ -52,10 +52,10 @@ ITKImage TGVShadingGrowingProcessor::process(ITKImage input_image,
                                        lower_threshold, upper_threshold,
                                        non_local_gradient_kernel,
                                        non_local_gradient_kernel_size);
-    delete non_local_gradient_kernel;
-    delete f;
+    delete[] non_local_gradient_kernel;
+    delete[] f;
 
     auto result = ITKImage(input_image.width, input_image.height, input_image.depth, u);
-    delete u;
+    delete[] u;
     return result;
 }

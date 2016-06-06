@@ -42,6 +42,8 @@ template<typename Pixel>
 Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
                               uint width, uint height, uint depth);
 
+#include <fftw3.h>
+
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
 }
@@ -142,16 +144,38 @@ ITKImage CudaImageOperationsProcessor::convolution3x3x3(ITKImage image, ITKImage
 ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
-        return cosine_transform_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth);
+   //     return cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
+
+        Pixels result = new Pixel[image.width * image.height];
+        fftw_plan plan = fftw_plan_r2r_2d((int) image.height, (int) image.width,
+                                   image_pixels, result,
+                                   FFTW_REDFT10, FFTW_REDFT10,
+                                   FFTW_ESTIMATE | FFTW_DESTROY_INPUT);
+        fftw_execute(plan);
+
+        fftw_destroy_plan(plan);
+        fftw_cleanup();
+
+        return result;
     });
 }
 
 ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
-        return inverse_cosine_transform_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth);
+       // return inverse_cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
+
+        Pixels result = new Pixel[image.width * image.height];
+        fftw_plan plan = fftw_plan_r2r_2d((int) image.height, (int) image.width,
+                                   image_pixels, result,
+                                   FFTW_REDFT01, FFTW_REDFT01,
+                                   FFTW_ESTIMATE | FFTW_DESTROY_INPUT);
+        fftw_execute(plan);
+
+        fftw_destroy_plan(plan);
+        fftw_cleanup();
+
+        return result;
     });
 }
 

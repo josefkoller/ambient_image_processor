@@ -41,6 +41,7 @@ Pixel* divergence_kernel_launch(
     cudaCheckError( cudaMallocManaged(&dydy, size) )
     if(depth > 1)
       cudaCheckError( cudaMallocManaged(&dzdz, size) )
+    cudaCheckError( cudaDeviceSynchronize() );
 
     tgv_launch_backward_differences<Pixel>(
             dxdx, dydy, dzdz,
@@ -53,18 +54,22 @@ Pixel* divergence_kernel_launch(
 
     add_kernel<<<grid_dimension, block_dimension>>>(
          dxdx, dydy, width, height, depth);
+    cudaCheckError( cudaDeviceSynchronize() );
     if(depth > 1)
     {
         add_kernel<<<grid_dimension, block_dimension>>>(
              dxdx, dzdz, width, height, depth);
+        cudaCheckError( cudaDeviceSynchronize() );
         cudaFree(dzdz);
     }
 
     Pixel* result = new Pixel[voxel_count];
     cudaCheckError( cudaMemcpy(result, dxdx, size, cudaMemcpyDeviceToHost) )
+    cudaCheckError( cudaDeviceSynchronize() );
 
     cudaFree(dxdx);
     cudaFree(dydy);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     return result;
 }
