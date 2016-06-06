@@ -30,6 +30,7 @@
 #include "RegionCurvatureEdgeCorrection.h"
 #include "RescaleIntensityWidget.h"
 #include "TGVShadingGrowingWidget.h"
+#include "TGVDeshadeWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -62,6 +63,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
     auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
     auto tgv_shading_growing_widget = new TGVShadingGrowingWidget("TGV Shading Growing", module_parent);
+    auto tgv_deshade_widget = new TGVDeshadeWidget("TGV Deshade", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -92,6 +94,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
     modules.push_back(deshade_segmented_widget);
     modules.push_back(tgv_shading_growing_widget);
+    modules.push_back(tgv_deshade_widget);
 
 
     // register modules and add widget modules
@@ -174,6 +177,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgv_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_lambdas_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_shading_growing_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()
