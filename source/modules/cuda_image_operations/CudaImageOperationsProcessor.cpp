@@ -25,6 +25,10 @@ template<typename Pixel>
 Pixel* add_constant_kernel_launch(Pixel* image1,
                               uint width, uint height, uint depth,
                               Pixel constant);
+template<typename Pixel>
+Pixel* multiply_constant_kernel_launch(Pixel* image1,
+                              uint width, uint height, uint depth,
+                              Pixel constant);
 
 template<typename Pixel>
 Pixel* cosine_transform_kernel_launch(Pixel* image,
@@ -124,6 +128,14 @@ ITKImage CudaImageOperationsProcessor::addConstant(ITKImage image, ITKImage::Pix
     });
 }
 
+ITKImage CudaImageOperationsProcessor::multiplyConstant(ITKImage image, ITKImage::PixelType constant)
+{
+    return perform(image, [&image, constant](Pixels image_pixels) {
+        return multiply_constant_kernel_launch(image_pixels,
+                                     image.width, image.height, image.depth, constant);
+    });
+}
+
 ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
 {
     return perform(image, [&image, kernel](Pixels image_pixels) {
@@ -174,6 +186,10 @@ ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
 
         fftw_destroy_plan(plan);
         fftw_cleanup();
+
+        Pixel constant = 1.0 / image.voxel_count;
+        result = multiply_constant_kernel_launch(result,
+                                                 image.width, image.height, image.depth, constant);
 
         return result;
     });

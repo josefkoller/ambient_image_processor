@@ -38,9 +38,12 @@ ITKImage BinaryOperationsWidget::processImage(ITKImage image1)
 {
     auto image2 = this->second_image_widget->getImage();
 
+    ITKImage::PixelType image2_factor = this->ui->image2_factor_spinbox->value();
+    image2 = CudaImageOperationsProcessor::multiplyConstant(image2, image2_factor);
+
     ITKImage::PixelType image2_offset = this->ui->image2_offset_spinbox->value();
-    if(image2_offset > 0)
-        image2 = CudaImageOperationsProcessor::addConstant(image2, image2_offset);
+    image2 = CudaImageOperationsProcessor::addConstant(image2, image2_offset);
+
 
     if(this->ui->divide_checkbox->isChecked())
         return CudaImageOperationsProcessor::divide(image1, image2);
@@ -65,6 +68,11 @@ void BinaryOperationsWidget::registerModule(ImageWidget *image_widget)
 }
 
 void BinaryOperationsWidget::on_image2_offset_spinbox_valueChanged(double )
+{
+    this->processInWorkerThread();
+}
+
+void BinaryOperationsWidget::on_image2_factor_spinbox_valueChanged(double arg1)
 {
     this->processInWorkerThread();
 }

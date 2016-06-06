@@ -98,7 +98,6 @@ __global__  void inverse_cosine_transform_kernel_x(Pixel* image,
     }
     result[index] *= 2;
     result[index] += image[y * width];
-   // result[index] += image[0];
 }
 
 template<typename Pixel>
@@ -124,7 +123,6 @@ __global__  void inverse_cosine_transform_kernel_y(Pixel* image,
     }
     result[index] *= 2;
     result[index] += image[x];
-  //  result[index] += image[0];
 }
 
 template<typename Pixel>

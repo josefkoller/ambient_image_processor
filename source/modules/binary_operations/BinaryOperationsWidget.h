@@ -26,6 +26,8 @@ private slots:
 
     void on_image2_offset_spinbox_valueChanged(double arg1);
 
+    void on_image2_factor_spinbox_valueChanged(double arg1);
+
 private:
     Ui::BinaryOperationsWidget *ui;
     ImageViewWidget* second_image_widget;

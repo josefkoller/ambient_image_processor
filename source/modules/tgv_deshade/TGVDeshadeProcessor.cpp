@@ -155,9 +155,11 @@ ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform
     ITKImage divergence_image = ITKImage(width, height, depth, divergence);
     delete[] divergence;
 
-    return divergence_image;
+ // return divergence_image;
 
     ITKImage divergence_image_cosine = CudaImageOperationsProcessor::cosineTransform(divergence_image);
+
+ // return divergence_image_cosine;
 
     ITKImage result_cosine_domain = CudaImageOperationsProcessor::solvePoissonInCosineDomain(divergence_image_cosine);
 
