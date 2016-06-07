@@ -12,6 +12,7 @@ list(APPEND SOURCE_CPP_FILES
 
 
 list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/unary_operation.cu
   ${CMAKE_CURRENT_LIST_DIR}/binary_operation.cu
   ${CMAKE_CURRENT_LIST_DIR}/multiply.cu
   ${CMAKE_CURRENT_LIST_DIR}/divide.cu
@@ -25,6 +26,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/inverse_cosine_transform.cu
   ${CMAKE_CURRENT_LIST_DIR}/divergence.cu
   ${CMAKE_CURRENT_LIST_DIR}/solve_poisson_in_cosine_domain.cu
+  ${CMAKE_CURRENT_LIST_DIR}/invert.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

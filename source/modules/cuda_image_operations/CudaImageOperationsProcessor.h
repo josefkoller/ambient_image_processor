@@ -35,6 +35,8 @@ public:
                                const uint width, const uint height, const uint depth, bool is_host_data=false);
 
     static ITKImage solvePoissonInCosineDomain(ITKImage image);
+
+    static ITKImage invert(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

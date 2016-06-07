@@ -46,6 +46,10 @@ template<typename Pixel>
 Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
                               uint width, uint height, uint depth);
 
+template<typename Pixel>
+Pixel* invert_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+
 #include <fftw3.h>
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
@@ -208,5 +212,13 @@ ITKImage CudaImageOperationsProcessor::solvePoissonInCosineDomain(ITKImage image
     return perform(image, [&image](Pixels image_pixels) {
         return solve_poisson_in_cosine_domain_kernel_launch(image_pixels,
                                      image.width, image.height, image.depth);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::invert(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+            return invert_kernel_launch(image_pixels,
+                                        image.width, image.height, image.depth);
     });
 }

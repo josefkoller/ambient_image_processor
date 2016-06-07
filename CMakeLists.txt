@@ -85,6 +85,7 @@ include(source/modules/region_curvature_edge_correction/CMakeLists.txt)
 include(source/modules/rescale_intensity/CMakeLists.txt)
 include(source/modules/tgv_shading_growing/CMakeLists.txt)
 include(source/modules/tgv_deshade/CMakeLists.txt)
+include(source/modules/unary_operations/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
