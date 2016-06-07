@@ -3,6 +3,8 @@
 
 #include "LineProfileProcessor.h"
 
+#include <QFileDialog>
+
 const QColor LineProfileWidget::line_with_parent_color = QColor(0, 102, 101);
 const QColor LineProfileWidget::line_color = QColor(0, 51, 153);
 const QColor LineProfileWidget::cursor_color = QColor(255, 99, 49);
@@ -328,4 +330,22 @@ void LineProfileWidget::on_connected_to_parent_checkbox_clicked()
 {
     this->connectedProfileLinesChanged();
     emit this->profileLinesChanged();
+}
+
+void LineProfileWidget::save_to_file()
+{
+    if(this->image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+    if(file_name.isNull())
+        return;
+
+    bool saved = false;
+    if(file_name.endsWith("pdf"))
+        saved = this->ui->custom_plot_widget->savePdf(file_name);
+    if(file_name.endsWith("png"))
+        saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
+
+    this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
 }

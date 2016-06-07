@@ -26,6 +26,8 @@ public:
 
     void setImage(ITKImage image);
     ITKImage getImage() const;
+
+    void save_file_with_overlays();
 private:
     Ui::ImageViewWidget *ui;
 

@@ -31,6 +31,7 @@
 #include "RescaleIntensityWidget.h"
 #include "TGVShadingGrowingWidget.h"
 #include "TGVDeshadeWidget.h"
+#include "UnaryOperationsWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -74,6 +75,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
+    modules.push_back(new UnaryOperationsWidget("Unary Operations", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
     modules.push_back(new ConvolutionWidget("3x3x3 Convolution", module_parent));
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
@@ -130,6 +132,21 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->connect(save_action, &QAction::triggered, this, [this]() {
         this->on_save_button_clicked();
     });
+    QAction* save_with_overlays_action = image_menu->addAction("Save File with Overlays");
+    this->connect(save_with_overlays_action, &QAction::triggered, this, [this]() {
+        this->image_view_widget->save_file_with_overlays();
+    });
+
+    auto line_profile_module = this->getModuleByName("Line Profile");
+    if(line_profile_module)
+    {
+        QAction* save_line_profile_action = image_menu->addAction("Save Line Profile");
+        this->connect(save_line_profile_action, &QAction::triggered, this, [line_profile_module]() {
+            auto line_profile_module_casted = dynamic_cast<LineProfileWidget*>(line_profile_module);
+            line_profile_module_casted->save_to_file();
+        });
+    }
+
     menu_bar->addMenu(image_menu);
     QMenu *tools_menu = new QMenu("Tools");
     for(auto module : modules)

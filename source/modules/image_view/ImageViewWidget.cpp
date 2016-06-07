@@ -3,6 +3,7 @@
 
 #include "ITKToQImageConverter.h"
 #include <QVBoxLayout>
+#include <QFileDialog>
 
 #include "CrosshairModule.h"
 
@@ -213,4 +214,20 @@ void ImageViewWidget::setImage(ITKImage image)
 ITKImage ImageViewWidget::getImage() const
 {
     return this->image;
+}
+
+void ImageViewWidget::save_file_with_overlays()
+{
+    if(this->inner_image_frame == nullptr ||
+            this->inner_image_frame->pixmap() == nullptr)
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+    if(file_name.isNull())
+        return;
+
+    // 0 ... choose format form filename
+    // 100 ... uncompressed
+    bool saved = this->inner_image_frame->pixmap()->save(file_name, 0, 100);
+    this->setStatusText( (saved ? "saved " : "error while saving ") + file_name);
 }
