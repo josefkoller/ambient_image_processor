@@ -21,7 +21,7 @@ PixelIndex::uint PixelIndex::linearIndex(PixelIndex size) const
     return z * size.x*size.y + x + y * size.x;
 }
 
-std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size) const
+std::vector<PixelIndex> PixelIndex::collectNeighboursInSlice(PixelIndex size) const
 {
     std::vector<PixelIndex> indices;
 
@@ -29,8 +29,6 @@ std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size) const
     bool is_not_top = this->y > 0;
     bool is_not_bottom = this->y < size.y - 1;
     bool is_not_right = this->x < size.x - 1;
-    bool is_not_front = this->z > 0;
-    bool is_not_back = this->z < size.z - 1;
 
     indices.push_back(*this);
     if(is_not_left)
@@ -56,7 +54,20 @@ std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size) const
         if(is_not_bottom)
             indices.push_back(this->rightBottom());
     }
+    return indices;
+}
 
+std::vector<PixelIndex> PixelIndex::collectNeighbours(PixelIndex size) const
+{
+    bool is_not_left = this->x > 0;
+    bool is_not_top = this->y > 0;
+    bool is_not_bottom = this->y < size.y - 1;
+    bool is_not_right = this->x < size.x - 1;
+
+    bool is_not_front = this->z > 0;
+    bool is_not_back = this->z < size.z - 1;
+
+    auto indices = this->collectNeighboursInSlice(size);
     if(is_not_front)
     {
         indices.push_back(this->front());

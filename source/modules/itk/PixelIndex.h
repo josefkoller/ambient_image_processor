@@ -44,6 +44,7 @@ struct PixelIndex
     PixelIndex backBottom() const { return PixelIndex(x, y+1, z+1); }
 
     std::vector<PixelIndex> collectNeighbours(PixelIndex size) const;
+    std::vector<PixelIndex> collectNeighboursInSlice(PixelIndex size) const;
     bool isInside(PixelIndex size) const;
     uint linearIndex(PixelIndex size) const;
 };

@@ -228,6 +228,22 @@ ITKImage CudaImageOperationsProcessor::invert(ITKImage image)
 
 ITKImage CudaImageOperationsProcessor::binary_dilate(ITKImage image)
 {
+    /*
+    auto result = image.clone();
+    image.foreachPixel([&result](uint x, uint y, uint z, Pixel value) {
+        auto center = PixelIndex(x,y,z);
+        if(value < 0.5)
+        {
+            result.setPixel(center, 0);
+            return;
+        }
+
+        auto indices = center.collectNeighboursInSlice(PixelIndex(result.width, result.height, result.depth));
+        for(auto index : indices)
+            result.setPixel(index, 1);
+    });
+    return result;
+    */
     return perform(image, [&image](Pixels image_pixels) {
             return binary_dilate_kernel_launch(image_pixels,
                                         image.width, image.height, image.depth);

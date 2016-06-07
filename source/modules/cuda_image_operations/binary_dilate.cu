@@ -15,31 +15,18 @@ __global__ void binary_dilate_kernel(
     const int z = floorf(index / (width*height));
     int index_rest = index - z * (width*height);
     const int y = floorf(index_rest / width);
-    index_rest = index_rest - y * width;
-    const int x = index_rest;
+    const int x = index_rest - y * width;
 
-    const Pixel value = image[index];
-
-    if(value < 1e-5)
-        return;
+    const Pixel threshold = 0.5;
 
     // dilate 4-neighbourhood
-    result[index] = value;
 
-    if(x > 0)
-        result[index-1] = value;
-    if(x < width-1)
-        result[index+1] = value;
-
-    if(y > 0)
-        result[index-width] = value;
-    if(y < height - 1)
-        result[index+width] = value;
-
-    if(z > 0)
-        result[index-width*height] = value;
-    if(z < depth - 1)
-        result[index+width*height] = value;
+    result[index] =
+       image[index] > threshold ||
+       (x > 0 && image[index-1] > threshold) ||
+       (x < width-1 && image[index+1] > threshold) ||
+       (y > 0 && image[index-width] > threshold) ||
+       (y < height-1 && image[index+width] > threshold);
 }
 
 template<typename Pixel>
