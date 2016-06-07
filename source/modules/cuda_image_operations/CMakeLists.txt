@@ -27,6 +27,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/divergence.cu
   ${CMAKE_CURRENT_LIST_DIR}/solve_poisson_in_cosine_domain.cu
   ${CMAKE_CURRENT_LIST_DIR}/invert.cu
+  ${CMAKE_CURRENT_LIST_DIR}/binary_dilate.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

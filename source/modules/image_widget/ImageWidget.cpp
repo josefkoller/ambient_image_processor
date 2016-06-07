@@ -32,6 +32,7 @@
 #include "TGVShadingGrowingWidget.h"
 #include "TGVDeshadeWidget.h"
 #include "UnaryOperationsWidget.h"
+#include "MorphologicalFilterWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -77,6 +78,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
     modules.push_back(new UnaryOperationsWidget("Unary Operations", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
+    modules.push_back(new MorphologicalFilterWidget("Morhpological Filter", module_parent));
     modules.push_back(new ConvolutionWidget("3x3x3 Convolution", module_parent));
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));

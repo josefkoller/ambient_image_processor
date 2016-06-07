@@ -49,6 +49,9 @@ Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
 template<typename Pixel>
 Pixel* invert_kernel_launch(Pixel* image,
                               uint width, uint height, uint depth);
+template<typename Pixel>
+Pixel* binary_dilate_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
 
 #include <fftw3.h>
 
@@ -219,6 +222,14 @@ ITKImage CudaImageOperationsProcessor::invert(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
             return invert_kernel_launch(image_pixels,
+                                        image.width, image.height, image.depth);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::binary_dilate(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+            return binary_dilate_kernel_launch(image_pixels,
                                         image.width, image.height, image.depth);
     });
 }

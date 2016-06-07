@@ -37,6 +37,7 @@ public:
     static ITKImage solvePoissonInCosineDomain(ITKImage image);
 
     static ITKImage invert(ITKImage image);
+    static ITKImage binary_dilate(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H
