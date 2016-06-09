@@ -194,7 +194,7 @@ ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
         fftw_destroy_plan(plan);
         fftw_cleanup();
 
-        Pixel constant = 1.0 / image.voxel_count;
+        Pixel constant = 0.25 * 0.5 / image.voxel_count;
         result = multiply_constant_kernel_launch(result,
                                                  image.width, image.height, image.depth, constant);
 
