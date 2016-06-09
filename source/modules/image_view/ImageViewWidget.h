@@ -56,10 +56,14 @@ signals:
     void mouseWheelOnImage(int delta);
 
     void imageChanged(ITKImage image);
+    void fireImageChange(ITKImage image);
 public slots:
     void repaintImage();
     void repaintImageOverlays();
     void sliceIndexChanged(uint slice_index);
+
+private slots:
+    void handleImageChange(ITKImage image);
 };
 
 #endif // IMAGEVIEWWIDGET_H

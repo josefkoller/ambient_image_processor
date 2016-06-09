@@ -17,6 +17,9 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(this, &ImageViewWidget::fireImageChange,
+            this, &ImageViewWidget::handleImageChange);
+
     this->crosshair_module = new CrosshairModule(title + " Crosshair");
 }
 
@@ -111,8 +114,6 @@ void ImageViewWidget::paintImage(bool repaint)
     inner_image_frame->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(inner_image_frame);
-    if(this->ui->image_frame->layout() != nullptr)
-        delete this->ui->image_frame->layout();
     if(this->ui->image_frame->layout() != nullptr)
         delete this->ui->image_frame->layout();
     this->ui->image_frame->setLayout(layout);
@@ -230,4 +231,9 @@ void ImageViewWidget::save_file_with_overlays()
     // 100 ... uncompressed
     bool saved = this->inner_image_frame->pixmap()->save(file_name, 0, 100);
     this->setStatusText( (saved ? "saved " : "error while saving ") + file_name);
+}
+
+void ImageViewWidget::handleImageChange(ITKImage image)
+{
+    this->setImage(image);
 }
