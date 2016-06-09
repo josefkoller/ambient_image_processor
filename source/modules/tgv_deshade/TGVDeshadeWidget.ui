@@ -87,6 +87,9 @@
            <property name="maximum">
             <double>99999999999.000000000000000</double>
            </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
            <property name="value">
             <double>2.000000000000000</double>
            </property>
@@ -108,6 +111,9 @@
            </property>
            <property name="maximum">
             <double>999999999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
            </property>
            <property name="value">
             <double>1.000000000000000</double>
@@ -200,9 +206,17 @@
       <item>
        <widget class="QGroupBox" name="denoised_frame">
         <property name="title">
-         <string>Output: Denoised</string>
+         <string>Output: Shading</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6"/>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QPushButton" name="save_second_output_button">
+           <property name="text">
+            <string>Save</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>

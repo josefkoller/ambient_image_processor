@@ -3,14 +3,16 @@
 
 #include "TGVDeshadeProcessor.h"
 
+#include <QFileDialog>
+
 TGVDeshadeWidget::TGVDeshadeWidget(QString title, QWidget* parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::TGVDeshadeWidget)
 {
     ui->setupUi(this);
 
-    this->output_denoised_image_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
-    this->ui->denoised_frame->layout()->addWidget(this->output_denoised_image_view);
+    this->second_output_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
+    this->ui->denoised_frame->layout()->addWidget(this->second_output_view);
 }
 
 TGVDeshadeWidget::~TGVDeshadeWidget()
@@ -29,7 +31,10 @@ void TGVDeshadeWidget::registerModule(ImageWidget *image_widget)
         this->ui->stop_button->setEnabled(false);
     });
 
-    this->output_denoised_image_view->registerCrosshairSubmodule(image_widget);
+    this->second_output_view->registerCrosshairSubmodule(image_widget);
+
+    connect(image_widget, &ImageWidget::sliceIndexChanged,
+            this->second_output_view, &ImageViewWidget::sliceIndexChanged);
 }
 
 void TGVDeshadeWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
@@ -38,7 +43,7 @@ void TGVDeshadeWidget::setIterationFinishedCallback(TGVDeshadeProcessor::Iterati
             ITKImage u, ITKImage l){
         iteration_finished_callback(iteration_index, iteration_count, l);
 
-        this->output_denoised_image_view->fireImageChange(u);
+        this->second_output_view->fireImageChange(u);
         return this->stop_after_next_iteration;
     };
 }
@@ -79,4 +84,17 @@ void TGVDeshadeWidget::on_perform_button_clicked()
 void TGVDeshadeWidget::on_stop_button_clicked()
 {
     this->stop_after_next_iteration = true;
+}
+
+void TGVDeshadeWidget::on_save_second_output_button_clicked()
+{
+    auto image = this->second_output_view->getImage();
+    if(image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
+    if(file_name.isNull())
+        return;
+
+    image.write(file_name.toStdString());
 }
