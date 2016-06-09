@@ -36,6 +36,20 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QRadioButton" name="dct_checkbox">
+        <property name="text">
+         <string>DCT</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="idct_checkbox">
+        <property name="text">
+         <string>iDCT</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
