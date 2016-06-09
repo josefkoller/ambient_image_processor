@@ -16,6 +16,8 @@ public:
                           ITKImage::PixelType window_to,
                           std::vector<double>& intensities,
                           std::vector<double>& probabilities);
+
+    static double calculateEntropy(const std::vector<double>& probabilities);
 };
 
 #endif // HISTOGRAMPROCESSOR_H

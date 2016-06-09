@@ -36,6 +36,7 @@ private slots:
 
 private:
     void calculateHistogram();
+    void calculateEntropy(const std::vector<double>& probabilities);
 public:
     virtual void registerModule(ImageWidget* image_widget);
 

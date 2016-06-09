@@ -94,9 +94,16 @@ void HistogramWidget::calculateHistogram()
     QVector<double> probabilitiesQ = QVector<double>::fromStdVector(probabilities);
     graph->setData(intensitiesQ, probabilitiesQ);
 
-
     this->ui->custom_plot_widget->rescaleAxes();
     this->ui->custom_plot_widget->replot();
+
+    calculateEntropy(probabilities);
+}
+
+void HistogramWidget::calculateEntropy(const std::vector<double>& probabilities)
+{
+    auto entropy = HistogramProcessor::calculateEntropy(probabilities);
+    this->ui->entropy_label->setText(QString::number(entropy));
 }
 
 void HistogramWidget::on_histogram_bin_count_spinbox_valueChanged(int arg1)

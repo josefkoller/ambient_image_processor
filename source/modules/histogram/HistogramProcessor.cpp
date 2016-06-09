@@ -56,3 +56,17 @@ void HistogramProcessor::calculate(ITKImage image,
     }
 }
 
+double HistogramProcessor::calculateEntropy(const std::vector<double>& probabilities)
+{
+    ITKImage::PixelType entropy = 0;
+
+    for(double probability : probabilities)
+    {
+        if(probability < 1e-5)
+            continue;
+
+        entropy += probability * std::log2(probability);
+    }
+
+    return -entropy;
+}
