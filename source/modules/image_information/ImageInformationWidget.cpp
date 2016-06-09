@@ -4,6 +4,8 @@
 #include "ImageWidget.h"
 #include "ImageInformationProcessor.h"
 
+#include "CudaImageOperationsProcessor.h"
+
 ImageInformationWidget::ImageInformationWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::ImageInformationWidget)
@@ -30,6 +32,12 @@ void ImageInformationWidget::collectInformation(ITKImage image)
     this->ui->maximum_label->setText(information["maximum"]);
     this->ui->origin_label->setText(information["origin"]);
     this->ui->spacing_label->setText(information["spacing"]);
+
+    if(image.isNull())
+        return;
+
+    auto tv = CudaImageOperationsProcessor::tv(image) / image.voxel_count;
+    this->ui->tv_per_voxel_label->setText(QString::number(tv));
 }
 
 void ImageInformationWidget::registerModule(ImageWidget* image_widget)

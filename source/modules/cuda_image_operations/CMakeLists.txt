@@ -29,6 +29,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/invert.cu
   ${CMAKE_CURRENT_LIST_DIR}/binary_dilate.cu
   ${CMAKE_CURRENT_LIST_DIR}/clamp_negative_values.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tv.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

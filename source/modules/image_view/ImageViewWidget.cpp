@@ -91,6 +91,9 @@ void ImageViewWidget::paintImage(bool repaint)
     if(q_image != nullptr)
         return;
 
+    if(this->slice_index > this->image.depth - 1)
+        this->slice_index = this->image.depth - 1;
+
     q_image = ITKToQImageConverter::convert(this->image,
                                             this->slice_index);
 
