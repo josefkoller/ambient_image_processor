@@ -53,6 +53,10 @@ template<typename Pixel>
 Pixel* binary_dilate_kernel_launch(Pixel* image,
                               uint width, uint height, uint depth);
 
+template<typename Pixel>
+Pixel* clamp_negative_values_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth, Pixel value);
+
 #include <fftw3.h>
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
@@ -247,5 +251,13 @@ ITKImage CudaImageOperationsProcessor::binary_dilate(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
             return binary_dilate_kernel_launch(image_pixels,
                                         image.width, image.height, image.depth);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::clamp_negative_values(ITKImage image, ITKImage::PixelType value)
+{
+    return perform(image, [&image, value](Pixels image_pixels) {
+            return clamp_negative_values_kernel_launch(image_pixels,
+                                        image.width, image.height, image.depth, value);
     });
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>648</width>
-    <height>482</height>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
       <item>
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
-         <string>Lambda</string>
+         <string>Lambda (TGV2L1 data term)</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -124,15 +124,15 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_9">
+       <widget class="QGroupBox" name="groupBox_6">
         <property name="title">
-         <string>Algorithm</string>
+         <string>Background</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <widget class="QRadioButton" name="tgv2_l1_algorithm_checkbox">
+          <widget class="QCheckBox" name="set_negative_values_to_zero_checkbox">
            <property name="text">
-            <string>TGV2 L1</string>
+            <string>set negative values to zero</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -140,10 +140,30 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="tgv2_l2_algorithm_checkbox">
-           <property name="text">
-            <string>TGV2 L2</string>
+          <widget class="QGroupBox" name="groupBox_8">
+           <property name="title">
+            <string>Mask</string>
            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QPushButton" name="load_mask_button">
+              <property name="text">
+               <string>Load</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="mask_frame">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9"/>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>

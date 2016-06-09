@@ -38,6 +38,8 @@ public:
 
     static ITKImage invert(ITKImage image);
     static ITKImage binary_dilate(ITKImage image);
+
+    static ITKImage clamp_negative_values(ITKImage image, ITKImage::PixelType value);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

@@ -332,6 +332,9 @@ bool ITKImage::contains(PixelIndex index) const
 
 ITKImage::PixelType* ITKImage::cloneToPixelArray() const
 {
+    if(this->isNull())
+        return nullptr;
+
     ITKImage::PixelType* clone = new ITKImage::PixelType[this->width*this->height*this->depth];
     if(clone == nullptr) {
         std::cerr << "memory allocation error in cloneToPixelArray: " <<

@@ -22,6 +22,7 @@ private:
     Ui::TGVDeshadeWidget *ui;
 
     ImageViewWidget* second_output_view;
+    ImageViewWidget* mask_view;
 
     TGVDeshadeProcessor::IterationFinishedTwoImages iteration_finished_callback;
     bool stop_after_next_iteration;
@@ -35,6 +36,7 @@ private slots:
     void on_perform_button_clicked();
     void on_stop_button_clicked();
     void on_save_second_output_button_clicked();
+    void on_load_mask_button_clicked();
 };
 
 #endif // TGVDESHADEWIDGET_H
