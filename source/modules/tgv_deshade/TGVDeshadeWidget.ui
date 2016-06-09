@@ -81,6 +81,12 @@
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
           <widget class="QDoubleSpinBox" name="alpha0_spinbox">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="maximum">
+            <double>99999999999.000000000000000</double>
+           </property>
            <property name="value">
             <double>2.000000000000000</double>
            </property>
@@ -97,8 +103,40 @@
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QDoubleSpinBox" name="alpha1_spinbox">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="maximum">
+            <double>999999999999.000000000000000</double>
+           </property>
            <property name="value">
             <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_9">
+        <property name="title">
+         <string>Algorithm</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <widget class="QRadioButton" name="tgv2_l1_algorithm_checkbox">
+           <property name="text">
+            <string>TGV2 L1</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="tgv2_l2_algorithm_checkbox">
+           <property name="text">
+            <string>TGV2 L2</string>
            </property>
           </widget>
          </item>
@@ -141,32 +179,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_9">
-        <property name="title">
-         <string>Algorithm</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <item>
-          <widget class="QRadioButton" name="tgv2_l1_algorithm_checkbox">
-           <property name="text">
-            <string>TGV2 L1</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="tgv2_l2_algorithm_checkbox">
-           <property name="text">
-            <string>TGV2 L2</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="groupBox_7">
         <property name="title">
          <string>Paint Interval</string>
@@ -183,6 +195,14 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="denoised_frame">
+        <property name="title">
+         <string>Output: Denoised</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_6"/>
        </widget>
       </item>
      </layout>

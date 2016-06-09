@@ -10,6 +10,8 @@ class TGVDeshadeProcessor
 public:
     typedef std::function<bool(uint iteration_index, uint iteration_count,
                                ITKImage l)> IterationFinished;
+    typedef std::function<bool(uint iteration_index, uint iteration_count,
+                               ITKImage u, ITKImage l)> IterationFinishedTwoImages;
 private:
     TGVDeshadeProcessor();
 
@@ -24,7 +26,7 @@ private:
         Pixel** v_x, Pixel**v_y, Pixel**v_z)>;
 
     static ITKImage processTVGPUCuda(ITKImage input_image,
-                                IterationFinished iteration_finished_callback,
+                                IterationFinishedTwoImages iteration_finished_callback,
                                 TGVAlgorithm<Pixel> tgv_algorithm);
 
     static ITKImage deshade(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
@@ -41,14 +43,14 @@ public:
       const Pixel alpha0,
       const Pixel alpha1,
       const uint iteration_count,
-      const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
+      const uint paint_iteration_interval, IterationFinishedTwoImages iteration_finished_callback);
 
     static ITKImage processTGV2L2GPUCuda(ITKImage input_image,
       const Pixel lambda,
       const Pixel alpha0,
       const Pixel alpha1,
       const uint iteration_count,
-      const uint paint_iteration_interval, IterationFinished iteration_finished_callback);
+      const uint paint_iteration_interval, IterationFinishedTwoImages iteration_finished_callback);
 
     static ITKImage integrate_image_gradients(ITKImage gradient_x, ITKImage gradient_y, ITKImage gradient_z);
 

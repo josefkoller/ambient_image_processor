@@ -66,7 +66,7 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* 
 }
 
 ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
-                                        IterationFinished iteration_finished_callback,
+                                        IterationFinishedTwoImages iteration_finished_callback,
                                         TGVAlgorithm<Pixel> tgv_algorithm)
 {
     Pixel* f = input_image.cloneToPixelArray();
@@ -76,12 +76,12 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
             Pixel* v_x, Pixel* v_y, Pixel* v_z) {
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth);
-        return iteration_finished_callback(iteration_index, iteration_count, r);
+        auto u_image = ITKImage(input_image.width, input_image.height, input_image.depth, u);
+        return iteration_finished_callback(iteration_index, iteration_count, u_image, r);
     };
 
     Pixel* v_x, *v_y, *v_z;
     Pixel* u = tgv_algorithm(f, iteration_callback, &v_x, &v_y, &v_z);
-
 
     delete[] f;
 
@@ -104,7 +104,7 @@ ITKImage TGVDeshadeProcessor::processTGV2L1GPUCuda(ITKImage input_image,
                                           const Pixel alpha1,
                                           const uint iteration_count,
                                           const uint paint_iteration_interval,
-                                          IterationFinished iteration_finished_callback)
+                                          IterationFinishedTwoImages iteration_finished_callback)
 {
     return processTVGPUCuda(input_image, iteration_finished_callback,
         [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1]
@@ -126,7 +126,7 @@ ITKImage TGVDeshadeProcessor::processTGV2L2GPUCuda(ITKImage input_image,
                                           const Pixel alpha1,
                                           const uint iteration_count,
                                           const uint paint_iteration_interval,
-                                          IterationFinished iteration_finished_callback)
+                                          IterationFinishedTwoImages iteration_finished_callback)
 {
     return processTVGPUCuda(input_image, iteration_finished_callback,
         [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1]

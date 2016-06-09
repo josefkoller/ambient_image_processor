@@ -2,6 +2,7 @@
 #define TGVDESHADEWIDGET_H
 
 #include "BaseModuleWidget.h"
+#include "ImageViewWidget.h"
 
 namespace Ui {
 class TGVDeshadeWidget;
@@ -20,8 +21,9 @@ public:
 private:
     Ui::TGVDeshadeWidget *ui;
 
-    TGVDeshadeProcessor::IterationFinished iteration_finished_callback;
+    ImageViewWidget* output_denoised_image_view;
 
+    TGVDeshadeProcessor::IterationFinishedTwoImages iteration_finished_callback;
     bool stop_after_next_iteration;
 public:
     void setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback);

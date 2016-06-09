@@ -8,6 +8,9 @@ TGVDeshadeWidget::TGVDeshadeWidget(QString title, QWidget* parent) :
     ui(new Ui::TGVDeshadeWidget)
 {
     ui->setupUi(this);
+
+    this->output_denoised_image_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
+    this->ui->denoised_frame->layout()->addWidget(this->output_denoised_image_view);
 }
 
 TGVDeshadeWidget::~TGVDeshadeWidget()
@@ -25,13 +28,17 @@ void TGVDeshadeWidget::registerModule(ImageWidget *image_widget)
             this, [this]() {
         this->ui->stop_button->setEnabled(false);
     });
+
+    this->output_denoised_image_view->registerCrosshairSubmodule(image_widget);
 }
 
 void TGVDeshadeWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
 {
     this->iteration_finished_callback = [this, iteration_finished_callback](uint iteration_index, uint iteration_count,
-            ITKImage u){
-        iteration_finished_callback(iteration_index, iteration_count, u);
+            ITKImage u, ITKImage l){
+        iteration_finished_callback(iteration_index, iteration_count, l);
+
+        this->output_denoised_image_view->fireImageChange(u);
         return this->stop_after_next_iteration;
     };
 }
