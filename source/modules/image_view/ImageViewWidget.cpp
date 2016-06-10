@@ -16,8 +16,6 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
 {
     this->ui->setupUi(this);
 
-    this->ui->image_frame->installEventFilter(this);
-
     connect(this, &ImageViewWidget::fireImageChange,
             this, &ImageViewWidget::handleImageChange);
 
@@ -122,40 +120,23 @@ void ImageViewWidget::mouseReleaseEvent(QMouseEvent *)
 }
 
 
-bool ImageViewWidget::eventFilter(QObject *target, QEvent *event)
+void ImageViewWidget::mouseMoveEvent(QMouseEvent *mouse_event)
 {
     if(this->image.isNull())
-        return false;
+        return;
 
-    if(event->type() == QEvent::Paint)
-        return false;
+    QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
 
-    if(event->type() == QEvent::MouseMove && target == this->ui->image_frame)
-    {
-        QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
-        if(mouse_event == nullptr)
-            return false;
-
-        QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
-
-        //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
-        auto index = ITKImage::indexFromPoint(position,
-                                              this->slice_index);
-        emit this->mouseMoveOnImage(mouse_event->buttons(), index);
-    }
-
-    if(event->type() == QEvent::Wheel && target == this->ui->image_frame)
-    {
-        QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
-        if(wheel_event == nullptr)
-            return false;
-
-        emit this->mouseWheelOnImage(wheel_event->delta());
-    }
-
-    return false; // always returning false, so the pixmap is painted
+    //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
+    auto index = ITKImage::indexFromPoint(position,
+                                          this->slice_index);
+    emit this->mouseMoveOnImage(mouse_event->buttons(), index);
 }
 
+void ImageViewWidget::wheelEvent(QWheelEvent *wheel_event)
+{
+    emit this->mouseWheelOnImage(wheel_event->delta());
+}
 
 void ImageViewWidget::mousePressEvent(QMouseEvent * mouse_event)
 {
