@@ -12,8 +12,8 @@ def read_parameter
 
   parameter[:iteration_count]=5e3
   parameter[:lambda]=1
-  parameter[:alpha0]={ :min=>2, :max=>2, :count=>1 }
-  parameter[:alpha1]={ :min=>0.01, :max=>1, :count=>10 }
+  parameter[:alpha0]={ :min=>0.01, :max=>5, :count=>10 }
+  parameter[:alpha1]={ :min=>0.01, :max=>5, :count=>10 }
 
   time = Time.new
   time_string = time.strftime "%Y_%m_%d_%H_%M_%S"
