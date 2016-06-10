@@ -27,6 +27,13 @@ public:
                           std::vector<double>& intensities,
                           std::vector<double>& probabilities);
 
+    static void calculateFast(ITKImage image,
+                          uint spectrum_bandwidth,
+                          ITKImage::PixelType window_from,
+                          ITKImage::PixelType window_to,
+                          std::vector<double>& intensities,
+                          std::vector<double>& probabilities);
+
     static double calculateEntropy(const std::vector<double>& probabilities);
 };
 

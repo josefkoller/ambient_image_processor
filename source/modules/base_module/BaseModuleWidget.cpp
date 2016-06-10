@@ -42,7 +42,9 @@ void BaseModuleWidget::processInWorkerThread()
         try
         {
             ITKImage result_image = this->processImage(source_image);
-            this->result_processor(result_image);
+
+            if(this->calculatesResultImage())
+                this->result_processor(result_image);
 
             int duration = this->start_timestamp.msecsTo(QTime::currentTime());
             this->setStatusText(this->getTitle() + " finished after "
@@ -102,6 +104,11 @@ ITKImage BaseModuleWidget::getSourceImage() const
     if(this->source_image_fetcher == nullptr)
         return ITKImage();
     return this->source_image_fetcher();
+}
+
+bool BaseModuleWidget::calculatesResultImage() const
+{
+    return true;
 }
 
 void BaseModuleWidget::setSourceImageFetcher(SourceImageFetcher source_image_fetcher)

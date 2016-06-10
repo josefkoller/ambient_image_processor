@@ -36,6 +36,7 @@ protected:
     void processInWorkerThread();
 
     ITKImage getSourceImage() const;
+    virtual bool calculatesResultImage() const;
 public:
     virtual void registerModule(ImageWidget* image_widget);
 

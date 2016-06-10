@@ -57,6 +57,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
 
             QColor color(value, value, value);
 
+            /*
             ITKImage::PixelType non_rescaled_pixel_value = itk_image.getPixel(x, y, slice_index);
 
             if(window_from != nullptr && non_rescaled_pixel_value < (*window_from))
@@ -67,6 +68,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
             {
                 color = QColor(206, 0, 0);
             }
+            */
 
             q_image->setPixel(x, y, color.rgb());
         }

@@ -4,6 +4,8 @@
 #include <QWidget>
 #include "BaseModuleWidget.h"
 
+Q_DECLARE_METATYPE(std::vector<double>)
+
 namespace Ui {
 class HistogramWidget;
 }
@@ -47,13 +49,25 @@ private slots:
     void on_gaussian_kernel_checkbox_toggled(bool checked);
 
 private:
-    void calculateHistogram();
+    ITKImage processImage(ITKImage image);
     void calculateEntropy(const std::vector<double>& probabilities);
+    void calculateHistogram();
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
 signals:
     void fireImageRepaint();
+    void fireHistogramChanged(std::vector<double> intensities,
+                              std::vector<double> probabilities);
+    void fireEntropyLabelTextChange(QString text);
+protected:
+    bool calculatesResultImage() const;
+
+private slots:
+
+    void handleHistogramChanged(std::vector<double> intensities,
+                              std::vector<double> probabilities);
+    void handleEntropyLabelTextChange(QString text);
 };
 
 #endif // HISTOGRAMWIDGET_H

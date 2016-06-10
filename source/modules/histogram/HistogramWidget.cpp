@@ -15,6 +15,24 @@ HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
     this->ui->custom_plot_widget->setMouseTracking(true);
     connect(this->ui->custom_plot_widget, &QCustomPlot::mouseMove,
             this, &HistogramWidget::histogram_mouse_move);
+
+    this->ui->custom_plot_widget->xAxis->setLabel("intensity");
+    this->ui->custom_plot_widget->xAxis->setNumberPrecision(8);
+    this->ui->custom_plot_widget->xAxis->setOffset(0);
+    this->ui->custom_plot_widget->xAxis->setPadding(0);
+    this->ui->custom_plot_widget->xAxis->setAntialiased(true);
+
+    this->ui->custom_plot_widget->yAxis->setLabel("probability");
+    this->ui->custom_plot_widget->yAxis->setOffset(0);
+    this->ui->custom_plot_widget->yAxis->setPadding(0);
+    this->ui->custom_plot_widget->yAxis->setAntialiased(true);
+
+    qRegisterMetaType<std::vector<double>>("std::vector<double>");
+
+    connect(this, &HistogramWidget::fireHistogramChanged,
+            this, &HistogramWidget::handleHistogramChanged);
+    connect(this, &HistogramWidget::fireEntropyLabelTextChange,
+            this, &HistogramWidget::handleEntropyLabelTextChange);
 }
 
 HistogramWidget::~HistogramWidget()
@@ -50,29 +68,37 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
             image_widget, &ImageWidget::repaintImage);
 }
 
+bool HistogramWidget::calculatesResultImage() const
+{
+    return false;
+}
+
 void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
 
     const uint spectrum_bandwidth = std::ceil(std::sqrt(image.voxel_count));
-    this->ui->spectrum_bandwidth_spinbox->setValue(spectrum_bandwidth);
+   // this->ui->spectrum_bandwidth_spinbox->setValue(spectrum_bandwidth);
 
     ITKImage::PixelType minimum, maximum;
     image.minimumAndMaximum(minimum, maximum);
     this->ui->window_from_spinbox->setMinimum(minimum);
-    this->ui->window_from_spinbox->setMaximum(minimum);
+    this->ui->window_from_spinbox->setMaximum(maximum);
+    this->ui->window_from_spinbox->setValue(minimum);
+
     this->ui->window_to_spinbox->setMinimum(minimum);
-    this->ui->window_to_spinbox->setMaximum(minimum);
+    this->ui->window_to_spinbox->setMaximum(maximum);
+    this->ui->window_to_spinbox->setValue(maximum);
 
     this->ui->kernel_bandwidth->setMinimum((maximum - minimum) / spectrum_bandwidth);
 
     this->calculateHistogram();
 }
 
-void HistogramWidget::calculateHistogram()
+ITKImage HistogramWidget::processImage(ITKImage image)
 {
     if(this->image.isNull())
-        return;
+        return ITKImage();
 
     uint spectrum_bandwidth = this->ui->spectrum_bandwidth_spinbox->value();
     ITKImage::PixelType kernel_bandwidth = this->ui->kernel_bandwidth->value();
@@ -94,25 +120,24 @@ void HistogramWidget::calculateHistogram()
                                   window_from, window_to,
                                   intensities, probabilities);
 
-    this->ui->custom_plot_widget->xAxis->setLabel("intensity");
-    this->ui->custom_plot_widget->xAxis->setNumberPrecision(8);
-    this->ui->custom_plot_widget->xAxis->setOffset(0);
-    this->ui->custom_plot_widget->xAxis->setPadding(0);
-    this->ui->custom_plot_widget->xAxis->setAntialiased(true);
+    emit this->fireHistogramChanged(intensities, probabilities);
 
-    this->ui->custom_plot_widget->yAxis->setLabel("probability");
-    this->ui->custom_plot_widget->yAxis->setOffset(0);
-    this->ui->custom_plot_widget->yAxis->setPadding(0);
-    this->ui->custom_plot_widget->yAxis->setAntialiased(true);
+    return ITKImage();
+}
 
+void HistogramWidget::handleHistogramChanged(
+        std::vector<double> intensities,
+        std::vector<double> probabilities)
+{
     this->ui->custom_plot_widget->clearGraphs();
     QCPGraph* graph = this->ui->custom_plot_widget->addGraph();
     graph->setPen(QPen(QColor(116,205,122)));
     graph->setLineStyle(QCPGraph::lsStepCenter);
     graph->setErrorType(QCPGraph::etValue);
 
-    QVector<double> intensitiesQ = QVector<double>::fromStdVector(intensities);
-    QVector<double> probabilitiesQ = QVector<double>::fromStdVector(probabilities);
+    auto intensitiesQ = QVector<double>::fromStdVector(intensities);
+    auto probabilitiesQ = QVector<double>::fromStdVector(probabilities);
+
     graph->setData(intensitiesQ, probabilitiesQ);
 
     this->ui->custom_plot_widget->rescaleAxes();
@@ -124,12 +149,23 @@ void HistogramWidget::calculateHistogram()
 void HistogramWidget::calculateEntropy(const std::vector<double>& probabilities)
 {
     auto entropy = HistogramProcessor::calculateEntropy(probabilities);
-    this->ui->entropy_label->setText(QString::number(entropy));
+    emit this->fireEntropyLabelTextChange(QString::number(entropy));
+}
+
+void HistogramWidget::handleEntropyLabelTextChange(QString text)
+{
+    this->ui->entropy_label->setText(text);
 }
 
 void HistogramWidget::on_histogram_bin_count_spinbox_valueChanged(int arg1)
 {
     this->calculateHistogram();
+}
+
+void HistogramWidget::calculateHistogram()
+{
+    if(!this->image.isNull())
+        this->processInWorkerThread();
 }
 
 void HistogramWidget::on_window_from_spinbox_valueChanged(double value)
