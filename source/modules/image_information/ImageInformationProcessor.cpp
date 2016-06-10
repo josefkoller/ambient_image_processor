@@ -77,3 +77,13 @@ ImageInformationProcessor::InformationMap ImageInformationProcessor::collectInfo
 
     return information;
 }
+
+double ImageInformationProcessor::coefficient_of_variation(ITKImage itk_image)
+{
+    typedef itk::StatisticsImageFilter<ITKImage::InnerITKImage> StatisticsCalculator;
+    StatisticsCalculator::Pointer statistics_calculator = StatisticsCalculator::New();
+    statistics_calculator->SetInput(itk_image.getPointer());
+    statistics_calculator->Update();
+
+    return statistics_calculator->GetVariance() / statistics_calculator->GetMean();
+}

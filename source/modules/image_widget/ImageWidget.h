@@ -64,6 +64,8 @@ private:
 
     void on_load_button_clicked();
     void on_save_button_clicked();
+    void load_hsv_clicked();
+    void save_hsv_clicked();
 
 signals:
     void fireStatusTextChange(QString text);

@@ -34,6 +34,18 @@ private slots:
 
     void on_toMaximumButton_clicked();
 
+    void on_kernel_bandwidth_valueChanged(double arg1);
+
+    void on_uniform_kernel_checkbox_toggled(bool checked);
+
+    void on_spectrum_bandwidth_spinbox_valueChanged(int arg1);
+
+    void on_epanechnik_kernel_checkbox_toggled(bool checked);
+
+    void on_cosine_kernel_checkbox_toggled(bool checked);
+
+    void on_gaussian_kernel_checkbox_toggled(bool checked);
+
 private:
     void calculateHistogram();
     void calculateEntropy(const std::vector<double>& probabilities);

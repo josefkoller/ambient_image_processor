@@ -1,6 +1,13 @@
 #include "HistogramProcessor.h"
 
-#include <itkImageToHistogramFilter.h>
+template<typename Pixel>
+Pixel* kernel_density_estimation_kernel_launch(Pixel* image_pixels,
+                                              uint voxel_count,
+                                              uint spectrum_bandwidth,
+                                              Pixel kernel_bandwidth,
+                                              uint kernel_type,
+                                              Pixel window_from,
+                                              Pixel window_to);
 
 HistogramProcessor::HistogramProcessor()
 {
@@ -8,52 +15,39 @@ HistogramProcessor::HistogramProcessor()
 
 
 void HistogramProcessor::calculate(ITKImage image,
-                                   int bin_count,
+                                   uint spectrum_bandwidth,
+                                   ITKImage::PixelType kernel_bandwidth,
+                                   KernelType kernel_type,
                                    ITKImage::PixelType window_from,
                                    ITKImage::PixelType window_to,
                                    std::vector<double>& intensities,
                                    std::vector<double>& probabilities)
 {
-    typedef itk::Statistics::ImageToHistogramFilter<ITKImage::InnerITKImage> HistogramGenerator;
-    HistogramGenerator::Pointer histogram_generator = HistogramGenerator::New();
+    auto image_pixels = image.cloneToPixelArray();
+    ITKImage::PixelType* spectrum = kernel_density_estimation_kernel_launch(image_pixels,
+                                                             image.voxel_count,
+                                                             spectrum_bandwidth,
+                                                             kernel_bandwidth,
+                                                             (uint) kernel_type,
+                                                             window_from, window_to);
+    delete[] image_pixels;
 
-    HistogramGenerator::HistogramSizeType number_of_bins(1);
-    number_of_bins[0] = bin_count;
-    histogram_generator->SetHistogramSize(number_of_bins);
+    ITKImage::PixelType sum = 0;
+    for(uint a = 0; a < spectrum_bandwidth; a++)
+        sum += spectrum[a];
+    if(sum == 0)
+        sum = 1;
 
-    histogram_generator->SetAutoMinimumMaximum(true);
-    //   histogram_generator->SetHistogramBinMinimum(window_from);
-    //   histogram_generator->SetHistogramBinMaximum(window_to);
-
-    //  histogram_generator->SetClipBinsAtEnds(true);
-    histogram_generator->SetMarginalScale(1);
-
-    histogram_generator->SetInput(image.getPointer());
-    histogram_generator->Update();
-
-    const HistogramGenerator::HistogramType *histogram = histogram_generator->GetOutput();
-
-    /*
-    const Image::SizeType size = image->GetLargestPossibleRegion().GetSize();
-    long pixel_count = size[0] * size[1] * size[2];
-    long samples_per_bin = ceil(((double)pixel_count) / bin_count); */
-    ITKImage::PixelType total_frequency = histogram->GetTotalFrequency();
-
-    for(unsigned int i = 0; i < histogram->GetSize()[0]; i++)
+    ITKImage::PixelType delta_spectrum = (window_to - window_from) / spectrum_bandwidth;
+    intensities.clear();
+    probabilities.clear();
+    for(uint a = 0; a < spectrum_bandwidth; a++)
     {
-        double bin_min = histogram->GetBinMin(0, i);
-        double bin_max = histogram->GetBinMax(0, i);
-
-        if(bin_max < window_from || bin_min > window_to)
-        {
-            continue;
-        }
-        double intensity = bin_min + (bin_max - bin_min) * 0.5f;
-        double probability = histogram->GetFrequency(i) / total_frequency;
-
-        intensities.push_back(intensity);
-        probabilities.push_back(probability);
+        probabilities.push_back(spectrum[a] / sum);
+        intensities.push_back(window_from + a * delta_spectrum);
     }
+
+    delete[] spectrum;
 }
 
 double HistogramProcessor::calculateEntropy(const std::vector<double>& probabilities)

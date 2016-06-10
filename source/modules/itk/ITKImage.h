@@ -52,6 +52,10 @@ public:
     ITKImage clone() const;
 
     static ITKImage read(std::string image_file_path, bool rescale = true);
+
+    static ITKImage read_hsv(std::string image_file_path);
+    void write_hsv(std::string image_file_path);
+
     void write(std::string image_file_path);
 
     bool isNull() const;
@@ -74,6 +78,7 @@ public:
 
     PixelType minimum() const;
     PixelType maximum() const;
+    void minimumAndMaximum(PixelType& minimum, PixelType& maximum) const;
 
     static const ITKImage Null;
 

@@ -241,7 +241,8 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
 
 
         if(paint_iteration_interval > 0 &&
-                iteration_index % paint_iteration_interval == 0) {
+                iteration_index % paint_iteration_interval == 0 &&
+                iteration_finished_callback != nullptr) {
             printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
             bool stop = iteration_finished_callback(iteration_index, iteration_count, u,
                                                     v_x, v_y, v_z);

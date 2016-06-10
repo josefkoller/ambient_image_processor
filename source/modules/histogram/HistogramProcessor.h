@@ -10,8 +10,18 @@ private:
     HistogramProcessor();
 
 public:
+
+    enum KernelType {
+        Uniform = 0,
+        Gaussian,
+        Cosine,
+        Epanechnik
+    };
+
     static void calculate(ITKImage image,
-                          int bin_count,
+                          uint spectrum_bandwidth,
+                          ITKImage::PixelType kernel_bandwidth,
+                          KernelType kernel_type,
                           ITKImage::PixelType window_from,
                           ITKImage::PixelType window_to,
                           std::vector<double>& intensities,

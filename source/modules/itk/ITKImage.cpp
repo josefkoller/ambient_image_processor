@@ -6,7 +6,14 @@
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkCastImageFilter.h>
+
 #include <iostream>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+
+#include <vector>
+
 
 const ITKImage ITKImage::Null = ITKImage();
 
@@ -158,6 +165,75 @@ void ITKImage::write(std::string image_file_path)
     }
 }
 
+ITKImage ITKImage::read_hsv(std::string image_file_path)
+{
+    using namespace cv;
+    Mat image = imread(image_file_path, CV_LOAD_IMAGE_COLOR);
+
+    if(! image.data )
+    {
+        std::cout <<  "Could not open or find the image: " << image_file_path << std::endl ;
+        return ITKImage();
+    }
+
+    Mat image_hsv;
+    cvtColor(image, image_hsv, COLOR_BGR2HSV);
+    std::vector<Mat> channels;
+    split(image_hsv, channels);
+    Mat& data = channels[2];
+
+    auto itk_image = ITKImage(image_hsv.cols, image_hsv.rows, 1);
+    itk_image.setEachPixel([data](uint x, uint y, uint) {
+        return data.at<uchar>(y,x);
+    });
+    return itk_image;
+}
+
+void ITKImage::write_hsv(std::string image_file_path)
+{
+    // read hsv file
+    using namespace cv;
+    Mat image = imread(image_file_path, CV_LOAD_IMAGE_COLOR);
+
+    if(! image.data )
+    {
+        std::cout <<  "Could not open or find the image: " << image_file_path << std::endl ;
+        return;
+    }
+
+    if(image.rows != this->height ||
+            image.cols != this->width ||
+            this->depth != 1)
+    {
+        std::cout << "image dimension mismatch" << std::endl;
+        return;
+    }
+
+    Mat image_hsv;
+    cvtColor(image, image_hsv, COLOR_BGR2HSV);
+    std::vector<Mat> channels;
+    split(image_hsv, channels);
+    Mat& data = channels[2];
+
+    this->foreachPixel([&data](uint x, uint y, uint z, ITKImage::PixelType value) {
+        data.at<uchar>(y,x) = (uchar) value;
+    });
+    Mat merged_image;
+    merge(channels, merged_image);
+
+    std::vector<int> compression_params;
+    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+    compression_params.push_back(9);
+    try {
+        imwrite(image_file_path, merged_image, compression_params);
+    }
+    catch (std::runtime_error& ex) {
+        std::cerr << "Exception converting image to PNG format: " << ex.what() << std::endl;
+        return;
+    }
+}
+
+
 bool ITKImage::isNull() const
 {
     return this->inner_image.IsNull();
@@ -272,6 +348,22 @@ ITKImage::PixelType ITKImage::maximum() const
             maximum = value;
     });
     return maximum;
+}
+
+void ITKImage::minimumAndMaximum(PixelType& minimum, PixelType& maximum) const
+{
+    minimum = 1e7;
+    maximum = -1e7;
+
+    if(this->isNull())
+        return;
+
+    this->foreachPixel([&minimum, &maximum](uint, uint, uint, PixelType value) {
+        if(value > maximum)
+            maximum = value;
+        if(value < minimum)
+            minimum = value;
+    });
 }
 
 ITKImage::Index ITKImage::indexFromPoint(QPoint point, uint slice_index)

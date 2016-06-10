@@ -57,6 +57,50 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* 
     return r;
 }
 
+void TGVDeshadeProcessor::processTGV2L1GPUCuda(ITKImage input_image,
+                                           const Pixel lambda,
+                                           const Pixel alpha0,
+                                           const Pixel alpha1,
+                                           const uint iteration_count,
+                                           const ITKImage& mask_image,
+                                           const bool set_negative_values_to_zero,
+                                           ITKImage& denoised_image,
+                                           ITKImage& shading_image,
+                                           ITKImage& deshaded_image)
+{
+    Pixel* f = input_image.cloneToPixelArray();
+
+    Pixel* v_x, *v_y, *v_z;
+    Pixel* u = tgv2_l1_deshade_launch<Pixel>(f,
+                                             input_image.width, input_image.height, input_image.depth,
+                                             lambda,
+                                             iteration_count,
+                                             iteration_count + 1,
+                                             nullptr,
+                                             alpha0, alpha1,
+                                             &v_x, &v_y, &v_z);
+    delete[] f;
+
+    denoised_image = ITKImage(input_image.width, input_image.height, input_image.depth, u);
+    delete[] u;
+
+    shading_image = integrate_image_gradients_poisson_cosine_transform(v_x, v_y, v_z,
+                                                           input_image.width, input_image.height, input_image.depth,
+                                                           true);
+    delete[] v_x;
+    delete[] v_y;
+    if(input_image.depth > 1)
+        delete[] v_z;
+
+    deshaded_image = CudaImageOperationsProcessor::subtract(denoised_image, shading_image);
+
+    if(!mask_image.isNull())
+        deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask_image);
+
+    if(set_negative_values_to_zero)
+        deshaded_image = CudaImageOperationsProcessor::clamp_negative_values(deshaded_image, 0);
+}
+
 ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                                                const ITKImage& mask,
                                                const bool set_negative_values_to_zero,

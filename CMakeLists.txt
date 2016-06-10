@@ -98,20 +98,33 @@ SET(SOURCE_ALL_FILES
 
 message(STATUS "source files: ${SOURCE_ALL_FILES}")
 
+SET(ITK_APPLICATIONS
+  ambient_application
+)
 cuda_add_executable(ambient_application
   source/ambient_main.cpp
   ${SOURCE_ALL_FILES}
   ${CUDA_CPP_FILES}
 )
 
-find_package(ITK REQUIRED)
-include(${ITK_USE_FILE})
-add_definitions("-DVCL_CAN_STATIC_CONST_INIT_FLOAT=0")
-add_definitions("-DVCL_NEEDS_INLINE_INSTANTIATION=0")
-
 target_link_libraries(ambient_application
   Qt5::Core
   Qt5::Widgets
-  ${ITK_LIBRARIES}
   -lfftw3
 )
+
+include(source/terminal_programs/CMakeLists.txt)
+
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})  # import itk after cuda_add_executable, else an invalid nvcc flag is set
+add_definitions("-DVCL_CAN_STATIC_CONST_INIT_FLOAT=0")
+add_definitions("-DVCL_NEEDS_INLINE_INSTANTIATION=0")
+
+find_package( OpenCV REQUIRED )
+
+foreach(itk_application IN LISTS ITK_APPLICATIONS)
+    target_link_libraries(${itk_application}
+      ${ITK_LIBRARIES}
+      ${OpenCV_LIBS}
+    )
+endforeach(itk_application)

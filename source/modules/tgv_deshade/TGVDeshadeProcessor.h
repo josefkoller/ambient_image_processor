@@ -23,7 +23,7 @@ private:
 
     template<typename Pixel>
     using TGVAlgorithm = std::function<Pixel*(Pixel* f, IterationCallback<Pixel> iteration_callback,
-        Pixel** v_x, Pixel**v_y, Pixel**v_z)>;
+    Pixel** v_x, Pixel**v_y, Pixel**v_z)>;
 
     static ITKImage processTVGPUCuda(ITKImage input_image,
                                      const ITKImage& mask,
@@ -62,6 +62,17 @@ public:
                                                                        const uint width,
                                                                        const uint height,
                                                                        const uint depth, bool is_host_data=false);
+
+    static void processTGV2L1GPUCuda(ITKImage input_image,
+                                 const Pixel lambda,
+                                 const Pixel alpha0,
+                                 const Pixel alpha1,
+                                 const uint iteration_count,
+                                 const ITKImage& mask_image,
+                                 const bool set_negative_values_to_zero,
+                                 ITKImage& denoised_image,
+                                 ITKImage& shading_image,
+                                 ITKImage& deshaded_image);
 };
 
 #endif // TGVDESHADEPROCESSOR_H

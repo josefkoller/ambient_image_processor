@@ -53,6 +53,14 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
 void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
+    this->ui->spectrum_bandwidth_spinbox->setValue(std::ceil(std::sqrt(image.voxel_count)));
+    ITKImage::PixelType minimum, maximum;
+    image.minimumAndMaximum(minimum, maximum);
+    this->ui->window_from_spinbox->setValue(minimum);
+    this->ui->window_to_spinbox->setValue(maximum);
+
+    //this->ui->kernel_bandwidth->setMaximum(maximum);
+
     this->calculateHistogram();
 }
 
@@ -61,7 +69,13 @@ void HistogramWidget::calculateHistogram()
     if(this->image.isNull())
         return;
 
-    int bin_count = this->ui->histogram_bin_count_spinbox->value();
+    uint spectrum_bandwidth = this->ui->spectrum_bandwidth_spinbox->value();
+    ITKImage::PixelType kernel_bandwidth = this->ui->kernel_bandwidth->value();
+    HistogramProcessor::KernelType kernel_type =
+            (this->ui->uniform_kernel_checkbox->isChecked() ? HistogramProcessor::Uniform :
+            (this->ui->gaussian_kernel_checkbox->isChecked() ? HistogramProcessor::Gaussian :
+            (this->ui->cosine_kernel_checkbox->isChecked() ? HistogramProcessor::Cosine :
+             HistogramProcessor::Epanechnik)));
 
     ITKImage::PixelType window_from = this->ui->window_from_spinbox->value();
     ITKImage::PixelType window_to = this->ui->window_to_spinbox->value();
@@ -69,7 +83,9 @@ void HistogramWidget::calculateHistogram()
     std::vector<double> intensities;
     std::vector<double> probabilities;
     HistogramProcessor::calculate(this->image,
-                                  bin_count,
+                                  spectrum_bandwidth,
+                                  kernel_bandwidth,
+                                  kernel_type,
                                   window_from, window_to,
                                   intensities, probabilities);
 
@@ -135,4 +151,38 @@ void HistogramWidget::on_toMaximumButton_clicked()
 {
     this->ui->window_to_spinbox->setValue(this->image.maximum());
     this->calculateHistogram();
+}
+
+void HistogramWidget::on_kernel_bandwidth_valueChanged(double arg1)
+{
+    this->calculateHistogram();
+}
+
+void HistogramWidget::on_uniform_kernel_checkbox_toggled(bool checked)
+{
+    if(checked)
+        this->calculateHistogram();
+}
+
+void HistogramWidget::on_spectrum_bandwidth_spinbox_valueChanged(int arg1)
+{
+    this->calculateHistogram();
+}
+
+void HistogramWidget::on_epanechnik_kernel_checkbox_toggled(bool checked)
+{
+    if(checked)
+        this->calculateHistogram();
+}
+
+void HistogramWidget::on_cosine_kernel_checkbox_toggled(bool checked)
+{
+    if(checked)
+        this->calculateHistogram();
+}
+
+void HistogramWidget::on_gaussian_kernel_checkbox_toggled(bool checked)
+{
+    if(checked)
+        this->calculateHistogram();
 }

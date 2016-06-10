@@ -134,6 +134,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->connect(save_action, &QAction::triggered, this, [this]() {
         this->on_save_button_clicked();
     });
+    image_menu->addSeparator();
     QAction* save_with_overlays_action = image_menu->addAction("Save File with Overlays");
     this->connect(save_with_overlays_action, &QAction::triggered, this, [this]() {
         this->image_view_widget->save_file_with_overlays();
@@ -148,6 +149,16 @@ ImageWidget::ImageWidget(QWidget *parent) :
             line_profile_module_casted->save_to_file();
         });
     }
+    image_menu->addSeparator();
+    QAction* load_hsv = image_menu->addAction("Load Color File HSV");
+    this->connect(load_hsv, &QAction::triggered, this, [this]() {
+        this->load_hsv_clicked();
+    });
+    QAction* save_hsv = image_menu->addAction("Save into Color File HSV");
+    this->connect(save_hsv, &QAction::triggered, this, [this]() {
+        this->save_hsv_clicked();
+    });
+
 
     menu_bar->addMenu(image_menu);
     QMenu *tools_menu = new QMenu("Tools");
@@ -233,9 +244,6 @@ void ImageWidget::connectModule(QString module_title, ImageWidget* other_image_w
     module1->connectTo(module2);
 }
 
-
-
-
 void ImageWidget::on_load_button_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
@@ -257,6 +265,27 @@ void ImageWidget::on_save_button_clicked()
     this->image.write(file_name.toStdString());
 }
 
+void ImageWidget::save_hsv_clicked()
+{
+    if(this->image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
+    if(file_name.isNull())
+        return;
+
+    this->image.write_hsv(file_name.toStdString());
+}
+
+void ImageWidget::load_hsv_clicked()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
+    if(file_name == QString::null || !QFile(file_name).exists())
+        return;
+
+
+    this->setImage(ITKImage::read_hsv(file_name.toStdString()));
+}
 
 void ImageWidget::setMinimumSizeToImage()
 {

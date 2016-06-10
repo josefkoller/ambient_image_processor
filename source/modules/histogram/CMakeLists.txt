@@ -14,4 +14,8 @@ list(APPEND SOURCE_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/HistogramProcessor.cpp
   )
 
+list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/kernel_density_estimation.cu
+  )
+
 include_directories(${CMAKE_CURRENT_LIST_DIR})
