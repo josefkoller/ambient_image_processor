@@ -198,6 +198,9 @@
            <property name="decimals">
             <number>6</number>
            </property>
+           <property name="minimum">
+            <double>-50000.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>5000.000000000000000</double>
            </property>
@@ -213,6 +216,9 @@
           <widget class="QDoubleSpinBox" name="window_from_spinbox">
            <property name="decimals">
             <number>6</number>
+           </property>
+           <property name="minimum">
+            <double>-5000.000000000000000</double>
            </property>
            <property name="maximum">
             <double>50000.000000000000000</double>

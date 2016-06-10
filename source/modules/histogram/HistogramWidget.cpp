@@ -76,22 +76,6 @@ bool HistogramWidget::calculatesResultImage() const
 void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
-
-    const uint spectrum_bandwidth = std::ceil(std::sqrt(image.voxel_count));
-   // this->ui->spectrum_bandwidth_spinbox->setValue(spectrum_bandwidth);
-
-    ITKImage::PixelType minimum, maximum;
-    image.minimumAndMaximum(minimum, maximum);
-    this->ui->window_from_spinbox->setMinimum(minimum);
-    this->ui->window_from_spinbox->setMaximum(maximum);
-    this->ui->window_from_spinbox->setValue(minimum);
-
-    this->ui->window_to_spinbox->setMinimum(minimum);
-    this->ui->window_to_spinbox->setMaximum(maximum);
-    this->ui->window_to_spinbox->setValue(maximum);
-
-    this->ui->kernel_bandwidth->setMinimum((maximum - minimum) / spectrum_bandwidth);
-
     this->calculateHistogram();
 }
 
