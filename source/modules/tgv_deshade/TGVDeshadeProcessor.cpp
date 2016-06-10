@@ -32,7 +32,7 @@ ITKImage TGVDeshadeProcessor::deshade(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v
     return CudaImageOperationsProcessor::subtract(itk_u, l);
 }
 
-ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
+ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(ITKImage u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                                                                const uint width,
                                                                const uint height,
                                                                const uint depth,
@@ -41,12 +41,10 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(Pixel* u, Pixel* 
                                                                ITKImage& l,
                                                                bool is_host_data)
 {
-    auto itk_u = ITKImage(width, height, depth, u);
-
     l = integrate_image_gradients_poisson_cosine_transform(v_x, v_y, v_z,
                                                            width, height, depth,
                                                            is_host_data);
-    auto r = CudaImageOperationsProcessor::subtract(itk_u, l);
+    auto r = CudaImageOperationsProcessor::subtract(u, l);
 
     if(!mask.isNull())
         r = CudaImageOperationsProcessor::multiply(r, mask);
@@ -104,42 +102,42 @@ void TGVDeshadeProcessor::processTGV2L1GPUCuda(ITKImage input_image,
 ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                                                const ITKImage& mask,
                                                const bool set_negative_values_to_zero,
-                                               IterationFinishedTwoImages iteration_finished_callback,
+                                               IterationFinishedThreeImages iteration_finished_callback,
+                                               ITKImage& denoised_image,
+                                               ITKImage& shading_image,
                                                TGVAlgorithm<Pixel> tgv_algorithm)
 {
     Pixel* f = input_image.cloneToPixelArray();
 
     IterationCallback<Pixel> iteration_callback = [&input_image, iteration_finished_callback, &mask, set_negative_values_to_zero] (
-            uint iteration_index, uint iteration_count, Pixel* u,
+            uint iteration_index, uint iteration_count, Pixel* u_pixels,
             Pixel* v_x, Pixel* v_y, Pixel* v_z) {
-
-        ITKImage l = ITKImage();
+        auto u = ITKImage(input_image.width, input_image.height, input_image.depth, u_pixels);
+        auto l = ITKImage();
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero,
                                                   l);
 
-        return iteration_finished_callback(iteration_index, iteration_count, l, r);
+        return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
     };
 
     Pixel* v_x, *v_y, *v_z;
     Pixel* u = tgv_algorithm(f, iteration_callback, &v_x, &v_y, &v_z);
 
     delete[] f;
-
-    ITKImage l = ITKImage();
-    auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
+    denoised_image = ITKImage(input_image.width, input_image.height, input_image.depth, u);
+    delete[] u;
+    auto deshaded_image = deshade_poisson_cosine_transform(denoised_image, v_x, v_y, v_z,
                                               input_image.width, input_image.height, input_image.depth,
                                               mask, set_negative_values_to_zero,
-                                              l, true);
-
+                                              shading_image, true);
     delete[] v_x;
     delete[] v_y;
     if(input_image.depth > 1)
         delete[] v_z;
-    delete[] u;
 
-    return r;
+    return deshaded_image;
 }
 
 
@@ -149,11 +147,14 @@ ITKImage TGVDeshadeProcessor::processTGV2L1GPUCuda(ITKImage input_image,
                                                    const Pixel alpha1,
                                                    const uint iteration_count,
                                                    const uint paint_iteration_interval,
-                                                   IterationFinishedTwoImages iteration_finished_callback,
+                                                   IterationFinishedThreeImages iteration_finished_callback,
                                                    const ITKImage& mask,
-                                                   const bool set_negative_values_to_zero)
+                                                   const bool set_negative_values_to_zero,
+                                                   ITKImage& denoised_image,
+                                                   ITKImage& shading_image)
 {
     return processTVGPUCuda(input_image, mask, set_negative_values_to_zero, iteration_finished_callback,
+                            denoised_image, shading_image,
                             [&input_image, lambda, iteration_count, paint_iteration_interval, alpha0, alpha1, set_negative_values_to_zero]
                             (Pixel* f, IterationCallback<Pixel> iteration_callback,
                             Pixel** v_x, Pixel**v_y, Pixel**v_z) {

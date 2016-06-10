@@ -10,12 +10,13 @@
 ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::ImageViewWidget),
-    inner_image_frame(nullptr),
     q_image(nullptr),
     image(ITKImage::Null),
     slice_index(0)
 {
-    ui->setupUi(this);
+    this->ui->setupUi(this);
+
+    this->ui->image_frame->installEventFilter(this);
 
     connect(this, &ImageViewWidget::fireImageChange,
             this, &ImageViewWidget::handleImageChange);
@@ -78,8 +79,7 @@ void ImageViewWidget::paintImage(bool repaint)
 {
     if(this->image.isNull())
     {
-        if(inner_image_frame != nullptr)
-            inner_image_frame->setPixmap(QPixmap());
+        ui->image_frame->setPixmap(QPixmap());
         return;
     }
 
@@ -99,29 +99,12 @@ void ImageViewWidget::paintImage(bool repaint)
 
     this->ui->image_frame->setUpdatesEnabled(false);
 
-    if(inner_image_frame != nullptr)
-        delete inner_image_frame;
-    inner_image_frame = new QLabel(this->ui->image_frame);
-    inner_image_frame->setMouseTracking(true);
-    inner_image_frame->installEventFilter(this);
-    inner_image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    inner_image_frame->setMinimumSize(q_image->size());
-    //  frame->setMaximumSize(q_image.size());
-    //  frame->setBaseSize(q_image.size());
-    //  frame->setFixedSize(q_image.size());
-
     QPixmap pixmap = QPixmap::fromImage(*q_image);
     emit this->pixmapPainted(&pixmap);  // other modules paint into it here
 
-    inner_image_frame->setPixmap(pixmap);
-    inner_image_frame->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(inner_image_frame);
-    if(this->ui->image_frame->layout() != nullptr)
-        delete this->ui->image_frame->layout();
-    this->ui->image_frame->setLayout(layout);
-    this->ui->image_frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->ui->image_frame->setMinimumSize(q_image->size());
+    this->ui->image_frame->setPixmap(pixmap);
+    this->ui->image_frame->setMinimumWidth(image.width);
+    this->ui->image_frame->setMinimumHeight(image.height);
 
     this->ui->image_frame->setUpdatesEnabled(true);
 
@@ -147,13 +130,13 @@ bool ImageViewWidget::eventFilter(QObject *target, QEvent *event)
     if(event->type() == QEvent::Paint)
         return false;
 
-    if(event->type() == QEvent::MouseMove && target == inner_image_frame)
+    if(event->type() == QEvent::MouseMove && target == this->ui->image_frame)
     {
         QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
         if(mouse_event == nullptr)
             return false;
 
-        QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
+        QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
 
         //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
         auto index = ITKImage::indexFromPoint(position,
@@ -161,7 +144,7 @@ bool ImageViewWidget::eventFilter(QObject *target, QEvent *event)
         emit this->mouseMoveOnImage(mouse_event->buttons(), index);
     }
 
-    if(event->type() == QEvent::Wheel && target == inner_image_frame)
+    if(event->type() == QEvent::Wheel && target == this->ui->image_frame)
     {
         QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
         if(wheel_event == nullptr)
@@ -176,10 +159,10 @@ bool ImageViewWidget::eventFilter(QObject *target, QEvent *event)
 
 void ImageViewWidget::mousePressEvent(QMouseEvent * mouse_event)
 {
-    if(this->image.isNull() || this->inner_image_frame == nullptr)
+    if(this->image.isNull())
         return;
 
-    QPoint position = this->inner_image_frame->mapFromGlobal(mouse_event->globalPos());
+    QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
     // std::cout << "mouse pressed at " << position.x() << "|" << position.y() << std::endl;
 
     auto index = ITKImage::indexFromPoint(position, this->slice_index);
@@ -205,7 +188,7 @@ void ImageViewWidget::repaintImageOverlays()
     QPixmap pixmap = QPixmap::fromImage(*q_image);
     emit this->pixmapPainted(&pixmap);  // other modules paint into it here
 
-    inner_image_frame->setPixmap(pixmap);
+    this->ui->image_frame->setPixmap(pixmap);
 }
 
 void ImageViewWidget::setImage(ITKImage image)
@@ -222,8 +205,7 @@ ITKImage ImageViewWidget::getImage() const
 
 void ImageViewWidget::save_file_with_overlays()
 {
-    if(this->inner_image_frame == nullptr ||
-            this->inner_image_frame->pixmap() == nullptr)
+    if(this->ui->image_frame->pixmap() == nullptr)
         return;
 
     QString file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
@@ -232,7 +214,7 @@ void ImageViewWidget::save_file_with_overlays()
 
     // 0 ... choose format form filename
     // 100 ... uncompressed
-    bool saved = this->inner_image_frame->pixmap()->save(file_name, 0, 100);
+    bool saved = this->ui->image_frame->pixmap()->save(file_name, 0, 100);
     this->setStatusText( (saved ? "saved " : "error while saving ") + file_name);
 }
 

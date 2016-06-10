@@ -11,8 +11,11 @@ TGVDeshadeWidget::TGVDeshadeWidget(QString title, QWidget* parent) :
 {
     ui->setupUi(this);
 
-    this->second_output_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
-    this->ui->denoised_frame->layout()->addWidget(this->second_output_view);
+    this->shading_output_view = new ImageViewWidget("Denoised", this->ui->shading_frame);
+    this->ui->shading_frame->layout()->addWidget(this->shading_output_view);
+
+    this->denoised_output_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
+    this->ui->denoised_frame->layout()->addWidget(this->denoised_output_view);
 
     this->mask_view = new ImageViewWidget("Mask", this->ui->mask_frame);
     this->ui->mask_frame->layout()->addWidget(this->mask_view);
@@ -34,19 +37,23 @@ void TGVDeshadeWidget::registerModule(ImageWidget *image_widget)
         this->ui->stop_button->setEnabled(false);
     });
 
-    this->second_output_view->registerCrosshairSubmodule(image_widget);
-
+    this->shading_output_view->registerCrosshairSubmodule(image_widget);
     connect(image_widget, &ImageWidget::sliceIndexChanged,
-            this->second_output_view, &ImageViewWidget::sliceIndexChanged);
+            this->shading_output_view, &ImageViewWidget::sliceIndexChanged);
+    this->denoised_output_view->registerCrosshairSubmodule(image_widget);
+    connect(image_widget, &ImageWidget::sliceIndexChanged,
+            this->denoised_output_view, &ImageViewWidget::sliceIndexChanged);
 }
 
 void TGVDeshadeWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
 {
     this->iteration_finished_callback = [this, iteration_finished_callback](uint iteration_index, uint iteration_count,
-            ITKImage u, ITKImage l){
-        iteration_finished_callback(iteration_index, iteration_count, l);
+            ITKImage u, ITKImage l, ITKImage r){
+        iteration_finished_callback(iteration_index, iteration_count, r);
 
-        this->second_output_view->fireImageChange(u);
+        this->shading_output_view->fireImageChange(l);
+        this->denoised_output_view->fireImageChange(u);
+
         return this->stop_after_next_iteration;
     };
 }
@@ -64,14 +71,22 @@ ITKImage TGVDeshadeWidget::processImage(ITKImage image)
     auto mask = this->mask_view->getImage();
 
 
-    return TGVDeshadeProcessor::processTGV2L1GPUCuda(image, lambda,
+    ITKImage denoised_image = ITKImage();
+    ITKImage shading_image = ITKImage();
+    ITKImage deshaded_image = ITKImage();
+    deshaded_image = TGVDeshadeProcessor::processTGV2L1GPUCuda(image, lambda,
                                               alpha0,
                                               alpha1,
                                               iteration_count,
                                               paint_iteration_interval,
                                               this->iteration_finished_callback,
                                               mask,
-                                              set_negative_values_to_zero);
+                                              set_negative_values_to_zero,
+                                              denoised_image,
+                                              shading_image);
+    this->denoised_output_view->setImage(denoised_image);
+    this->shading_output_view->setImage(shading_image);
+    return deshaded_image;
 }
 
 
@@ -89,7 +104,7 @@ void TGVDeshadeWidget::on_stop_button_clicked()
 
 void TGVDeshadeWidget::on_save_second_output_button_clicked()
 {
-    auto image = this->second_output_view->getImage();
+    auto image = this->shading_output_view->getImage();
     if(image.isNull())
         return;
 
@@ -107,4 +122,17 @@ void TGVDeshadeWidget::on_load_mask_button_clicked()
         return;
 
     this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
+}
+
+void TGVDeshadeWidget::on_save_denoised_button_clicked()
+{
+    auto image = this->denoised_output_view->getImage();
+    if(image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
+    if(file_name.isNull())
+        return;
+
+    image.write(file_name.toStdString());
 }

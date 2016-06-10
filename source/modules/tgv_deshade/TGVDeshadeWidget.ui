@@ -134,8 +134,11 @@
            <property name="text">
             <string>set negative values to zero</string>
            </property>
-           <property name="checked">
+           <property name="checkable">
             <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -224,13 +227,29 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="denoised_frame">
+       <widget class="QGroupBox" name="shading_frame">
         <property name="title">
          <string>Output: Shading</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <widget class="QPushButton" name="save_second_output_button">
+           <property name="text">
+            <string>Save</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="denoised_frame">
+        <property name="title">
+         <string>Output: Denoised</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <item>
+          <widget class="QPushButton" name="save_denoised_button">
            <property name="text">
             <string>Save</string>
            </property>

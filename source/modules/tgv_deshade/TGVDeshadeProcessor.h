@@ -11,7 +11,7 @@ public:
     typedef std::function<bool(uint iteration_index, uint iteration_count,
                                ITKImage l)> IterationFinished;
     typedef std::function<bool(uint iteration_index, uint iteration_count,
-                               ITKImage u, ITKImage l)> IterationFinishedTwoImages;
+                               ITKImage u, ITKImage l, ITKImage r)> IterationFinishedThreeImages;
 private:
     TGVDeshadeProcessor();
 
@@ -28,14 +28,16 @@ private:
     static ITKImage processTVGPUCuda(ITKImage input_image,
                                      const ITKImage& mask,
                                      const bool set_negative_values_to_zero,
-                                     IterationFinishedTwoImages iteration_finished_callback,
+                                     IterationFinishedThreeImages iteration_finished_callback,
+                                     ITKImage& denoised_image,
+                                     ITKImage& shading_image,
                                      TGVAlgorithm<Pixel> tgv_algorithm);
 
     static ITKImage deshade(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                             const uint width,
                             const uint height,
                             const uint depth);
-    static ITKImage deshade_poisson_cosine_transform(Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
+    static ITKImage deshade_poisson_cosine_transform(ITKImage u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                                                      const uint width,
                                                      const uint height,
                                                      const uint depth,
@@ -49,9 +51,11 @@ public:
                                          const Pixel alpha0,
                                          const Pixel alpha1,
                                          const uint iteration_count,
-                                         const uint paint_iteration_interval, IterationFinishedTwoImages iteration_finished_callback,
+                                         const uint paint_iteration_interval, IterationFinishedThreeImages iteration_finished_callback,
                                          const ITKImage& mask,
-                                         const bool set_negative_values_to_zero);
+                                         const bool set_negative_values_to_zero,
+                                         ITKImage& denoised_image,
+                                         ITKImage& shading_image);
 
     static ITKImage integrate_image_gradients(ITKImage gradient_x, ITKImage gradient_y, ITKImage gradient_z);
 

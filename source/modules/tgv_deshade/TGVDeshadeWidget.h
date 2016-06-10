@@ -21,10 +21,11 @@ public:
 private:
     Ui::TGVDeshadeWidget *ui;
 
-    ImageViewWidget* second_output_view;
+    ImageViewWidget* shading_output_view;
+    ImageViewWidget* denoised_output_view;
     ImageViewWidget* mask_view;
 
-    TGVDeshadeProcessor::IterationFinishedTwoImages iteration_finished_callback;
+    TGVDeshadeProcessor::IterationFinishedThreeImages iteration_finished_callback;
     bool stop_after_next_iteration;
 public:
     void setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback);
@@ -37,6 +38,7 @@ private slots:
     void on_stop_button_clicked();
     void on_save_second_output_button_clicked();
     void on_load_mask_button_clicked();
+    void on_save_denoised_button_clicked();
 };
 
 #endif // TGVDESHADEWIDGET_H

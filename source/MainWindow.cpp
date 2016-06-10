@@ -22,7 +22,15 @@ MainWindow::MainWindow(std::string image_path) :
     this->ui->output_widget->connectModule("Slice Control", this->ui->image_widget);
     this->ui->output_widget->connectModule("Line Profile", this->ui->image_widget);
     this->ui->output_widget->setPage(0);
-    this->ui->output_widget->setImage(ITKImage::Null);
+
+    /*
+    this->ui->image_widget->setOutputWidget2(this->ui->output_widget2);
+    this->ui->output_widget2->connectModule("Slice Control", this->ui->image_widget);
+    this->ui->output_widget2->connectModule("Line Profile", this->ui->image_widget);
+    this->ui->output_widget2->setPage(0);
+    */
+
+    this->showMaximized();
 }
 
 MainWindow::~MainWindow()

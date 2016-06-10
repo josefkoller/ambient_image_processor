@@ -34,7 +34,6 @@ private:
     CrosshairModule* crosshair_module;
 
     ITKImage image;
-    QLabel* inner_image_frame;
     QImage* q_image;
 
     uint slice_index;
