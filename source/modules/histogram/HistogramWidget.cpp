@@ -5,6 +5,8 @@
 
 #include "ITKToQImageConverter.h"
 
+#include <QClipboard>
+
 HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::HistogramWidget),
@@ -207,4 +209,13 @@ void HistogramWidget::on_gaussian_kernel_checkbox_toggled(bool checked)
 {
     if(checked)
         this->calculateHistogram();
+}
+
+void HistogramWidget::on_copy_to_clipboard_button_clicked()
+{
+    auto text =
+            this->ui->entropy_group_box->title() + ": " +
+            this->ui->entropy_label->text();
+
+    QApplication::clipboard()->setText(text);
 }

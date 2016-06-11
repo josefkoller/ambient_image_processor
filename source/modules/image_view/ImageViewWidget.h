@@ -28,6 +28,7 @@ public:
     ITKImage getImage() const;
 
     void save_file_with_overlays();
+    void load_color_to_view_only_clicked();
 private:
     Ui::ImageViewWidget *ui;
 

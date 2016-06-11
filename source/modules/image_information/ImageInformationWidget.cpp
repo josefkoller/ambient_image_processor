@@ -6,6 +6,8 @@
 
 #include "CudaImageOperationsProcessor.h"
 
+#include <QClipboard>
+
 ImageInformationWidget::ImageInformationWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::ImageInformationWidget)
@@ -44,4 +46,16 @@ void ImageInformationWidget::registerModule(ImageWidget* image_widget)
 {
     connect(image_widget, &ImageWidget::imageChanged,
             this, &ImageInformationWidget::collectInformation);
+}
+
+void ImageInformationWidget::on_copy_to_clipboard_button_clicked()
+{
+    auto text =
+            this->ui->standard_error_text_label->text() + ": " +
+            this->ui->standard_error_label->text() + ", " +
+            this->ui->tv_per_voxel_text_label->text() + ": " +
+            this->ui->tv_per_voxel_label->text();
+
+    QApplication::clipboard()->setText(text);
+
 }

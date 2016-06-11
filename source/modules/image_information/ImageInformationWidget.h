@@ -25,6 +25,7 @@ public:
 
 private slots:
     void collectInformation(ITKImage image);
+    void on_copy_to_clipboard_button_clicked();
 };
 
 #endif // IMAGEINFORMATIONWIDGET_H

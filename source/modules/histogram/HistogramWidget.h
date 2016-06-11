@@ -66,6 +66,7 @@ private slots:
     void handleHistogramChanged(std::vector<double> intensities,
                               std::vector<double> probabilities);
     void handleEntropyLabelTextChange(QString text);
+    void on_copy_to_clipboard_button_clicked();
 };
 
 #endif // HISTOGRAMWIDGET_H

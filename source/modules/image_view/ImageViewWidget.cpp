@@ -211,6 +211,16 @@ void ImageViewWidget::save_file_with_overlays()
     this->setStatusText( (saved ? "saved " : "error while saving ") + file_name);
 }
 
+void ImageViewWidget::load_color_to_view_only_clicked()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, "open color file");
+    if(file_name == QString::null || !QFile(file_name).exists())
+        return;
+
+    this->q_image = new QImage(file_name);
+    this->repaintImageOverlays();
+}
+
 void ImageViewWidget::handleImageChange(ITKImage image)
 {
     this->setImage(image);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>643</width>
-    <height>586</height>
+    <height>621</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -239,7 +239,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="entropy_group_box">
         <property name="title">
          <string>Entropy</string>
         </property>
@@ -248,6 +248,13 @@
           <widget class="QLabel" name="entropy_label">
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="copy_to_clipboard_button">
+           <property name="text">
+            <string>Copy to clipboard</string>
            </property>
           </widget>
          </item>

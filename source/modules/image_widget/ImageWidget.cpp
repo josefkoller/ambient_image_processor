@@ -158,7 +158,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->connect(save_hsv, &QAction::triggered, this, [this]() {
         this->save_hsv_clicked();
     });
-
+    image_menu->addSeparator();
+    QAction* load_color_to_view_only = image_menu->addAction("Load Color File to View only");
+    this->connect(load_color_to_view_only, &QAction::triggered, this, [this]() {
+        this->image_view_widget->load_color_to_view_only_clicked();
+    });
 
     menu_bar->addMenu(image_menu);
     QMenu *tools_menu = new QMenu("Tools");
