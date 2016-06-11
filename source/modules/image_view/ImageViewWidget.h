@@ -44,8 +44,9 @@ protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
+
+    bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
     void pixmapPainted(QPixmap* q_image);

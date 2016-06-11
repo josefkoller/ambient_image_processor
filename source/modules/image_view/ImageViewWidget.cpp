@@ -16,6 +16,8 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
 {
     this->ui->setupUi(this);
 
+    this->ui->image_frame->installEventFilter(this);
+
     connect(this, &ImageViewWidget::fireImageChange,
             this, &ImageViewWidget::handleImageChange);
 
@@ -120,17 +122,27 @@ void ImageViewWidget::mouseReleaseEvent(QMouseEvent *)
 }
 
 
-void ImageViewWidget::mouseMoveEvent(QMouseEvent *mouse_event)
+bool ImageViewWidget::eventFilter(QObject *watched, QEvent *event)
 {
-    if(this->image.isNull())
-        return;
+    if(watched == this->ui->image_frame && event->type() == QEvent::MouseMove)
+    {
+        auto mouse_event = dynamic_cast<QMouseEvent*>(event);
+        if(mouse_event == nullptr)
+            return false;
 
-    QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
+        if(this->image.isNull())
+            return false;
 
-    //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
-    auto index = ITKImage::indexFromPoint(position,
-                                          this->slice_index);
-    emit this->mouseMoveOnImage(mouse_event->buttons(), index);
+        QPoint position = this->ui->image_frame->mapFromGlobal(mouse_event->globalPos());
+
+        //std::cout << "mouse move at " << position.x() << "|" << position.y() << std::endl;
+        auto index = ITKImage::indexFromPoint(position,
+                                              this->slice_index);
+        emit this->mouseMoveOnImage(mouse_event->buttons(), index);
+
+        return true;
+    }
+    return false;
 }
 
 void ImageViewWidget::wheelEvent(QWheelEvent *wheel_event)
