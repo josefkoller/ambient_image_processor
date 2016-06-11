@@ -50,6 +50,8 @@ void LineProfileWidget::line_profile_mouse_move(QMouseEvent* event)
 
 void LineProfileWidget::paintSelectedProfileLine()
 {
+    this->ui->custom_plot_widget->clearGraphs();
+
     auto image = this->getSourceImage();
     if(image.isNull())
         return;
@@ -72,7 +74,6 @@ void LineProfileWidget::paintSelectedProfileLine()
                                             line.position2(),
                                             intensities,
                                             distances);
-    this->ui->custom_plot_widget->clearGraphs();
 
     if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
     {
