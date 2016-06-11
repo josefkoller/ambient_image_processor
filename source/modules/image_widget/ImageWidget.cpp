@@ -270,9 +270,15 @@ void ImageWidget::save_hsv_clicked()
     if(this->image.isNull())
         return;
 
-    QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
+    QString template_file_name = QFileDialog::getOpenFileName(this, "open template color file for the H and S channel");
+    if(template_file_name == QString::null || !QFile(template_file_name).exists())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save V channel into color file");
     if(file_name.isNull())
         return;
+
+    QFile::copy(template_file_name, file_name);
 
     this->image.write_hsv(file_name.toStdString());
 }

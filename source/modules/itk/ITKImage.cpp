@@ -9,11 +9,9 @@
 
 #include <iostream>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
+#include "OpenCVFile.h"
 
 #include <vector>
-
 
 const ITKImage ITKImage::Null = ITKImage();
 
@@ -92,6 +90,15 @@ ITKImage ITKImage::clone() const
 
 ITKImage ITKImage::read(std::string image_file_path, bool rescale)
 {
+    // if color file... load the v channel in HSV space
+    auto image_file_path_lower = QString::fromStdString(image_file_path).toLower();
+    bool load_by_itk =
+            image_file_path_lower.endsWith("mha") ||
+            image_file_path_lower.endsWith("dcm");
+
+    if(!load_by_itk)
+        return read_hsv(image_file_path);
+
     typedef itk::ImageFileReader<InnerITKImage> FileReader;
     FileReader::Pointer reader = FileReader::New();
     reader->SetFileName(image_file_path);
@@ -106,28 +113,7 @@ ITKImage ITKImage::read(std::string image_file_path, bool rescale)
         std::cerr << exception << std::endl;
         return ITKImage(nullptr);
     }
-
-    bool is_mha = QString::fromStdString(image_file_path).endsWith("mha");
-    if(is_mha)
-        rescale = false;
-
-    if(rescale)
-    {
-        // rescaling is necessary for png files...
-        typedef itk::RescaleIntensityImageFilter<InnerITKImage,InnerITKImage> RescaleFilter;
-        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-        rescale_filter->SetInput(reader->GetOutput());
-        rescale_filter->SetOutputMinimum(0);
-        rescale_filter->SetOutputMaximum(1);
-        rescale_filter->Update();
-
-        InnerITKImage::Pointer image = rescale_filter->GetOutput();
-        image->DisconnectPipeline();
-        return ITKImage(image);
-    }
-    InnerITKImage::Pointer image = reader->GetOutput();
-    image->DisconnectPipeline();
-    return ITKImage(image);
+    return ITKImage(reader->GetOutput());
 }
 
 void ITKImage::write(std::string image_file_path)
@@ -167,72 +153,13 @@ void ITKImage::write(std::string image_file_path)
 
 ITKImage ITKImage::read_hsv(std::string image_file_path)
 {
-    using namespace cv;
-    Mat image = imread(image_file_path, CV_LOAD_IMAGE_COLOR);
-
-    if(! image.data )
-    {
-        std::cout <<  "Could not open or find the image: " << image_file_path << std::endl ;
-        return ITKImage();
-    }
-
-    Mat image_hsv;
-    cvtColor(image, image_hsv, COLOR_BGR2HSV);
-    std::vector<Mat> channels;
-    split(image_hsv, channels);
-    Mat& data = channels[2];
-
-    auto itk_image = ITKImage(image_hsv.cols, image_hsv.rows, 1);
-    itk_image.setEachPixel([data](uint x, uint y, uint) {
-        return data.at<uchar>(y,x);
-    });
-    return itk_image;
+    return OpenCVFile::read(image_file_path);
 }
 
-void ITKImage::write_hsv(std::string image_file_path)
+void ITKImage::write_hsv(std::string image_file_path) const
 {
-    // read hsv file
-    using namespace cv;
-    Mat image = imread(image_file_path, CV_LOAD_IMAGE_COLOR);
-
-    if(! image.data )
-    {
-        std::cout <<  "Could not open or find the image: " << image_file_path << std::endl ;
-        return;
-    }
-
-    if(image.rows != this->height ||
-            image.cols != this->width ||
-            this->depth != 1)
-    {
-        std::cout << "image dimension mismatch" << std::endl;
-        return;
-    }
-
-    Mat image_hsv;
-    cvtColor(image, image_hsv, COLOR_BGR2HSV);
-    std::vector<Mat> channels;
-    split(image_hsv, channels);
-    Mat& data = channels[2];
-
-    this->foreachPixel([&data](uint x, uint y, uint z, ITKImage::PixelType value) {
-        data.at<uchar>(y,x) = (uchar) value;
-    });
-    Mat merged_image;
-    merge(channels, merged_image);
-
-    std::vector<int> compression_params;
-    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-    compression_params.push_back(9);
-    try {
-        imwrite(image_file_path, merged_image, compression_params);
-    }
-    catch (std::runtime_error& ex) {
-        std::cerr << "Exception converting image to PNG format: " << ex.what() << std::endl;
-        return;
-    }
+    OpenCVFile::write_into_hsv_channel(*this, image_file_path);
 }
-
 
 bool ITKImage::isNull() const
 {

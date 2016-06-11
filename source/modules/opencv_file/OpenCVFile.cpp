@@ -56,7 +56,7 @@ void OpenCVFile::write_into_hsv_channel(const ITKImage& image, string file_name)
          }
 
          image.foreachPixel([&channel](uint x, uint y, uint, ITKImage::PixelType pixel) {
-             channel.at<uchar>(y,x) = pixel;
+             channel.at<uchar>(y,x) = saturate_cast<uchar>(pixel);
          });
 
          Mat& image_to_save = channel;

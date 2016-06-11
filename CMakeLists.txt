@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 #set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
@@ -87,6 +87,7 @@ include(source/modules/tgv_shading_growing/CMakeLists.txt)
 include(source/modules/tgv_deshade/CMakeLists.txt)
 include(source/modules/unary_operations/CMakeLists.txt)
 include(source/modules/morphological_filter/CMakeLists.txt)
+include(source/modules/opencv_file/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
