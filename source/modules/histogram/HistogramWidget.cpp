@@ -76,7 +76,9 @@ bool HistogramWidget::calculatesResultImage() const
 void HistogramWidget::handleImageChanged(ITKImage image)
 {
     this->image = image;
-    this->calculateHistogram();
+
+    if(this->ui->refresh_on_image_change->isChecked())
+        this->calculateHistogram();
 }
 
 ITKImage HistogramWidget::processImage(ITKImage image)
@@ -139,11 +141,6 @@ void HistogramWidget::calculateEntropy(const std::vector<double>& probabilities)
 void HistogramWidget::handleEntropyLabelTextChange(QString text)
 {
     this->ui->entropy_label->setText(text);
-}
-
-void HistogramWidget::on_histogram_bin_count_spinbox_valueChanged(int arg1)
-{
-    this->calculateHistogram();
 }
 
 void HistogramWidget::calculateHistogram()

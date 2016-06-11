@@ -26,8 +26,6 @@ private slots:
     void histogram_mouse_move(QMouseEvent* event);
     void handleImageChanged(ITKImage image);
 
-    void on_histogram_bin_count_spinbox_valueChanged(int arg1);
-
     void on_window_from_spinbox_valueChanged(double arg1);
 
     void on_window_to_spinbox_valueChanged(double arg1);
