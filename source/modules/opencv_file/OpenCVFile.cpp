@@ -36,8 +36,13 @@ ITKImage OpenCVFile::read(string image_file_path)
     read_hsv_and_process(image_file_path, [&image] (std::vector<Mat>& channels) {
          const Mat& channel = channels.size() > 1 ? channels[2] : channels[0];
          image = ITKImage(channel.cols, channel.rows, 1);
-         image.setEachPixel([&channel](uint x, uint y, uint) {
-             return channel.at<uchar>(y,x);
+
+         PixelReader pixel_reader = [&channel](uint x, uint y) { return channel.at<uchar>(y,x); };
+         if(channel.depth() == CV_16U)
+            pixel_reader = [&channel](uint x, uint y) { return channel.at<ushort>(y,x); };
+
+         image.setEachPixel([pixel_reader](uint x, uint y, uint) {
+             return pixel_reader(x,y);
          });
     });
 
@@ -55,8 +60,14 @@ void OpenCVFile::write_into_hsv_channel(const ITKImage& image, string file_name)
              return;
          }
 
-         image.foreachPixel([&channel](uint x, uint y, uint, ITKImage::PixelType pixel) {
-             channel.at<uchar>(y,x) = saturate_cast<uchar>(pixel);
+         PixelWriter pixel_writer = [&channel](uint x, uint y, ITKImage::PixelType pixel) {
+             channel.at<uchar>(y,x) = pixel; };
+         if(channel.depth() == CV_16U)
+            pixel_writer = [&channel](uint x, uint y, ITKImage::PixelType pixel) {
+                channel.at<ushort>(y,x) = pixel; };
+
+         image.foreachPixel([&pixel_writer](uint x, uint y, uint, ITKImage::PixelType pixel) {
+             pixel_writer(x, y, pixel);
          });
 
          Mat& image_to_save = channel;

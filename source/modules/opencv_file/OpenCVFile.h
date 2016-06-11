@@ -16,6 +16,9 @@ class OpenCVFile
 private:
     OpenCVFile();
 
+    typedef std::function<void(uint x, uint y, ITKImage::PixelType)> PixelWriter;
+    typedef std::function<ITKImage::PixelType(uint x, uint y)> PixelReader;
+
     typedef std::function<void(std::vector<Mat>& channel)> ChannelsProcessor;
     static void read_hsv_and_process(string image_file_path, ChannelsProcessor processor);
 public:
