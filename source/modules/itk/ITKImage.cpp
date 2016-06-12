@@ -139,7 +139,16 @@ void ITKImage::write(std::string image_file_path)
         WriterType::Pointer writer = WriterType::New();
         writer->SetFileName(image_file_path);
         writer->SetInput(cast_filter->GetOutput());
-        writer->Update();
+
+        try
+        {
+            writer->Update();
+
+        }
+        catch(itk::ExceptionObject exception)
+        {
+            std::cerr << exception << std::endl;
+        }
     }
     else
     {
@@ -147,7 +156,15 @@ void ITKImage::write(std::string image_file_path)
         WriterType::Pointer writer = WriterType::New();
         writer->SetFileName(image_file_path);
         writer->SetInput(this->inner_image);
-        writer->Update();
+        try
+        {
+            writer->Update();
+
+        }
+        catch(itk::ExceptionObject exception)
+        {
+            std::cerr << exception << std::endl;
+        }
     }
 }
 

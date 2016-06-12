@@ -5,6 +5,8 @@
 
 #include <QFileDialog>
 
+#include <QThread>
+
 TGVDeshadeWidget::TGVDeshadeWidget(QString title, QWidget* parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::TGVDeshadeWidget)

@@ -39,6 +39,9 @@ private:
 
     uint slice_index;
 
+    bool do_rescale;
+    bool do_multiply;
+
     void paintImage(bool repaint = false);
 
 protected:
@@ -64,6 +67,8 @@ public slots:
     void repaintImageOverlays();
     void sliceIndexChanged(uint slice_index);
 
+    void doRescaleChanged(bool do_rescale);
+    void doMultiplyChanged(bool do_multiply);
 private slots:
     void handleImageChange(ITKImage image);
 };

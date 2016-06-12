@@ -1,6 +1,7 @@
  #include "ITKToQImageConverter.h"
 
 #include "ExtractProcessor.h"
+#include "CudaImageOperationsProcessor.h"
 
 #include <itkRescaleIntensityImageFilter.h>
 #include <QColor>
@@ -8,39 +9,45 @@
 ITKImage::PixelType* ITKToQImageConverter::window_from = nullptr;
 ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
-QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index)
+QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index, bool do_rescale, bool do_multiply)
 {
     ITKImage slice_image = ExtractProcessor::extract_slice(itk_image, slice_index);
 
-    typedef ITKImage::InnerITKImage ImageType;
+    ITKImage::InnerITKImage::Pointer image_to_show;
+    if(do_rescale)
+    {
+        typedef itk::RescaleIntensityImageFilter<ITKImage::InnerITKImage> RescaleFilter;
+        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
+        rescale_filter->SetOutputMinimum(0);
+        rescale_filter->SetOutputMaximum(255);
+        rescale_filter->SetInput( slice_image.getPointer() );
+        rescale_filter->Update();
+        image_to_show = rescale_filter->GetOutput();
+        image_to_show->DisconnectPipeline();
+    }
+    else
+    {
+        slice_image = CudaImageOperationsProcessor::addConstant(slice_image, slice_image.minimum());
+        if(do_multiply)
+            slice_image = CudaImageOperationsProcessor::multiplyConstant(slice_image, 255);
+        image_to_show = slice_image.getPointer();
+    }
 
-    ImageType::RegionType region = itk_image.getPointer()->GetLargestPossibleRegion();
-    ImageType::SizeType size = region.GetSize();
-
-    typedef itk::RescaleIntensityImageFilter<ITKImage::InnerITKImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(255);
-    rescale_filter->SetInput( slice_image.getPointer() );
-    rescale_filter->Update();
-    ImageType::Pointer rescaled_image = rescale_filter->GetOutput();
-    rescaled_image->DisconnectPipeline();
-
-    QImage* q_image = new QImage( QSize(size[0], size[1]), QImage::Format_ARGB32);
+    QImage* q_image = new QImage( itk_image.width, itk_image.height, QImage::Format_ARGB32);
 
     bool invalid_pixel = false;
     for(int x = 0; x < q_image->size().width(); x++)
     {
         for(int y = 0; y < q_image->size().height(); y++)
         {
-            ImageType::IndexType index;
+            ITKImage::InnerITKImage::IndexType index;
             index[0] = x;
             index[1] = y;
 
             if(itk_image.getImageDimension() > 2)
                 index[2] = 0;
 
-            int value = rescaled_image->GetPixel(index);
+            int value = image_to_show->GetPixel(index);
 
             if(value < 0)
             {

@@ -12,7 +12,9 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     ui(new Ui::ImageViewWidget),
     q_image(nullptr),
     image(ITKImage::Null),
-    slice_index(0)
+    slice_index(0),
+    do_rescale(true),
+    do_multiply(false)
 {
     this->ui->setupUi(this);
 
@@ -75,6 +77,18 @@ void ImageViewWidget::sliceIndexChanged(uint slice_index)
     this->repaintImage();
 }
 
+void ImageViewWidget::doRescaleChanged(bool do_rescale)
+{
+    this->do_rescale = do_rescale;
+    this->repaintImage();
+}
+
+void ImageViewWidget::doMultiplyChanged(bool do_multiply)
+{
+    this->do_multiply = do_multiply;
+    this->repaintImage();
+}
+
 void ImageViewWidget::paintImage(bool repaint)
 {
     if(this->image.isNull())
@@ -95,7 +109,9 @@ void ImageViewWidget::paintImage(bool repaint)
         this->slice_index = this->image.depth - 1;
 
     q_image = ITKToQImageConverter::convert(this->image,
-                                            this->slice_index);
+                                            this->slice_index,
+                                            this->do_rescale,
+                                            this->do_multiply);
 
     this->ui->image_frame->setUpdatesEnabled(false);
 

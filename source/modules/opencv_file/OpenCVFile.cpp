@@ -66,7 +66,7 @@ void OpenCVFile::write_into_hsv_channel(const ITKImage& image, string file_name)
             pixel_writer = [&channel](uint x, uint y, ITKImage::PixelType pixel) {
                 channel.at<ushort>(y,x) = pixel; };
 
-         image.foreachPixel([&pixel_writer](uint x, uint y, uint, ITKImage::PixelType pixel) {
+         image.foreachPixel([pixel_writer](uint x, uint y, uint, ITKImage::PixelType pixel) {
              pixel_writer(x, y, pixel);
          });
 

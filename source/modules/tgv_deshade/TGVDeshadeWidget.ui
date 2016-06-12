@@ -49,7 +49,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_5">
+       <widget class="QGroupBox" name="iteration_count_box">
         <property name="title">
          <string>Iteration Count</string>
         </property>
@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QGroupBox" name="alpha0_box">
         <property name="title">
          <string>Alpha0</string>
         </property>
@@ -82,7 +82,7 @@
          <item>
           <widget class="QDoubleSpinBox" name="alpha0_spinbox">
            <property name="decimals">
-            <number>3</number>
+            <number>8</number>
            </property>
            <property name="maximum">
             <double>99999999999.000000000000000</double>
@@ -99,7 +99,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="alpha1_box">
         <property name="title">
          <string>Alpha1</string>
         </property>
@@ -107,13 +107,13 @@
          <item>
           <widget class="QDoubleSpinBox" name="alpha1_spinbox">
            <property name="decimals">
-            <number>3</number>
+            <number>8</number>
            </property>
            <property name="maximum">
             <double>999999999999.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.010000000000000</double>
+            <double>0.001000000000000</double>
            </property>
            <property name="value">
             <double>1.000000000000000</double>
@@ -208,7 +208,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_7">
+       <widget class="QGroupBox" name="paint_interval_box">
         <property name="title">
          <string>Paint Interval</string>
         </property>

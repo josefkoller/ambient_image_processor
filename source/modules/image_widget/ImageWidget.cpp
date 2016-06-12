@@ -33,6 +33,8 @@
 #include "TGVDeshadeWidget.h"
 #include "UnaryOperationsWidget.h"
 #include "MorphologicalFilterWidget.h"
+#include "ImageViewControlWidget.h"
+#include "TGVNonParametricDeshade.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -66,13 +68,17 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
     auto tgv_shading_growing_widget = new TGVShadingGrowingWidget("TGV Shading Growing", module_parent);
     auto tgv_deshade_widget = new TGVDeshadeWidget("TGV Deshade", module_parent);
+    auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshade("TGV Non Parametric Deshade", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
 
+    auto image_view_control_widget = new ImageViewControlWidget("Image View Control", module_parent);
+
     modules.push_back(this->image_view_widget);
     modules.push_back(this->slice_control_widget);
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
+    modules.push_back(image_view_control_widget);
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
@@ -99,7 +105,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(deshade_segmented_widget);
     modules.push_back(tgv_shading_growing_widget);
     modules.push_back(tgv_deshade_widget);
-
+    modules.push_back(tgv_non_parametric_deshade_widget);
 
     // register modules and add widget modules
     module_parent->hide();
@@ -192,6 +198,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
     this->layout()->setMenuBar(menu_bar);
 
     // connect modules...
+
+    connect(image_view_control_widget, &ImageViewControlWidget::doRescaleChanged,
+            this->image_view_widget, &ImageViewWidget::doRescaleChanged);
+    connect(image_view_control_widget, &ImageViewControlWidget::doMultiplyChanged,
+            this->image_view_widget, &ImageViewWidget::doMultiplyChanged);
 
     deshade_segmented_widget->setSegmentsFetcher([region_growing_segmentation_widget]() {
         return region_growing_segmentation_widget->getSegments();

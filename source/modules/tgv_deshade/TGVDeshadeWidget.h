@@ -18,7 +18,7 @@ public:
     TGVDeshadeWidget(QString title, QWidget *parent);
     ~TGVDeshadeWidget();
 
-private:
+protected:
     Ui::TGVDeshadeWidget *ui;
 
     ImageViewWidget* shading_output_view;
