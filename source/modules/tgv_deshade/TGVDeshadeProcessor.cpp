@@ -333,11 +333,17 @@ TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceTest(
         auto l = ITKImage();
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
-                                                  mask, set_negative_values_to_zero,
-                                                  l);
+                                                  mask, set_negative_values_to_zero, l);
+
+          Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
+              input_image.width, input_image.height, input_image.depth);
+          ITKImage divergence_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+          delete[] divergence;
+
         if(!l_before.isNull())
         {
             MetricValues metric_values;
+
             metric_values.push_back(normalized_cross_correlation(l, l_before));
             metric_values.push_back(time_tv(l, l_before));
      //       metric_values.push_back(normalized_cross_correlation(r, r_before));
@@ -435,7 +441,6 @@ void TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
         ITKImage& deshaded_image)
 {
     const uint check_iteration_count = 10;
-    const MetricValue metricValueThreshold = 0.9;
 
     // find decade of the step sizes
     const uint alpha_values_count = 11;
@@ -471,9 +476,11 @@ void TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
     std::cout << "alpha1: " << alpha1 << std::endl;
 
     // find ratio of the step sizes
-    const uint alpha_ratios_count = 8;
-    const double alpha_ratios[alpha_ratios_count] = { 1, 1.5, 1.8, 2, 2.2, 2.4, 2.6, 2.8 };
-    double metricValuesRatio[alpha_ratios_count] = { 0 };
+    const uint alpha_ratios_count = 9;
+    const double alpha_ratios[alpha_ratios_count] = { 1, 1.5, 1.8, 2, 2.2, 2.3, 2.35, 2.4, 2.45 };
+    // take maximum
+    uint bestIndex = 0;
+    MetricValue bestMetricValue = 0;
     for(int i = 0; i < alpha_ratios_count; i++)
     {
         auto alpha_ratio = alpha_ratios[i];
@@ -481,27 +488,20 @@ void TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
         MetricValues metricValues = processTGV2L1DeshadeCuda_convergenceTestMetric(
                     input_image, lambda, alpha0, alpha1,
                     check_iteration_count, 1, mask, set_negative_values_to_zero);
-        MetricValue metricValue = metricValues[1];
-        metricValuesRatio[i] = metricValue;
-    }
-    // take maximum
-    double bestMetric = metricValuesRatio[0];
-    uint bestIndex = 0;
-    for(int i = 1; i < alpha_ratios_count; i++)
-    {
-        std::cout << "         alpha_ratios metrics: " << metricValuesRatio[i] << std::endl;
 
-        if(metricValuesRatio[i] > bestMetric)
+        MetricValue metricValue = metricValues[1];
+        std::cout << "         alpha_ratios metrics: " << metricValue << std::endl;
+
+        if(metricValue > bestMetricValue)
         {
-            bestMetric = metricValuesRatio[i];
+            bestMetricValue = metricValue;
             bestIndex = i;
         }
     }
-    std::cout << "bestIndex: " << bestIndex << std::endl;
-    std::cout << "alpha1: " << alpha1 << std::endl;
-    std::cout << "alpha ratio: " << alpha_ratios[bestIndex] << std::endl;
+
     const double alpha0 = alpha_ratios[bestIndex] * alpha1;
     std::cout << "alpha0: " << alpha0 << std::endl;
+    std::cout << "alpha1: " << alpha1 << std::endl;
 
     const uint iteration_count = 500;
     processTGV2L1GPUCuda(

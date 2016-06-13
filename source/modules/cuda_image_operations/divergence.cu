@@ -14,6 +14,40 @@ __global__ void divergence_kernel(
     image1[index] = image1[index] * image2[index];
 }
 
+
+template<typename Pixel>
+Pixel* launch_divergence(
+        Pixel* dx, Pixel* dy, Pixel* dz,
+        Pixel* dxdx, Pixel* dydy, Pixel* dzdz,
+
+        const uint width, const uint height, const uint depth,
+
+        dim3 block_dimension,
+        dim3 grid_dimension,
+        dim3 grid_dimension_x,
+        dim3 grid_dimension_y,
+        dim3 grid_dimension_z)
+{
+    tgv_launch_backward_differences<Pixel>(
+            dxdx, dydy, dzdz,
+            dx, dy, dz,
+            width, height, depth,
+            block_dimension,
+            grid_dimension_x,
+            grid_dimension_y,
+            grid_dimension_z);
+
+    add_kernel<<<grid_dimension, block_dimension>>>(
+         dxdx, dydy, width, height, depth);
+    cudaCheckError( cudaDeviceSynchronize() );
+    if(depth > 1)
+    {
+        add_kernel<<<grid_dimension, block_dimension>>>(
+             dxdx, dzdz, width, height, depth);
+        cudaCheckError( cudaDeviceSynchronize() );
+    }
+}
+
 template<typename Pixel>
 Pixel* divergence_kernel_launch(
         Pixel* dx, Pixel* dy, Pixel* dz,
@@ -67,23 +101,16 @@ Pixel* divergence_kernel_launch(
       cudaCheckError( cudaMallocManaged(&dzdz, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
-    tgv_launch_backward_differences<Pixel>(
-            dxdx, dydy, dzdz,
-            dx, dy, dz,
-            width, height, depth,
-            block_dimension,
-            grid_dimension_x,
-            grid_dimension_y,
-            grid_dimension_z);
-
-    add_kernel<<<grid_dimension, block_dimension>>>(
-         dxdx, dydy, width, height, depth);
-    cudaCheckError( cudaDeviceSynchronize() );
+    launch_divergence(dx, dy, dz,
+                      dxdx, dydy, dzdz,
+                      width, height, depth,
+                      block_dimension,
+                      grid_dimension,
+                      grid_dimension_x,
+                      grid_dimension_y,
+                      grid_dimension_z);
     if(depth > 1)
     {
-        add_kernel<<<grid_dimension, block_dimension>>>(
-             dxdx, dzdz, width, height, depth);
-        cudaCheckError( cudaDeviceSynchronize() );
         cudaFree(dzdz);
     }
 

@@ -34,7 +34,7 @@
 #include "UnaryOperationsWidget.h"
 #include "MorphologicalFilterWidget.h"
 #include "ImageViewControlWidget.h"
-#include "TGVNonParametricDeshade.h"
+#include "TGVNonParametricDeshadeWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -68,7 +68,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
     auto tgv_shading_growing_widget = new TGVShadingGrowingWidget("TGV Shading Growing", module_parent);
     auto tgv_deshade_widget = new TGVDeshadeWidget("TGV Deshade", module_parent);
-    auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshade("TGV Non Parametric Deshade", module_parent);
+    auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshadeWidget("TGV Non Parametric Deshade", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);

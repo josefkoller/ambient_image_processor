@@ -1,4 +1,3 @@
-
 #include "cuda_helper.cuh"
 
 template<typename Pixel>
