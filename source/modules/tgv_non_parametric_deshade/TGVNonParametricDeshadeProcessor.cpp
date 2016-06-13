@@ -11,7 +11,7 @@ void tgv2_l1_non_parametric_deshade_launch(
     Pixel* mask,
 
     const uint check_iteration_count,
-    const Pixel alpha_ratio_step_min,
+    const Pixel alpha_step_minimum,
     const uint final_iteration_count,
 
     TGVNonParametricDeshadeProcessor::CosineTransformCallback<Pixel> cosine_transform_callback,
@@ -29,7 +29,7 @@ void TGVNonParametricDeshadeProcessor::performTGVDeshade(
         const ITKImage& mask_image,
 
         const uint check_iteration_count,
-        const Pixel alpha_ratio_step_min,
+        const Pixel alpha_step_minimum,
         const uint final_iteration_count,
 
 
@@ -52,7 +52,7 @@ void TGVNonParametricDeshadeProcessor::performTGVDeshade(
 
     tgv2_l1_non_parametric_deshade_launch(f, input_image.width, input_image.height, input_image.depth,
         lambda, mask,
-        check_iteration_count, alpha_ratio_step_min, final_iteration_count,
+        check_iteration_count, alpha_step_minimum, final_iteration_count,
         cosine_transform_callback,
         &denoised_pixels, &shading_pixels, &deshaded_pixels);
 

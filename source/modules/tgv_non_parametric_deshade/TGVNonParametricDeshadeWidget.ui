@@ -76,13 +76,16 @@
       <item>
        <widget class="QGroupBox" name="groupBox_4">
         <property name="title">
-         <string>Alpha Ratio Step Minimum</string>
+         <string>Minimum Alpha Ratio Step</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QDoubleSpinBox" name="alpha_ratio_step_minimum_spinbox">
+          <widget class="QDoubleSpinBox" name="alpha_step_minimum_spinbox">
+           <property name="decimals">
+            <number>8</number>
+           </property>
            <property name="value">
-            <double>0.010000000000000</double>
+            <double>0.050000000000000</double>
            </property>
           </widget>
          </item>
@@ -106,13 +109,6 @@
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="method1_checkbox">
-        <property name="text">
-         <string>Method1</string>
-        </property>
        </widget>
       </item>
       <item>

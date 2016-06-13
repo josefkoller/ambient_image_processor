@@ -45,15 +45,14 @@ ITKImage TGVNonParametricDeshadeWidget::processImage(ITKImage image)
     auto mask = this->mask_view->getImage();
 
     const uint check_iteration_count = this->ui->check_iteration_count_spinbox->value();
-    const uint alpha_ratio_step_minimum = this->ui->alpha_ratio_step_minimum_spinbox->value();
+    const ITKImage::PixelType alpha_step_minimum = this->ui->alpha_step_minimum_spinbox->value();
     const uint final_iteration_count = this->ui->final_iteration_count_spinbox->value();
 
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
 
-    if(ui->method1_checkbox->isChecked())
-    {
+  /*
         // optimization by calling the standard tgv deshade cuda routine
         TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
                     image,
@@ -63,14 +62,12 @@ ITKImage TGVNonParametricDeshadeWidget::processImage(ITKImage image)
                     denoised_image,
                     shading_image,
                     deshaded_image);
-    }
-    else
-    {
+    */
         TGVNonParametricDeshadeProcessor::performTGVDeshade( // special tgv cuda deshade routine
                     image, lambda, mask,
-                    check_iteration_count, alpha_ratio_step_minimum, final_iteration_count,
+                    check_iteration_count, alpha_step_minimum, final_iteration_count,
                     denoised_image, shading_image, deshaded_image);
-    }
+
 
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);

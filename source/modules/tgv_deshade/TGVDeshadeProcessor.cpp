@@ -129,10 +129,12 @@ ITKImage::PixelType TGVDeshadeProcessor::normalized_cross_correlation(const ITKI
     const auto mean2 = mean(image1);
     const auto std2 = standard_deviation(image2, mean2);
 
+    /*
     printf("mean1: %f \n", mean1);
     printf("std1: %f \n", std1);
     printf("mean2: %f \n", mean2);
     printf("std2: %f \n", std2);
+    */
 
     ITKImage::PixelType normalized_cross_correlation = 0;
     image1.foreachPixel([mean1, mean2, &image2, &normalized_cross_correlation] (uint x, uint y, uint z, ITKImage::PixelType pixel1) {

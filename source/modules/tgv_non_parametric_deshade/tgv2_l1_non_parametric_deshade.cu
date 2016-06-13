@@ -14,7 +14,12 @@ DimensionSize width, DimensionSize height, DimensionSize depth,
 Pixel* result, bool is_inverse)>;
 
 template<typename Pixel>
-using IterateCallback = std::function<Pixel(const Pixel alpha0, const Pixel alpha1)>;
+using MetricCallback = std::function<Pixel(Pixel* image1, Pixel* image2, DimensionSize voxel_count)>;
+
+template<typename Pixel>
+using IterateCallback = std::function<Pixel(const Pixel alpha0, const Pixel alpha1,
+    MetricCallback<Pixel> metric_callback)>;
+
 
 // kernel forward declarations...
 
@@ -82,9 +87,17 @@ __global__ void multiply_constant_kernel1(
 // optimization
 template<typename Pixel>
 void tgv2_l1_non_parametric_deshade_optimize(IterateCallback<Pixel> iterate_callback,
-                                             const Pixel alpha_ratio_step_min,
+                                             const Pixel alpha_step_minimum,
                                              const uint final_iteration_count)
 {
+
+    MetricCallback<Pixel> metric1 = [](Pixel* image1, Pixel* image2, DimensionSize voxel_count) {
+        return normalized_cross_correlation(image1, image2, voxel_count);
+    };
+    MetricCallback<Pixel> metric2 = [](Pixel* image1, Pixel* image2, DimensionSize voxel_count) {
+        return sum_of_absolute_differences(image1, image2, voxel_count);
+    };
+
     typedef Pixel MetricValue;
     // 1. find decade of the step sizes
 
@@ -96,8 +109,8 @@ void tgv2_l1_non_parametric_deshade_optimize(IterateCallback<Pixel> iterate_call
     {
         alpha_value = std::pow(10, -i);
 
-        MetricValue metric_value = iterate_callback(alpha_value, alpha_value);
-        printf("alpha_value: %1.10f, metric: %f \n", alpha_value, metric_value);
+        MetricValue metric_value = iterate_callback(alpha_value, alpha_value, metric1);
+      // printf("alpha_value: %1.10f, metric: %f \n", alpha_value, metric_value);
         if(metric_value < previous_metric_value)
         {
             alpha_value = std::pow(10, - (i - 1));
@@ -108,7 +121,42 @@ void tgv2_l1_non_parametric_deshade_optimize(IterateCallback<Pixel> iterate_call
     const Pixel alpha1 = alpha_value;
     printf("alpha1: %10.10f \n", alpha1);
 
+    printf("alpha_step_minimum: %1.8f \n", alpha_step_minimum);
 
+    // 2. find ratio of the step sizes
+    Pixel alpha0 = alpha1;
+    Pixel alpha_step_size = alpha1;
+    for(int i = 0; i < 30; i++)
+    {
+        MetricValue metric_value = iterate_callback(alpha0, alpha1, metric2);
+    //    printf("alpha0: %1.8f, alpha1: %1.8f metric: %3.8f \n", alpha0, alpha1, metric_value);
+
+        if(i > 0)
+        {
+            if(metric_value > previous_metric_value)
+            {
+                // passed a maximum
+                alpha_step_size *= -0.5;
+
+                const Pixel alpha_ratio_step_size = std::abs(alpha_step_size) / alpha0;
+        //        printf("step size: %1.8f \n", alpha_step_size);
+        //        printf("alpha_ratio_step_size: %1.8f \n", alpha_ratio_step_size);
+
+                if(alpha_ratio_step_size < alpha_step_minimum)
+                {
+                    printf("minimum step size reached\n");
+                    break;
+                }
+            }
+        }
+        previous_metric_value = metric_value;
+        alpha0 += alpha_step_size;
+    }
+    printf("alpha0: %10.10f \n", alpha0);
+    printf("alpha1: %10.10f \n", alpha1);
+
+    for(int i = 0; i < final_iteration_count; i++)
+        iterate_callback(alpha0, alpha1, nullptr); // without metric calculation
 
 }
 
@@ -121,7 +169,7 @@ void tgv2_l1_non_parametric_deshade_launch(
         Pixel* mask_host,
 
         const uint check_iteration_count,
-        const Pixel alpha_ratio_step_min,
+        const Pixel alpha_step_minimum,
         const uint final_iteration_count,
 
         CosineTransformCallback<Pixel> cosine_transform_callback,
@@ -191,7 +239,8 @@ void tgv2_l1_non_parametric_deshade_launch(
     const Pixel sigma = tau;
     const Pixel theta = 1;
 
-    IterateCallback<Pixel> iterate_callback = [=](const Pixel alpha0, const Pixel alpha1) {
+    IterateCallback<Pixel> iterate_callback = [=](const Pixel alpha0, const Pixel alpha1,
+            MetricCallback<Pixel> metric_callback) {
         // algorithm begin
         tgv2_l1_non_parametric_deshade_zero_init(
                 p_x, p_y, p_z,
@@ -263,11 +312,13 @@ void tgv2_l1_non_parametric_deshade_launch(
                 q_temp,
 
                 shading_image,
-                deshaded_image);
+                deshaded_image,
+
+                metric_callback);
     };
 
     // optimization ...
-    tgv2_l1_non_parametric_deshade_optimize(iterate_callback, alpha_ratio_step_min, final_iteration_count);
+    tgv2_l1_non_parametric_deshade_optimize(iterate_callback, alpha_step_minimum, final_iteration_count);
 
     // deshaded...
     subtract_kernel3<<<grid_dimension, block_dimension>>>(
@@ -454,7 +505,9 @@ Pixel tgv2_l1_non_parametric_deshade_iterate(
         Pixel* q_temp,
 
         Pixel* shading_image,
-        Pixel* deshaded_image)
+        Pixel* deshaded_image,
+
+        MetricCallback<Pixel> metric_callback)
 {
     uint voxel_count = width * height * depth;
 
@@ -570,14 +623,15 @@ Pixel tgv2_l1_non_parametric_deshade_iterate(
                     cosine_transform_callback,
                     shading_image);
 
+        if(metric_callback == nullptr)
+            continue;
+
         if(iteration_index > 0)
         {
             // convergence check
-            Pixel metric = normalized_cross_correlation(shading_image, shading_image_previous, voxel_count);
+            Pixel metric = metric_callback(shading_image, shading_image_previous, voxel_count);
 
-            printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
-
-         //   float sad = sum_of_absolute_differences(shading_image, shading_image_before, voxel_count);
+     //       printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
 
             if(iteration_index > 1)
             {
@@ -602,7 +656,7 @@ const float lambda,
 float* mask_host,
 
 const uint check_iteration_count,
-const float alpha_ratio_step_min,
+const float alpha_step_minimum,
 const uint final_iteration_count,
 
 CosineTransformCallback<float> cosine_transform_callback,
@@ -617,7 +671,7 @@ const double lambda,
 double* mask_host,
 
 const uint check_iteration_count,
-const double alpha_ratio_step_min,
+const double alpha_step_minimum,
 const uint final_iteration_count,
 
 CosineTransformCallback<double> cosine_transform_callback,

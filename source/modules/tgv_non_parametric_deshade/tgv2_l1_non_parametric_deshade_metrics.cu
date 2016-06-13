@@ -34,10 +34,12 @@ Pixel  normalized_cross_correlation(
     const auto mean2 = mean(image2, voxel_count);
     const auto std2 = standard_deviation(image2, voxel_count, mean2);
 
+    /*
     printf("mean1: %f \n", mean1);
     printf("std1: %f \n", std1);
     printf("mean2: %f \n", mean2);
     printf("std2: %f \n", std2);
+    */
 
     Pixel normalized_cross_correlation = 0;
     for(int i = 0; i < voxel_count; i++)

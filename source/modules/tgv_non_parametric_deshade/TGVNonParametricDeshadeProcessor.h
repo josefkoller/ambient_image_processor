@@ -25,7 +25,7 @@ public:
             const ITKImage& mask_image,
 
             const uint check_iteration_count,
-            const Pixel alpha_ratio_step_min,
+            const Pixel alpha_step_minimum,
             const uint final_iteration_count,
 
             ITKImage& denoised_image,
