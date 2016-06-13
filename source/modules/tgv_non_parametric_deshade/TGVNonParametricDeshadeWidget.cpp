@@ -1,6 +1,7 @@
 #include "TGVNonParametricDeshadeWidget.h"
 #include "ui_TGVNonParametricDeshadeWidget.h"
 
+#include "TGVDeshadeProcessor.h"
 #include "TGVNonParametricDeshadeProcessor.h"
 
 #include <QFileDialog>
@@ -51,21 +52,26 @@ ITKImage TGVNonParametricDeshadeWidget::processImage(ITKImage image)
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
 
-    TGVNonParametricDeshadeProcessor::performTGVDeshade( // special tgv cuda deshade routine
-                image, lambda, mask,
-                check_iteration_count, alpha_ratio_step_minimum, final_iteration_count,
-                denoised_image, shading_image, deshaded_image);
+    if(ui->method1_checkbox->isChecked())
+    {
+        // optimization by calling the standard tgv deshade cuda routine
+        TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
+                    image,
+                    lambda,
+                    mask,
+                    false,
+                    denoised_image,
+                    shading_image,
+                    deshaded_image);
+    }
+    else
+    {
+        TGVNonParametricDeshadeProcessor::performTGVDeshade( // special tgv cuda deshade routine
+                    image, lambda, mask,
+                    check_iteration_count, alpha_ratio_step_minimum, final_iteration_count,
+                    denoised_image, shading_image, deshaded_image);
+    }
 
-    /* optimization by calling the standard tgv deshade cuda routine
-    TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
-                image,
-                lambda,
-                mask,
-                set_negative_values_to_zero,
-                denoised_image,
-                shading_image,
-                deshaded_image);
-    */
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
     return deshaded_image;

@@ -1,4 +1,6 @@
 
+#include "stdio.h"
+
 typedef const unsigned int DimensionSize;
 
 template<typename Pixel>
@@ -19,7 +21,7 @@ Pixel  standard_deviation(Pixel* image, DimensionSize voxel_count, Pixel mean)
         Pixel difference = image[i] - mean;
         sum+= difference * difference;
     }
-    return std::sqrt(sum / (voxel_count - 1)); // TODO sqrt
+    return std::sqrt(sum / (voxel_count - 1));
 }
 
 template<typename Pixel>
@@ -29,8 +31,13 @@ Pixel  normalized_cross_correlation(
 {
     const auto mean1 = mean(image1, voxel_count);
     const auto std1 = standard_deviation(image1, voxel_count, mean1);
-    const auto mean2 = mean(image1, voxel_count);
+    const auto mean2 = mean(image2, voxel_count);
     const auto std2 = standard_deviation(image2, voxel_count, mean2);
+
+    printf("mean1: %f \n", mean1);
+    printf("std1: %f \n", std1);
+    printf("mean2: %f \n", mean2);
+    printf("std2: %f \n", std2);
 
     Pixel normalized_cross_correlation = 0;
     for(int i = 0; i < voxel_count; i++)

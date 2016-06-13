@@ -118,7 +118,7 @@ ITKImage::PixelType TGVDeshadeProcessor::standard_deviation(const ITKImage& imag
         const auto difference = pixel - mean;
         standard_deviation+= difference * difference;
     });
-    return std::sqrt(standard_deviation /= (image.voxel_count - 1));
+    return std::sqrt(standard_deviation / (image.voxel_count - 1));
 }
 
 ITKImage::PixelType TGVDeshadeProcessor::normalized_cross_correlation(const ITKImage& image1,
@@ -128,6 +128,11 @@ ITKImage::PixelType TGVDeshadeProcessor::normalized_cross_correlation(const ITKI
     const auto std1 = standard_deviation(image1, mean1);
     const auto mean2 = mean(image1);
     const auto std2 = standard_deviation(image2, mean2);
+
+    printf("mean1: %f \n", mean1);
+    printf("std1: %f \n", std1);
+    printf("mean2: %f \n", mean2);
+    printf("std2: %f \n", std2);
 
     ITKImage::PixelType normalized_cross_correlation = 0;
     image1.foreachPixel([mean1, mean2, &image2, &normalized_cross_correlation] (uint x, uint y, uint z, ITKImage::PixelType pixel1) {
@@ -161,9 +166,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
 {
     Pixel* f = input_image.cloneToPixelArray();
 
-    ITKImage r_before = ITKImage();
-    ITKImage l_before = ITKImage();
-    IterationCallback<Pixel> iteration_callback = [&r_before, &l_before, &input_image, iteration_finished_callback, &mask, set_negative_values_to_zero] (
+    IterationCallback<Pixel> iteration_callback = [&input_image, iteration_finished_callback, &mask, set_negative_values_to_zero] (
             uint iteration_index, uint iteration_count, Pixel* u_pixels,
             Pixel* v_x, Pixel* v_y, Pixel* v_z) {
         auto u = ITKImage(input_image.width, input_image.height, input_image.depth, u_pixels);
@@ -172,21 +175,6 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero,
                                                   l);
-
-        if(!l_before.isNull())
-        {
-            std::cout << "       l -> ncc:" << normalized_cross_correlation(l, l_before) << std::endl;
-            std::cout << "       l -> ttv:" << time_tv(l, l_before) << std::endl;
-
-        }
-        l_before = l;
-
-        if(!r_before.isNull())
-        {
-            std::cout << "       r -> ncc:" << normalized_cross_correlation(r, r_before) << std::endl;
-            std::cout << "       r -> ttv:" << time_tv(r, r_before) << std::endl;
-        }
-        r_before = r;
 
         return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
     };
@@ -334,17 +322,15 @@ TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceTest(
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero, l);
-
-          Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
-              input_image.width, input_image.height, input_image.depth);
-          ITKImage divergence_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
-          delete[] divergence;
-
         if(!l_before.isNull())
         {
             MetricValues metric_values;
 
-            metric_values.push_back(normalized_cross_correlation(l, l_before));
+            auto metric1 = normalized_cross_correlation(l, l_before);
+
+            std::cout << "iteration " << iteration_index << ", metric1: " << metric1 << std::endl;
+
+            metric_values.push_back(metric1);
             metric_values.push_back(time_tv(l, l_before));
      //       metric_values.push_back(normalized_cross_correlation(r, r_before));
     //        metric_values.push_back(time_tv(r, r_before));

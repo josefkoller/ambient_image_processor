@@ -57,7 +57,7 @@
          <item>
           <widget class="QSpinBox" name="check_iteration_count_spinbox">
            <property name="minimum">
-            <number>2</number>
+            <number>1</number>
            </property>
            <property name="maximum">
             <number>99999999</number>
@@ -106,6 +106,13 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="method1_checkbox">
+        <property name="text">
+         <string>Method1</string>
+        </property>
        </widget>
       </item>
       <item>

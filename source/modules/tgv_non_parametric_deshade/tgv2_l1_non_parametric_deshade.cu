@@ -43,6 +43,18 @@ Pixel* launch_divergence(
 
 // kernel
 template<typename Pixel>
+__global__ void clone1(
+        Pixel* image1, Pixel* result,
+        const uint voxel_count)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= voxel_count)
+        return;
+
+    result[index] = image1[index];
+}
+template<typename Pixel>
 __global__ void subtract_kernel3(
         Pixel* image1, Pixel* image2, Pixel* result,
         const uint voxel_count)
@@ -73,9 +85,31 @@ void tgv2_l1_non_parametric_deshade_optimize(IterateCallback<Pixel> iterate_call
                                              const Pixel alpha_ratio_step_min,
                                              const uint final_iteration_count)
 {
-    Pixel alpha0 = 2;
-    Pixel alpha1 = 1;
-    Pixel metric1 = iterate_callback(alpha0, alpha1);
+    typedef Pixel MetricValue;
+    // 1. find decade of the step sizes
+
+    Pixel alpha_value = 1;
+    MetricValue previous_metric_value = 0;
+
+    const uint alpha_decades_count = 10;
+    for(int i = 0; i < alpha_decades_count; i++)
+    {
+        alpha_value = std::pow(10, -i);
+
+        MetricValue metric_value = iterate_callback(alpha_value, alpha_value);
+        printf("alpha_value: %1.10f, metric: %f \n", alpha_value, metric_value);
+        if(metric_value < previous_metric_value)
+        {
+            alpha_value = std::pow(10, - (i - 1));
+            break;
+        }
+        previous_metric_value = metric_value;
+    }
+    const Pixel alpha1 = alpha_value;
+    printf("alpha1: %10.10f \n", alpha1);
+
+
+
 }
 
 template<typename Pixel>
@@ -235,6 +269,10 @@ void tgv2_l1_non_parametric_deshade_launch(
     // optimization ...
     tgv2_l1_non_parametric_deshade_optimize(iterate_callback, alpha_ratio_step_min, final_iteration_count);
 
+    // deshaded...
+    subtract_kernel3<<<grid_dimension, block_dimension>>>(
+      u, shading_image, deshaded_image, voxel_count);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     // free
     if(mask != nullptr)
@@ -302,7 +340,7 @@ void tgv2_l1_non_parametric_deshade_zero_init(
 }
 
 template<typename Pixel>
-void tgv2_l1_non_parametric_deshade_calculate_shading_and_deshaded(
+void tgv2_l1_non_parametric_deshade_calculate_shading(
         uint width, uint height, uint depth,
         dim3 block_dimension,
         dim3 grid_dimension,
@@ -321,13 +359,12 @@ void tgv2_l1_non_parametric_deshade_calculate_shading_and_deshaded(
 
         CosineTransformCallback<Pixel> cosine_transform_callback,
 
-        Pixel* shading_image,
-        Pixel* deshaded_image)
+        Pixel* shading_image)
 {
     // uses deshaded_image as a temp variable
 
     launch_divergence(v_x, v_y, v_z,
-                      deshaded_image, temp_y, temp_z,
+                      temp_x, temp_y, temp_z,
                       width, height, depth,
                       block_dimension,
                       grid_dimension,
@@ -336,17 +373,17 @@ void tgv2_l1_non_parametric_deshade_calculate_shading_and_deshaded(
                       grid_dimension_z);
 
     cosine_transform_callback(
-                deshaded_image,
+                temp_x,
                 width, height, depth,
                 shading_image, false);
 
     solve_poisson_in_cosine_domain_kernel<<<grid_dimension, block_dimension>>>(
       shading_image, width, height, depth,
-      deshaded_image);
+      temp_x);
     cudaCheckError( cudaDeviceSynchronize() );
 
     cosine_transform_callback(
-                deshaded_image,
+                temp_x,
                 width, height, depth,
                 shading_image, true);  // inverse
 
@@ -354,10 +391,6 @@ void tgv2_l1_non_parametric_deshade_calculate_shading_and_deshaded(
     Pixel constant = 0.25 * 0.5 / voxel_count; // multiply by the idct normalization factor
     multiply_constant_kernel1<<<grid_dimension, block_dimension>>>(
       shading_image, constant, voxel_count);
-    cudaCheckError( cudaDeviceSynchronize() );
-
-    subtract_kernel3<<<grid_dimension, block_dimension>>>(
-      u, shading_image, deshaded_image, voxel_count);
     cudaCheckError( cudaDeviceSynchronize() );
 }
 
@@ -425,11 +458,9 @@ Pixel tgv2_l1_non_parametric_deshade_iterate(
 {
     uint voxel_count = width * height * depth;
 
-    /*
-    Pixel* shading_image_previous = nullptr;
+    Pixel* shading_image_previous = deshaded_image;
     Pixel metric_previous;
     Pixel metric_sum = 0;
-    */
 
     for(uint iteration_index = 0; iteration_index < check_iteration_count; iteration_index++)
     {
@@ -527,7 +558,7 @@ Pixel tgv2_l1_non_parametric_deshade_iterate(
                                                                 width, height, depth);
         cudaCheckError( cudaDeviceSynchronize() );
 
-        tgv2_l1_non_parametric_deshade_calculate_shading_and_deshaded(
+        tgv2_l1_non_parametric_deshade_calculate_shading(
                     width, height, depth,
                     block_dimension,
                     grid_dimension,
@@ -537,24 +568,28 @@ Pixel tgv2_l1_non_parametric_deshade_iterate(
                     p_x, p_y, p_z,
 
                     cosine_transform_callback,
-                    shading_image,
-                    deshaded_image);
+                    shading_image);
 
-        /*
-        if(shading_image_before != nullptr)
+        if(iteration_index > 0)
         {
             // convergence check
-            float metric = normalized_cross_correlation(shading_image, shading_image_before, voxel_count);
+            Pixel metric = normalized_cross_correlation(shading_image, shading_image_previous, voxel_count);
+
+            printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
+
          //   float sad = sum_of_absolute_differences(shading_image, shading_image_before, voxel_count);
-            metric_sum += abs(metric - metric_before);
 
-            metric_before = metric;
+            if(iteration_index > 1)
+            {
+                metric_sum += std::abs(metric - metric_previous);
+            }
+            metric_previous = metric;
+
         }
-        */
+        clone1<<<grid_dimension, block_dimension>>>(shading_image, shading_image_previous, voxel_count);
+        cudaCheckError( cudaDeviceSynchronize() );
     }
-
-    return 0;
-    //return metric_sum;
+    return metric_sum;
 }
 
 
