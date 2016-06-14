@@ -419,6 +419,7 @@ void TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceTestToFile(
     stream.close();
 }
 
+
 void TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceOptimization(
         ITKImage input_image,
         const Pixel lambda,

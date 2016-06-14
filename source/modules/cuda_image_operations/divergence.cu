@@ -16,7 +16,7 @@ __global__ void divergence_kernel(
 
 
 template<typename Pixel>
-Pixel* launch_divergence(
+void launch_divergence(
         Pixel* dx, Pixel* dy, Pixel* dz,
         Pixel* dxdx, Pixel* dydy, Pixel* dzdz,
 
