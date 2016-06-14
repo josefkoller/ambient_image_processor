@@ -225,7 +225,7 @@
         <property name="title">
          <string>Metric Plot</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <layout class="QVBoxLayout" name="verticalLayout_13">
          <item>
           <widget class="QCustomPlot" name="metric_plot" native="true">
            <property name="minimumSize">
@@ -233,6 +233,13 @@
              <width>0</width>
              <height>250</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="save_metric_plot_button">
+           <property name="text">
+            <string>Save</string>
            </property>
           </widget>
          </item>

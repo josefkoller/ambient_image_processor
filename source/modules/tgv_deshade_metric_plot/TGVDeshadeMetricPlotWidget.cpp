@@ -192,3 +192,18 @@ void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor:
     this->ui->metric_plot->rescaleAxes();
     this->ui->metric_plot->replot();
 }
+
+void TGVDeshadeMetricPlotWidget::on_save_metric_plot_button_clicked()
+{
+    QString file_name = QFileDialog::getSaveFileName(this, "save metric plot");
+    if(file_name.isNull())
+        return;
+
+    bool saved = false;
+    if(file_name.endsWith("pdf"))
+        saved = this->ui->metric_plot->savePdf(file_name);
+    if(file_name.endsWith("png"))
+        saved = this->ui->metric_plot->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
+
+    this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
+}

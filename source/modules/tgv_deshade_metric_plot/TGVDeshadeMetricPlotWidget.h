@@ -45,6 +45,8 @@ private slots:
 
     void handleMetricValuesChanged(std::vector<double> metricValues);
 
+    void on_save_metric_plot_button_clicked();
+
 private:
     Ui::TGVDeshadeMetricPlotWidget *ui;
 
