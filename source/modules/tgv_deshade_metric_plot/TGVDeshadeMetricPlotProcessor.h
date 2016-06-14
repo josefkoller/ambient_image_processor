@@ -13,12 +13,18 @@ public:
     typedef ITKImage::PixelType Pixel;
     typedef ITKImage::PixelType MetricValue;
 
+    enum MetricType
+    {
+        NormalizedCrossCorrelation = 0,
+        SumOfAbsoluteDifferences
+    };
+
 private:
     TGVDeshadeMetricPlotProcessor();
 
     template<typename Pixel>
     using IterationFinishedCuda = std::function<bool(uint iteration_index, uint iteration_count,
-                               MetricValue* metricValues,
+                               Pixel* metricValues,
                                Pixel* u, Pixel* l, Pixel* r)>;
 
     template<typename Pixel>
@@ -39,6 +45,7 @@ public:
             const Pixel alpha1,
             const uint iteration_count,
             const ITKImage& mask,
+            const MetricType metric_type,
 
             const uint paint_iteration_interval,
             IterationFinished iteration_callback,

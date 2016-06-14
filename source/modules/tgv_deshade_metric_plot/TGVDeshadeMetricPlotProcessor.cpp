@@ -2,20 +2,21 @@
 
 template<typename Pixel>
 Pixel* tgv2_l1_deshade_metrics_launch(Pixel* f_host,
-                              const uint width, const uint height, const uint depth,
-                              const Pixel lambda,
-                              const Pixel alpha0,
-                              const Pixel alpha1,
-                              const uint iteration_count,
-                              Pixel* mask,
+      const uint width, const uint height, const uint depth,
+      const Pixel lambda,
+      const Pixel alpha0,
+      const Pixel alpha1,
+      const uint iteration_count,
+      Pixel* mask,
+      const uint metric_type,
 
-                              const uint paint_iteration_interval,
-                              TGVDeshadeMetricPlotProcessor::IterationFinishedCuda<Pixel> iteration_finished_callback,
-                              TGVDeshadeMetricPlotProcessor::CosineTransformCallback<Pixel> cosine_transform_callback,
+      const uint paint_iteration_interval,
+      TGVDeshadeMetricPlotProcessor::IterationFinishedCuda<Pixel> iteration_finished_callback,
+      TGVDeshadeMetricPlotProcessor::CosineTransformCallback<Pixel> cosine_transform_callback,
 
-                              Pixel** denoised_pixels,
-                              Pixel** shading_pixels,
-                              Pixel** deshaded_pixels);
+      Pixel** denoised_pixels,
+      Pixel** shading_pixels,
+      Pixel** deshaded_pixels);
 
 
 TGVDeshadeMetricPlotProcessor::TGVDeshadeMetricPlotProcessor()
@@ -30,6 +31,7 @@ TGVDeshadeMetricPlotProcessor::MetricValues TGVDeshadeMetricPlotProcessor::proce
         const Pixel alpha1,
         const uint iteration_count,
         const ITKImage& mask,
+        const MetricType metric_type,
 
         const uint paint_iteration_interval,
         IterationFinished iteration_callback,
@@ -50,7 +52,7 @@ TGVDeshadeMetricPlotProcessor::MetricValues TGVDeshadeMetricPlotProcessor::proce
         auto deshaded_image = ITKImage(input_image.width, input_image.height, input_image.depth, r);
 
         auto metricValuesVector = MetricValues();
-        for(int i = 0; i < iteration_count; i++)
+        for(int i = 0; i < iteration_index; i++)
             metricValuesVector.push_back(metricValues[i]);
 
         return iteration_callback(iteration_index, iteration_count,
@@ -73,7 +75,9 @@ TGVDeshadeMetricPlotProcessor::MetricValues TGVDeshadeMetricPlotProcessor::proce
     auto metricValues = tgv2_l1_deshade_metrics_launch(
                 input_pixels, input_image.width, input_image.height, input_image.depth,
                 lambda, alpha0, alpha1, iteration_count, mask_pixels,
-                paint_iteration_interval, iteration_callback_cuda,
+                (uint)metric_type,
+                paint_iteration_interval,
+                iteration_callback_cuda,
                 cosine_transform_callback,
                 &denoised_pixels, &shading_pixel, &deshaded_pixels);
 
@@ -82,7 +86,7 @@ TGVDeshadeMetricPlotProcessor::MetricValues TGVDeshadeMetricPlotProcessor::proce
     deshaded_image = ITKImage(input_image.width, input_image.height, input_image.depth, deshaded_pixels);
 
     auto metricValuesVector = MetricValues();
-    for(int i = 0; i < iteration_count; i++)
+    for(int i = 0; i < iteration_count - 1; i++)
         metricValuesVector.push_back(metricValues[i]);
 
     delete[] input_pixels;

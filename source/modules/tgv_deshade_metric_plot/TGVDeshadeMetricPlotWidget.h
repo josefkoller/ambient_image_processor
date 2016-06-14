@@ -43,10 +43,15 @@ private slots:
 
     void on_perform_button_clicked();
 
+    void handleMetricValuesChanged(std::vector<double> metricValues);
+
 private:
     Ui::TGVDeshadeMetricPlotWidget *ui;
 
     void plotMetricValues(TGVDeshadeMetricPlotProcessor::MetricValues metricValues);
+
+signals:
+    void fireMetricValuesChanged(std::vector<double> metricValues);
 };
 
 #endif // TGVDESHADEMETRICPLOTWIDGET_H

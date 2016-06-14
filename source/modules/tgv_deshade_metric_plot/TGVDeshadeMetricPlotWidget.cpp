@@ -17,6 +17,23 @@ TGVDeshadeMetricPlotWidget::TGVDeshadeMetricPlotWidget(QString title, QWidget *p
 
     this->mask_view = new ImageViewWidget("Mask", this->ui->mask_frame);
     this->ui->mask_frame->layout()->addWidget(this->mask_view);
+
+    qRegisterMetaType<std::vector<double>>("std::vector<double>");
+
+    connect(this, &TGVDeshadeMetricPlotWidget::fireMetricValuesChanged,
+            this, &TGVDeshadeMetricPlotWidget::handleMetricValuesChanged);
+
+
+    this->ui->metric_plot->xAxis->setLabel("iteration");
+    this->ui->metric_plot->xAxis->setOffset(0);
+    this->ui->metric_plot->xAxis->setPadding(0);
+    this->ui->metric_plot->xAxis->setAntialiased(true);
+
+    this->ui->metric_plot->yAxis->setLabel("metric");
+    this->ui->metric_plot->xAxis->setNumberPrecision(8);
+    this->ui->metric_plot->yAxis->setOffset(0);
+    this->ui->metric_plot->yAxis->setPadding(0);
+    this->ui->metric_plot->yAxis->setAntialiased(true);
 }
 
 TGVDeshadeMetricPlotWidget::~TGVDeshadeMetricPlotWidget()
@@ -47,17 +64,21 @@ void TGVDeshadeMetricPlotWidget::setIterationFinishedCallback(TGVDeshadeProcesso
             (uint iteration_index, uint iteration_count,
             TGVDeshadeMetricPlotProcessor::MetricValues metricValues,
             ITKImage u, ITKImage l, ITKImage r){
+
         iteration_finished_callback(iteration_index, iteration_count, r);
 
-        this->shading_output_view->fireImageChange(l);
-        this->denoised_output_view->fireImageChange(u);
-
-        this->plotMetricValues(metricValues);
+        emit this->shading_output_view->fireImageChange(l);
+        emit this->denoised_output_view->fireImageChange(u);
+        emit this->fireMetricValuesChanged(metricValues);
 
         return this->stop_after_next_iteration;
     };
 }
 
+void TGVDeshadeMetricPlotWidget::handleMetricValuesChanged(std::vector<double> metricValues)
+{
+    this->plotMetricValues(metricValues);
+}
 
 ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
 {
@@ -65,10 +86,18 @@ ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
     const float alpha1 = this->ui->alpha1_spinbox->value();
     const float lambda = this->ui->lambda_spinbox->value();
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
-    const uint paint_iteration_interval = this->ui->paint_iteration_interval_spinbox->value();
+    const uint paint_iteration_interval = iteration_count + 1; // do not paint in between
 
     auto mask = this->mask_view->getImage();
 
+    const auto metric_type = this->ui->normalized_cross_correlation_checkbox->isChecked() ?
+                TGVDeshadeMetricPlotProcessor::NormalizedCrossCorrelation :
+                TGVDeshadeMetricPlotProcessor::SumOfAbsoluteDifferences;
+
+    QString metricName = this->ui->normalized_cross_correlation_checkbox->isChecked() ?
+                this->ui->normalized_cross_correlation_checkbox->text() :
+                this->ui->sum_of_absolute_differences_checkbox->text();
+    this->ui->metric_plot->yAxis->setLabel(metricName);
 
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
@@ -81,6 +110,7 @@ ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
                 alpha1,
                 iteration_count,
                 mask,
+                metric_type,
 
                 paint_iteration_interval,
                 this->iteration_finished_callback,
@@ -145,10 +175,11 @@ void TGVDeshadeMetricPlotWidget::on_perform_button_clicked()
 
 void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor::MetricValues metricValues)
 {
+    this->ui->metric_plot->clearGraphs();
     QCPGraph *graph = this->ui->metric_plot->addGraph();
 
     auto iterationsQ = QVector<double>();
-    for(int i = 0; i < this->ui->iteration_count_spinbox->value() - 1; i++)
+    for(int i = 0; i < metricValues.size(); i++)
         iterationsQ.push_back(i);
     auto metricValuesQ = QVector<double>::fromStdVector(metricValues);
     graph->setData(iterationsQ, metricValuesQ);
@@ -158,6 +189,6 @@ void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor:
     graph->setLineStyle(QCPGraph::lsLine);
     graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
 
-    this->ui->metric_plot->xAxis->setLabel("iteration");
-    this->ui->metric_plot->yAxis->setLabel("metric");
+    this->ui->metric_plot->rescaleAxes();
+    this->ui->metric_plot->replot();
 }
