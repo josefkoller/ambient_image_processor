@@ -53,6 +53,7 @@ hold off;
 
 return;
 
+converge_iteration = -1;
 for h = 1:length(metric_values_history)
   metric_values = metric_values_history{h};
   for i = 1:length(metric_values)
