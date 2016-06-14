@@ -119,10 +119,10 @@ ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
                 shading_image,
                 deshaded_image);
 
-    this->plotMetricValues(metricValues);
+    emit this->fireMetricValuesChanged(metricValues);
 
-    this->denoised_output_view->setImage(denoised_image);
-    this->shading_output_view->setImage(shading_image);
+    emit this->denoised_output_view->fireImageChange(denoised_image);
+    emit this->shading_output_view->fireImageChange(shading_image);
     return deshaded_image;
 }
 
@@ -178,9 +178,14 @@ void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor:
     this->ui->metric_plot->clearGraphs();
     QCPGraph *graph = this->ui->metric_plot->addGraph();
 
+    double metricSum = 0;
     auto iterationsQ = QVector<double>();
     for(int i = 0; i < metricValues.size(); i++)
+    {
+        metricSum+= metricValues[i];
         iterationsQ.push_back(i);
+    }
+    std::cout << "metric mean : " << (metricSum / metricValues.size()) << std::endl;
     auto metricValuesQ = QVector<double>::fromStdVector(metricValues);
     graph->setData(iterationsQ, metricValuesQ);
 

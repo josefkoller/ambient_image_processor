@@ -552,7 +552,7 @@ Pixel* tgv2_l1_deshade_metrics_iterate(
             else
                 metric = sum_of_absolute_differences(shading_image, shading_image_previous, voxel_count);
 
-            printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
+    //        printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
 
             metricValues[iteration_index - 1] = metric;
         }
@@ -562,7 +562,7 @@ Pixel* tgv2_l1_deshade_metrics_iterate(
         if(paint_iteration_interval > 0 &&
                 (iteration_index+1) % paint_iteration_interval == 0 &&
                 iteration_finished_callback != nullptr) {
-            printf("iteration: %2d, painting.. \n", iteration_index);
+     //       printf("iteration: %2d, painting.. \n", iteration_index);
 
             // deshaded...
             subtract_kernel3<<<grid_dimension, block_dimension>>>(
