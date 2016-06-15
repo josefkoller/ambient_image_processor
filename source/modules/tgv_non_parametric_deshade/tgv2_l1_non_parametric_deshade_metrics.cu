@@ -61,3 +61,58 @@ Pixel  sum_of_absolute_differences(Pixel* image1, Pixel* image2, DimensionSize v
     }
     return abs_change_sum;
 }
+
+template<typename Pixel>
+Pixel coefficient_of_variation(Pixel* image, DimensionSize voxel_count)
+{
+    const auto mean1 = mean(image, voxel_count);
+    const auto std1 = standard_deviation(image, voxel_count, mean1);
+    return std1 / mean1;
+}
+
+template<typename Pixel>
+Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
+                                              uint voxel_count,
+                                              uint spectrum_bandwidth,
+                                              Pixel kernel_bandwidth,
+                                              uint kernel_type,
+                                              Pixel window_from,
+                                              Pixel window_to);
+
+template<typename Pixel>
+Pixel entropy(Pixel* image, DimensionSize voxel_count, Pixel kernel_bandwidth)
+{
+    Pixel min = 1e8;
+    Pixel max = 1e-8;
+    for(int i = 0; i < voxel_count; i++)
+    {
+        if(image[i] < min)
+            min = image[i];
+        if(image[i] > max)
+            max = image[i];
+    }
+
+    DimensionSize spectrum_bandwidth = std::ceil(std::sqrt(voxel_count));
+    Pixel* spectrum = kernel_density_estimation_kernel_launch(
+       image, voxel_count, spectrum_bandwidth, kernel_bandwidth,
+       3, // kernel type = Epanechnik
+       min, max);
+
+    Pixel sum = 0;
+    for(uint a = 0; a < spectrum_bandwidth; a++)
+        sum += spectrum[a];
+    if(sum == 0)
+        sum = 1;
+
+    Pixel entropy = 0;
+    for(uint a = 0; a < spectrum_bandwidth; a++)
+    {
+        Pixel probability = spectrum[a] / sum;
+        if(probability < 1e-5)
+            continue;
+        entropy += probability * std::log2(probability);
+    }
+
+    delete[] spectrum;
+    return -entropy;
+}

@@ -55,8 +55,8 @@ ImageInformationProcessor::InformationMap ImageInformationProcessor::collectInfo
     information.insert("mean", QString::number(statistics_calculator->GetMean()));
     information.insert("standard_deviation", QString::number(statistics_calculator->GetSigma()));
     information.insert("variance", QString::number(statistics_calculator->GetVariance()));
-    auto standard_error =  statistics_calculator->GetVariance() / statistics_calculator->GetMean();
-    information.insert("standard_error", QString::number(standard_error));
+    auto coefficient_of_variation =  statistics_calculator->GetSigma() / statistics_calculator->GetMean();
+    information.insert("coefficient_of_variation", QString::number(coefficient_of_variation));
     information.insert("minimum", QString::number(statistics_calculator->GetMinimum()));
     information.insert("maximum", QString::number(statistics_calculator->GetMaximum()));
 

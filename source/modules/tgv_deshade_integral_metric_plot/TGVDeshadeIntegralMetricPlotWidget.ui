@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TGVDeshadeMetricPlotWidget</class>
- <widget class="QWidget" name="TGVDeshadeMetricPlotWidget">
+ <class>TGVDeshadeIntegralMetricPlotWidget</class>
+ <widget class="QWidget" name="TGVDeshadeIntegralMetricPlotWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -76,49 +76,11 @@
       <item>
        <widget class="QGroupBox" name="alpha0_box">
         <property name="title">
-         <string>Alpha0</string>
+         <string>Alpha Values</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QDoubleSpinBox" name="alpha0_spinbox">
-           <property name="decimals">
-            <number>8</number>
-           </property>
-           <property name="maximum">
-            <double>99999999999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>2.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="alpha1_box">
-        <property name="title">
-         <string>Alpha1</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QDoubleSpinBox" name="alpha1_spinbox">
-           <property name="decimals">
-            <number>8</number>
-           </property>
-           <property name="maximum">
-            <double>999999999999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.001000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
+          <widget class="ParameterValueSet" name="alpha_list_widget" native="true"/>
          </item>
         </layout>
        </widget>
@@ -154,6 +116,28 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="title">
+         <string>Entropy Bandwidth</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QDoubleSpinBox" name="entropy_kernel_bandwidth_spinbox">
+           <property name="decimals">
+            <number>8</number>
+           </property>
+           <property name="singleStep">
+            <double>0.000100000000000</double>
+           </property>
+           <property name="value">
+            <double>0.030000000000000</double>
+           </property>
           </widget>
          </item>
         </layout>
@@ -224,21 +208,28 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QRadioButton" name="entropy_checkbox">
+           <property name="text">
+            <string>Entropy: Deshaded</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="title">
-         <string>Metric Plot</string>
+         <string>TV of Metric over the parameters</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_13">
          <item>
           <widget class="QCustomPlot" name="metric_plot" native="true">
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>250</height>
+             <width>280</width>
+             <height>280</height>
             </size>
            </property>
           </widget>
@@ -295,6 +286,12 @@
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header location="global">qcustomplot/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ParameterValueSet</class>
+   <extends>QWidget</extends>
+   <header>ParameterValueSet.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

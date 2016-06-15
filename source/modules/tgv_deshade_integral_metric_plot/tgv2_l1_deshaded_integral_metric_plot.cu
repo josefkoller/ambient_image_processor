@@ -3,10 +3,11 @@
 #include "tgv2_l1.cu"
 #include "tgv2_l1_non_parametric_deshade_metrics.cu"
 
+#include <vector>
+#include <functional>
+
 // typedefs....
 typedef const unsigned int DimensionSize;
-
-#include <functional>
 
 template<typename Pixel>
 using CosineTransformCallback = std::function<void(Pixel* image,
@@ -17,6 +18,14 @@ template<typename Pixel>
 using IterationMetricCallback = std::function<bool(uint iteration_index, uint iteration_count,
                            Pixel* metricValues,
                            Pixel* u, Pixel* l, Pixel* r)>;
+
+template<typename Pixel>
+using IterateCallback = std::function<Pixel(const Pixel alpha0, const Pixel alpha1)>;
+
+
+typedef double ParameterValue;
+typedef std::pair<ParameterValue, ParameterValue> ParameterSet;
+typedef std::vector<ParameterSet> ParameterList;
 
 // kernel forward declarations...
 
@@ -81,19 +90,56 @@ __global__ void multiply_constant_kernel1(
     image[index] = image[index] * constant;
 }
 
+template<typename Pixel>
+Pixel* tgv2_l1_deshade_metrics_optimize(IterateCallback<Pixel> iterate_callback,
+                                        ParameterList alpha_list,
+                                        const uint paint_iteration_interval,
+                                        IterationMetricCallback<Pixel> iteration_finished_callback,
+                                        Pixel* u, Pixel* shading_image, Pixel* deshaded_image,
+                                        uint voxel_count,
+                                        dim3 block_dimension,
+                                        dim3 grid_dimension)
+{
+    Pixel* metric_values = new Pixel[alpha_list.size()];
+    for(int i = 0; i < alpha_list.size(); i++)
+    {
+        auto alpha_set = alpha_list[i];
+        auto metric_value = iterate_callback(alpha_set.first, alpha_set.second);
+        metric_values[i] = metric_value;
+
+
+        if(paint_iteration_interval > 0 &&
+                (i+1) % paint_iteration_interval == 0 &&
+                iteration_finished_callback != nullptr) {
+     //       printf("iteration: %2d, painting.. \n", iteration_index);
+
+            // deshaded...
+            subtract_kernel3<<<grid_dimension, block_dimension>>>(
+              u, shading_image, deshaded_image, voxel_count);
+            cudaCheckError( cudaDeviceSynchronize() );
+
+            bool stop = iteration_finished_callback(i, alpha_list.size(),
+                                     metric_values,
+                                     u, deshaded_image, shading_image);
+            if(stop)
+                break;
+        }
+    }
+    return metric_values;
+}
 
 template<typename Pixel>
-Pixel* tgv2_l1_deshade_metrics_launch(
+Pixel* tgv2_l1_deshade_integral_metrics_launch(
         Pixel* f_host,
         DimensionSize width, DimensionSize height, DimensionSize depth,
 
         const Pixel lambda,
-        const Pixel alpha0,
-        const Pixel alpha1,
+        const ParameterList alpha_list,
 
         const uint iteration_count,
         Pixel* mask_host,
         const uint metric_type,
+        const Pixel entropy_kernel_bandwidth,
 
         uint paint_iteration_interval,
         IterationMetricCallback<Pixel> iteration_finished_callback,
@@ -164,18 +210,20 @@ Pixel* tgv2_l1_deshade_metrics_launch(
     const Pixel sigma = tau;
     const Pixel theta = 1;
 
-    tgv2_l1_deshade_metrics_zero_init(
-            p_x, p_y, p_z,
-            p_xx, p_yy, p_zz,
-            v_x, v_y, v_z,
-            v_bar_x, v_bar_y, v_bar_z,
-            q_x, q_y, q_z,
-            q_xy, q_xz, q_yz,
-            f, u, u_bar, voxel_count, depth,
-            block_dimension,
-            grid_dimension);
+    IterateCallback<Pixel> iterate_callback = [=](const Pixel alpha0, const Pixel alpha1) {
+        // algorithm begin
+        tgv2_l1_deshade_integral_metrics_zero_init(
+                p_x, p_y, p_z,
+                p_xx, p_yy, p_zz,
+                v_x, v_y, v_z,
+                v_bar_x, v_bar_y, v_bar_z,
+                q_x, q_y, q_z,
+                q_xy, q_xz, q_yz,
+                f, u, u_bar, voxel_count, depth,
+                block_dimension,
+                grid_dimension);
 
-    auto metricValues = tgv2_l1_deshade_metrics_iterate(
+         return tgv2_l1_deshade_integral_metrics_iterate(
                 width, height, depth,
                 block_dimension,
                 grid_dimension,
@@ -239,7 +287,13 @@ Pixel* tgv2_l1_deshade_metrics_launch(
 
                 paint_iteration_interval,
                 iteration_finished_callback,
-                metric_type);
+                metric_type,
+                entropy_kernel_bandwidth);
+    };
+
+    auto metricValues = tgv2_l1_deshade_metrics_optimize(iterate_callback, alpha_list,
+         paint_iteration_interval, iteration_finished_callback,
+         u, shading_image, deshaded_image, voxel_count, grid_dimension, block_dimension);
 
     // deshaded...
     subtract_kernel3<<<grid_dimension, block_dimension>>>(
@@ -288,7 +342,7 @@ Pixel* tgv2_l1_deshade_metrics_launch(
 
 
 template<typename Pixel>
-void tgv2_l1_deshade_metrics_zero_init(
+void tgv2_l1_deshade_integral_metrics_zero_init(
         Pixel* p_x, Pixel* p_y, Pixel* p_z,
         Pixel* p_xx, Pixel* p_yy, Pixel* p_zz,
         Pixel* v_x, Pixel* v_y, Pixel* v_z,
@@ -315,7 +369,7 @@ void tgv2_l1_deshade_metrics_zero_init(
 }
 
 template<typename Pixel>
-void tgv2_l1_deshade_metrics_calculate_shading(
+void tgv2_l1_deshade_integral_metrics_calculate_shading(
         uint width, uint height, uint depth,
         dim3 block_dimension,
         dim3 grid_dimension,
@@ -370,7 +424,7 @@ void tgv2_l1_deshade_metrics_calculate_shading(
 }
 
 template<typename Pixel>
-Pixel* tgv2_l1_deshade_metrics_iterate(
+Pixel tgv2_l1_deshade_integral_metrics_iterate(
         DimensionSize width, DimensionSize height, DimensionSize depth,
         dim3 block_dimension,
         dim3 grid_dimension,
@@ -434,13 +488,14 @@ Pixel* tgv2_l1_deshade_metrics_iterate(
 
         uint paint_iteration_interval,
         IterationMetricCallback<Pixel> iteration_finished_callback,
-        const uint metric_type)
+        const uint metric_type,
+        const Pixel entropy_kernel_bandwidth)
 {
-    const uint voxel_count = width * height * depth;
+    uint voxel_count = width * height * depth;
 
     Pixel* shading_image_previous = deshading_temp;
-
-    Pixel* metricValues = new Pixel[iteration_count - 1];
+    Pixel previous_metric_value = 0;
+    Pixel metricValueSum = 0;
 
     for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)
     {
@@ -531,70 +586,88 @@ Pixel* tgv2_l1_deshade_metrics_iterate(
                                                                 width, height, depth);
         cudaCheckError( cudaDeviceSynchronize() );
 
-        tgv2_l1_deshade_metrics_calculate_shading(
-                    width, height, depth,
-                    block_dimension,
-                    grid_dimension,
-                    grid_dimension_x, grid_dimension_y, grid_dimension_z,
-                    u,
-                    v_x, v_y, v_z,
-                    p_x, p_y, p_z,
 
-                    cosine_transform_callback,
-                    shading_image);
-
-        // deshaded...
-        subtract_kernel3<<<grid_dimension, block_dimension>>>(
-          u, shading_image, deshaded_image, voxel_count);
-        cudaCheckError( cudaDeviceSynchronize() );
-
-        if(iteration_index > 0)
+        if(metric_type > 1 && iteration_index == iteration_count - 1)
         {
-            // convergence check
-            Pixel metric = 0;
-            if(metric_type == 0)
-                metric = normalized_cross_correlation(shading_image, shading_image_previous, voxel_count);
-            else if(metric_type == 1)
-                metric = sum_of_absolute_differences(shading_image, shading_image_previous, voxel_count);
-            else
-                metric = coefficient_of_variation(deshaded_image, voxel_count);
+            tgv2_l1_deshade_integral_metrics_calculate_shading(
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x, grid_dimension_y, grid_dimension_z,
+                        u,
+                        v_x, v_y, v_z,
+                        p_x, p_y, p_z,
 
-    //        printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
+                        cosine_transform_callback,
+                        shading_image);
 
-            metricValues[iteration_index - 1] = metric;
+            // deshaded...
+            subtract_kernel3<<<grid_dimension, block_dimension>>>(
+              u, shading_image, deshaded_image, voxel_count);
+            cudaCheckError( cudaDeviceSynchronize() );
+
+            if(metric_type == 2)
+            {
+                metricValueSum = coefficient_of_variation(deshaded_image, voxel_count);
+            }
+            else if(metric_type == 3)
+            {
+                metricValueSum = entropy(deshaded_image, voxel_count, entropy_kernel_bandwidth);
+            }
         }
-        clone1<<<grid_dimension, block_dimension>>>(shading_image, shading_image_previous, voxel_count);
-        cudaCheckError( cudaDeviceSynchronize() );
+        else if(metric_type <= 1)
+        {
+            tgv2_l1_deshade_integral_metrics_calculate_shading(
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x, grid_dimension_y, grid_dimension_z,
+                        u,
+                        v_x, v_y, v_z,
+                        p_x, p_y, p_z,
 
-        if(paint_iteration_interval > 0 &&
-                (iteration_index+1) % paint_iteration_interval == 0 &&
-                iteration_finished_callback != nullptr) {
-     //       printf("iteration: %2d, painting.. \n", iteration_index);
+                        cosine_transform_callback,
+                        shading_image);
 
-            bool stop = iteration_finished_callback(iteration_index, iteration_count,
-                                     metricValues,
-                                     u, deshaded_image, shading_image);
-            if(stop)
-                break;
+            if(iteration_index > 0)
+            {
+                // convergence check
+                Pixel metric = 0;
+                if(metric_type == 0)
+                    metric = normalized_cross_correlation(shading_image, shading_image_previous, voxel_count);
+                else if(metric_type == 1)
+                    metric = sum_of_absolute_differences(shading_image, shading_image_previous, voxel_count);
+
+        //        printf("iteration: %2d, metric: %1.8f \n", iteration_index, metric);
+
+                if(iteration_index > 1)
+                {
+                    metricValueSum += std::abs(metric - previous_metric_value);
+                }
+
+                previous_metric_value = metric;
+            }
+            clone1<<<grid_dimension, block_dimension>>>(shading_image, shading_image_previous, voxel_count);
+            cudaCheckError( cudaDeviceSynchronize() );
         }
     }
-    return metricValues;
+    return metricValueSum;
 }
 
 
 // generate the algorithm explicitly for...
 
-template float* tgv2_l1_deshade_metrics_launch(
+template float* tgv2_l1_deshade_integral_metrics_launch(
         float* f_host,
         DimensionSize width, DimensionSize height, DimensionSize depth,
 
         const float lambda,
-        const float alpha0,
-        const float alpha1,
+        const ParameterList alpha_list,
 
         const uint iteration_count,
         float* mask_host,
         const uint metric_type,
+        const float entropy_kernel_bandwidth,
 
         uint paint_iteration_interval,
         IterationMetricCallback<float> iteration_finished_callback,
@@ -604,17 +677,17 @@ template float* tgv2_l1_deshade_metrics_launch(
         float** shading_host,
         float** deshaded_host);
 
-template double* tgv2_l1_deshade_metrics_launch(
+template double* tgv2_l1_deshade_integral_metrics_launch(
         double* f_host,
         DimensionSize width, DimensionSize height, DimensionSize depth,
 
         const double lambda,
-        const double alpha0,
-        const double alpha1,
+        const ParameterList alpha_list,
 
         const uint iteration_count,
         double* mask_host,
         const uint metric_type,
+        const double entropy_kernel_bandwidth,
 
         uint paint_iteration_interval,
         IterationMetricCallback<double> iteration_finished_callback,

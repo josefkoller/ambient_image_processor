@@ -1,3 +1,5 @@
+#ifndef COSINE_TRANSFORM_H
+#define COSINE_TRANSFORM_H
 
 #include <fftw3.h>
 
@@ -36,3 +38,5 @@ void inverse_cosine_transform(Pixel* image,
     cosine_transform(image,
       width, height, depth, result, FFTW_REDFT01);
 }
+
+#endif //COSINE_TRANSFORM_H

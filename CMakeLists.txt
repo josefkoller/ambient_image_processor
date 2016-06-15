@@ -91,6 +91,7 @@ include(source/modules/opencv_file/CMakeLists.txt)
 include(source/modules/image_view_control/CMakeLists.txt)
 include(source/modules/tgv_non_parametric_deshade/CMakeLists.txt)
 include(source/modules/tgv_deshade_metric_plot/CMakeLists.txt)
+include(source/modules/tgv_deshade_integral_metric_plot/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

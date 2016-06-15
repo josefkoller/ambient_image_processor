@@ -1,11 +1,11 @@
-#include "TGVDeshadeMetricPlotWidget.h"
-#include "ui_TGVDeshadeMetricPlotWidget.h"
+#include "TGVDeshadeIntegralMetricPlotWidget.h"
+#include "ui_TGVDeshadeIntegralMetricPlotWidget.h"
 
 #include <QFileDialog>
 
-TGVDeshadeMetricPlotWidget::TGVDeshadeMetricPlotWidget(QString title, QWidget *parent) :
+TGVDeshadeIntegralMetricPlotWidget::TGVDeshadeIntegralMetricPlotWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
-    ui(new Ui::TGVDeshadeMetricPlotWidget)
+    ui(new Ui::TGVDeshadeIntegralMetricPlotWidget)
 {
     ui->setupUi(this);
 
@@ -20,11 +20,11 @@ TGVDeshadeMetricPlotWidget::TGVDeshadeMetricPlotWidget(QString title, QWidget *p
 
     qRegisterMetaType<std::vector<double>>("std::vector<double>");
 
-    connect(this, &TGVDeshadeMetricPlotWidget::fireMetricValuesChanged,
-            this, &TGVDeshadeMetricPlotWidget::handleMetricValuesChanged);
+    connect(this, &TGVDeshadeIntegralMetricPlotWidget::fireMetricValuesChanged,
+            this, &TGVDeshadeIntegralMetricPlotWidget::handleMetricValuesChanged);
 
 
-    this->ui->metric_plot->xAxis->setLabel("iteration");
+    this->ui->metric_plot->xAxis->setLabel("alpha-index");
     this->ui->metric_plot->xAxis->setOffset(0);
     this->ui->metric_plot->xAxis->setPadding(0);
     this->ui->metric_plot->xAxis->setAntialiased(true);
@@ -36,12 +36,12 @@ TGVDeshadeMetricPlotWidget::TGVDeshadeMetricPlotWidget(QString title, QWidget *p
     this->ui->metric_plot->yAxis->setAntialiased(true);
 }
 
-TGVDeshadeMetricPlotWidget::~TGVDeshadeMetricPlotWidget()
+TGVDeshadeIntegralMetricPlotWidget::~TGVDeshadeIntegralMetricPlotWidget()
 {
     delete ui;
 }
 
-void TGVDeshadeMetricPlotWidget::registerModule(ImageWidget *image_widget)
+void TGVDeshadeIntegralMetricPlotWidget::registerModule(ImageWidget *image_widget)
 {
     BaseModuleWidget::registerModule(image_widget);
 
@@ -58,11 +58,11 @@ void TGVDeshadeMetricPlotWidget::registerModule(ImageWidget *image_widget)
             this->denoised_output_view, &ImageViewWidget::sliceIndexChanged);
 }
 
-void TGVDeshadeMetricPlotWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
+void TGVDeshadeIntegralMetricPlotWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
 {
     this->iteration_finished_callback = [this, iteration_finished_callback]
             (uint iteration_index, uint iteration_count,
-            TGVDeshadeMetricPlotProcessor::MetricValues metricValues,
+            TGVDeshadeIntegralMetricPlotProcessor::MetricValues metricValues,
             ITKImage u, ITKImage l, ITKImage r){
 
         iteration_finished_callback(iteration_index, iteration_count, r);
@@ -75,46 +75,52 @@ void TGVDeshadeMetricPlotWidget::setIterationFinishedCallback(TGVDeshadeProcesso
     };
 }
 
-void TGVDeshadeMetricPlotWidget::handleMetricValuesChanged(std::vector<double> metricValues)
+void TGVDeshadeIntegralMetricPlotWidget::handleMetricValuesChanged(std::vector<double> metricValues)
 {
     this->plotMetricValues(metricValues);
 }
 
-ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
+ITKImage TGVDeshadeIntegralMetricPlotWidget::processImage(ITKImage image)
 {
-    const float alpha0 = this->ui->alpha0_spinbox->value();
-    const float alpha1 = this->ui->alpha1_spinbox->value();
+    const TGVDeshadeIntegralMetricPlotProcessor::ParameterList alpha_list =
+            this->ui->alpha_list_widget->getParameterList();
     const float lambda = this->ui->lambda_spinbox->value();
+
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
     const uint paint_iteration_interval = iteration_count + 1; // do not paint in between
 
     auto mask = this->mask_view->getImage();
+    const ITKImage::PixelType entropy_kernel_bandwidth = this->ui->entropy_kernel_bandwidth_spinbox->value();
 
     const auto metric_type = this->ui->normalized_cross_correlation_checkbox->isChecked() ?
-                TGVDeshadeMetricPlotProcessor::NormalizedCrossCorrelation :
-                (this->ui->coefficient_of_variation_deshaded_checkbox->isChecked() ?
-                    TGVDeshadeMetricPlotProcessor::CoefficientOfVariationDeshaded :
-                    TGVDeshadeMetricPlotProcessor::SumOfAbsoluteDifferences);
+                TGVDeshadeIntegralMetricPlotProcessor::NormalizedCrossCorrelation :
+                (this->ui->sum_of_absolute_differences_checkbox->isChecked() ?
+                    TGVDeshadeIntegralMetricPlotProcessor::SumOfAbsoluteDifferences :
+                    (this->ui->coefficient_of_variation_deshaded_checkbox->isChecked() ?
+                         TGVDeshadeIntegralMetricPlotProcessor::CoefficientOfVariationDeshaded :
+                         TGVDeshadeIntegralMetricPlotProcessor::EntropyDeshaded));
 
     QString metricName = this->ui->normalized_cross_correlation_checkbox->isChecked() ?
                 this->ui->normalized_cross_correlation_checkbox->text() :
-                (this->ui->coefficient_of_variation_deshaded_checkbox->isChecked() ?
-                    this->ui->coefficient_of_variation_deshaded_checkbox->text() :
-                     this->ui->sum_of_absolute_differences_checkbox->text());
+                (this->ui->sum_of_absolute_differences_checkbox->isChecked() ?
+                    this->ui->sum_of_absolute_differences_checkbox->text() :
+                     (this->ui->coefficient_of_variation_deshaded_checkbox->isChecked() ?
+                          this->ui->coefficient_of_variation_deshaded_checkbox->text() :
+                          this->ui->entropy_checkbox->text()));
     this->ui->metric_plot->yAxis->setLabel(metricName);
 
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
 
-    auto metricValues = TGVDeshadeMetricPlotProcessor::processTGV2L1DeshadeCuda(
+    auto metricValues = TGVDeshadeIntegralMetricPlotProcessor::processTGV2L1DeshadeCuda(
                 image,
                 lambda,
-                alpha0,
-                alpha1,
+                alpha_list,
                 iteration_count,
                 mask,
                 metric_type,
+                entropy_kernel_bandwidth,
 
                 paint_iteration_interval,
                 this->iteration_finished_callback,
@@ -130,7 +136,7 @@ ITKImage TGVDeshadeMetricPlotWidget::processImage(ITKImage image)
     return deshaded_image;
 }
 
-void TGVDeshadeMetricPlotWidget::on_load_mask_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_load_mask_button_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
     if(file_name == QString::null || !QFile(file_name).exists())
@@ -139,7 +145,7 @@ void TGVDeshadeMetricPlotWidget::on_load_mask_button_clicked()
     this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
 }
 
-void TGVDeshadeMetricPlotWidget::on_save_denoised_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_save_denoised_button_clicked()
 {
     auto image = this->denoised_output_view->getImage();
     if(image.isNull())
@@ -152,7 +158,7 @@ void TGVDeshadeMetricPlotWidget::on_save_denoised_button_clicked()
     image.write(file_name.toStdString());
 }
 
-void TGVDeshadeMetricPlotWidget::on_save_second_output_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_save_second_output_button_clicked()
 {
     auto image = this->shading_output_view->getImage();
     if(image.isNull())
@@ -165,19 +171,19 @@ void TGVDeshadeMetricPlotWidget::on_save_second_output_button_clicked()
     image.write(file_name.toStdString());
 }
 
-void TGVDeshadeMetricPlotWidget::on_stop_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_stop_button_clicked()
 {
     this->stop_after_next_iteration = true;
 }
 
-void TGVDeshadeMetricPlotWidget::on_perform_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_perform_button_clicked()
 {
     this->stop_after_next_iteration = false;
     this->processInWorkerThread();
     this->ui->stop_button->setEnabled(true);
 }
 
-void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor::MetricValues metricValues)
+void TGVDeshadeIntegralMetricPlotWidget::plotMetricValues(TGVDeshadeIntegralMetricPlotProcessor::MetricValues metricValues)
 {
     this->ui->metric_plot->clearGraphs();
     QCPGraph *graph = this->ui->metric_plot->addGraph();
@@ -189,6 +195,7 @@ void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor:
         metricSum+= metricValues[i];
         iterationsQ.push_back(i);
     }
+    std::cout << "#metric values: " << metricValues.size() << std::endl;
     std::cout << "metric mean : " << (metricSum / metricValues.size()) << std::endl;
     auto metricValuesQ = QVector<double>::fromStdVector(metricValues);
     graph->setData(iterationsQ, metricValuesQ);
@@ -202,7 +209,7 @@ void TGVDeshadeMetricPlotWidget::plotMetricValues(TGVDeshadeMetricPlotProcessor:
     this->ui->metric_plot->replot();
 }
 
-void TGVDeshadeMetricPlotWidget::on_save_metric_plot_button_clicked()
+void TGVDeshadeIntegralMetricPlotWidget::on_save_metric_plot_button_clicked()
 {
     QString file_name = QFileDialog::getSaveFileName(this, "save metric plot");
     if(file_name.isNull())

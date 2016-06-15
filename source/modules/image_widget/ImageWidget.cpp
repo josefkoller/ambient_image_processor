@@ -36,6 +36,7 @@
 #include "ImageViewControlWidget.h"
 #include "TGVNonParametricDeshadeWidget.h"
 #include "TGVDeshadeMetricPlotWidget.h"
+#include "TGVDeshadeIntegralMetricPlotWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -71,6 +72,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv_deshade_widget = new TGVDeshadeWidget("TGV Deshade", module_parent);
     auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshadeWidget("TGV Automatic Deshade", module_parent);
     auto tgv_deshade_metric_plot_widget = new TGVDeshadeMetricPlotWidget("TGV Deshade Metric Plot", module_parent);
+    auto tgv_deshade_integral_metric_plot_widget = new TGVDeshadeIntegralMetricPlotWidget("TGV Deshade Integral Metric Plot", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -108,6 +110,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgv_shading_growing_widget);
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv_deshade_metric_plot_widget);
+    modules.push_back(tgv_deshade_integral_metric_plot_widget);
     modules.push_back(tgv_non_parametric_deshade_widget);
 
     // register modules and add widget modules
@@ -227,6 +230,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgv_shading_growing_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv_deshade_integral_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()

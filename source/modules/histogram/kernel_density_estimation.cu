@@ -141,6 +141,7 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
 
     Pixel* image;
     size_t image_size = sizeof(Pixel) * voxel_count;
+
     cudaCheckError( cudaMalloc(&image, image_size) );
     cudaCheckError( cudaMemcpy(image, image_host, image_size, cudaMemcpyHostToDevice) );
 

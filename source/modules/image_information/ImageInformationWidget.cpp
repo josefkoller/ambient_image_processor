@@ -29,7 +29,7 @@ void ImageInformationWidget::collectInformation(ITKImage image)
     this->ui->mean_label->setText(information["mean"]);
     this->ui->standard_deviation_label->setText(information["standard_deviation"]);
     this->ui->variance_label->setText(information["variance"]);
-    this->ui->standard_error_label->setText(information["standard_error"]);
+    this->ui->coefficient_of_variation->setText(information["coefficient_of_variation"]);
     this->ui->minimum_label->setText(information["minimum"]);
     this->ui->maximum_label->setText(information["maximum"]);
     this->ui->origin_label->setText(information["origin"]);
@@ -51,8 +51,8 @@ void ImageInformationWidget::registerModule(ImageWidget* image_widget)
 void ImageInformationWidget::on_copy_to_clipboard_button_clicked()
 {
     auto text =
-            this->ui->standard_error_text_label->text() + ": " +
-            this->ui->standard_error_label->text() + ", " +
+            this->ui->coefficient_of_variation->text() + ": " +
+            this->ui->coefficient_of_variation_label->text() + ", " +
             this->ui->tv_per_voxel_text_label->text() + ": " +
             this->ui->tv_per_voxel_label->text();
 

@@ -129,9 +129,9 @@
        </widget>
       </item>
       <item row="5" column="0">
-       <widget class="QLabel" name="standard_error_text_label">
+       <widget class="QLabel" name="coefficient_of_variation_label">
         <property name="text">
-         <string>Standard Error:</string>
+         <string>Coefficient of Variation:</string>
         </property>
        </widget>
       </item>
@@ -171,7 +171,7 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLabel" name="standard_error_label">
+       <widget class="QLabel" name="coefficient_of_variation">
         <property name="text">
          <string/>
         </property>
