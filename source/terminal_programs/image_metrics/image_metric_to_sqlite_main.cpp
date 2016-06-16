@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        std::cout << "Usage: database_file_path as the only argument" << std::endl;
+        std::cout << "Usage: database_file_path [entropy_kde_kernel_bandwidth]" << std::endl;
         return 1;
     }
     perform(argc, argv);

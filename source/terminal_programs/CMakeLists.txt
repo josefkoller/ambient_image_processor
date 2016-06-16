@@ -32,3 +32,5 @@ list(APPEND ITK_APPLICATIONS
 
 
 include(${CMAKE_CURRENT_LIST_DIR}/image_metrics/CMakeLists.txt)
+include(${CMAKE_CURRENT_LIST_DIR}/sqlite_to_gnuplot/CMakeLists.txt)
+
