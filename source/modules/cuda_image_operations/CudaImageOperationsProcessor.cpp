@@ -56,6 +56,10 @@ Pixel* binary_dilate_kernel_launch(Pixel* image,
 template<typename Pixel>
 Pixel* clamp_negative_values_kernel_launch(Pixel* image,
                               uint width, uint height, uint depth, Pixel value);
+template<typename Pixel>
+Pixel* binarize_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+
 
 template<typename Pixel>
 double tv_kernel_launch(Pixel* image,
@@ -266,7 +270,6 @@ ITKImage CudaImageOperationsProcessor::clamp_negative_values(ITKImage image, ITK
     });
 }
 
-
 double CudaImageOperationsProcessor::tv(ITKImage image)
 {
     ITKImage::PixelType* image_pixels = image.cloneToPixelArray();
@@ -276,5 +279,11 @@ double CudaImageOperationsProcessor::tv(ITKImage image)
     delete[] image_pixels;
 
     return result;
+}
 
+ITKImage CudaImageOperationsProcessor::binarize(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return binarize_kernel_launch(image_pixels, image.width, image.height, image.depth);
+    });
 }

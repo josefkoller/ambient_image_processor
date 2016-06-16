@@ -20,6 +20,9 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
     if(this->ui->invert_checkbox->isChecked())
         return CudaImageOperationsProcessor::invert(image);
 
+    if(this->ui->binarize_checkbox->isChecked())
+        return CudaImageOperationsProcessor::binarize(image);
+
     if(this->ui->dct_checkbox->isChecked())
         return CudaImageOperationsProcessor::cosineTransform(image);
     if(this->ui->idct_checkbox->isChecked())

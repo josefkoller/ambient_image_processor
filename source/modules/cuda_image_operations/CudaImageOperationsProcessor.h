@@ -42,6 +42,8 @@ public:
     static ITKImage clamp_negative_values(ITKImage image, ITKImage::PixelType value);
 
     static double tv(ITKImage image);
+
+    static ITKImage binarize(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

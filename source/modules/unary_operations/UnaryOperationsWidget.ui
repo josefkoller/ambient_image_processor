@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <item>
+   <item alignment="Qt::AlignTop">
     <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -37,6 +37,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QRadioButton" name="binarize_checkbox">
+        <property name="text">
+         <string>Binarize</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="dct_checkbox">
         <property name="text">
          <string>DCT</string>
@@ -53,7 +60,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item alignment="Qt::AlignTop">
     <widget class="QPushButton" name="perform_button">
      <property name="text">
       <string>Perform</string>
