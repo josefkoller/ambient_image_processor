@@ -10,7 +10,7 @@ void binary_operation_part1(Pixel* image1_host, Pixel* image2_host,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+//    printf("found %d cuda devices.\n", cuda_device_count);
 
     uint voxel_count = width*height*depth;
     block_dimension = dim3(CUDA_BLOCK_DIMENSON);

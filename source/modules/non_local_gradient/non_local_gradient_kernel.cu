@@ -62,14 +62,14 @@ Pixel* non_local_gradient_kernel_launch(Pixel* source,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+//    printf("found %d cuda devices.\n", cuda_device_count);
 
     const dim3 block_dimension(CUDA_BLOCK_DIMENSON);
     const dim3 grid_dimension(
                 (source_width*source_height*source_depth + block_dimension.x - 1) / block_dimension.x);
 
-    printf("block dimensions: %d \n", block_dimension.x);
-    printf("grid dimensions: %d \n", grid_dimension.x);
+ //   printf("block dimensions: %d \n", block_dimension.x);
+ //   printf("grid dimensions: %d \n", grid_dimension.x);
 
     Pixel* source_cuda, *kernel_cuda, *destination_cuda;
 

@@ -101,7 +101,7 @@ Pixel* threshold_upper_kernel_launch(Pixel* f_host,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+  //  printf("found %d cuda devices.\n", cuda_device_count);
 
     uint voxel_count = width*height*depth;
     dim3 block_dimension(CUDA_BLOCK_DIMENSON);
@@ -147,7 +147,7 @@ Pixel* multiply_kernel_launch(Pixel* image1_host, Pixel* image2_host,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+  //  printf("found %d cuda devices.\n", cuda_device_count);
 
     uint voxel_count = width*height*depth;
     dim3 block_dimension(CUDA_BLOCK_DIMENSON);

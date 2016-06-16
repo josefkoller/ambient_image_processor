@@ -7,10 +7,10 @@ void perform(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-    std::cout << "started program: " << argv[0] << std::endl;
+  //  std::cout << "started program: " << argv[0] << std::endl;
     if(argc > 1)
     {
-        std::cout << "database file path: " << argv[1] << std::endl;
+ //       std::cout << "database file path: " << argv[1] << std::endl;
     }
     else
     {
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     perform(argc, argv);
-    std::cout << "finished program: " << argv[0] << std::endl;
+ //   std::cout << "finished program: " << argv[0] << std::endl;
     return 0;
 }
 

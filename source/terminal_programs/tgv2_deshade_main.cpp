@@ -87,7 +87,7 @@ int process(
 
 int main(int argc, char *argv[])
 {
-    std::cout << "started program: " << argv[0] << std::endl;
+ //   std::cout << "started program: " << argv[0] << std::endl;
     if(argc < 8)
     {
         printUsage();
@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
         output_deshaded_path = argv[8];
     }
 
+    /*
     std::cout << "parameter: " << std::endl <<
                  "input_image_path=" << input_image_path << std::endl <<
                  "lambda=" << lambda << std::endl <<
@@ -129,6 +130,7 @@ int main(int argc, char *argv[])
                  "output_denoised_path=" << output_denoised_path << std::endl <<
                  "output_shading_path=" << output_shading_path << std::endl <<
                  "output_deshaded_path=" << output_deshaded_path << std::endl;
+*/
 
     return process(input_image_path,
                    lambda,

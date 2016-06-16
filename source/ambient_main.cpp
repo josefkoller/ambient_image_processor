@@ -7,12 +7,12 @@
 
 int main(int argc, char *argv[])
 {
-    std::cout << "started program: " << argv[0] << std::endl;
+ //   std::cout << "started program: " << argv[0] << std::endl;
     std::string image_path = "";
     if(argc > 1)
     {
         image_path = argv[1];
-        std::cout << "image file path: " << image_path << std::endl;
+ //       std::cout << "image file path: " << image_path << std::endl;
     }
 
     if(!QFile(QString::fromStdString(image_path)).exists())
@@ -26,6 +26,6 @@ int main(int argc, char *argv[])
 
     application.exec();
 
-    std::cout << "finished program: " << argv[0] << std::endl;
+  //  std::cout << "finished program: " << argv[0] << std::endl;
     return 0;
 }

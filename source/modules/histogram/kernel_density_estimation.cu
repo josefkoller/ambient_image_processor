@@ -131,13 +131,13 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
 {
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
-    printf("found %d cuda devices.\n", cuda_device_count);
+ //   printf("found %d cuda devices.\n", cuda_device_count);
 
     const dim3 block_dimension(CUDA_BLOCK_DIMENSON);
     const dim3 grid_dimension(
                 (spectrum_bandwidth + block_dimension.x - 1) / block_dimension.x);
-    printf("block dimensions: %d \n", block_dimension.x);
-    printf("grid dimensions: %d \n", grid_dimension.x);
+ //   printf("block dimensions: %d \n", block_dimension.x);
+ //   printf("grid dimensions: %d \n", grid_dimension.x);
 
     Pixel* image;
     size_t image_size = sizeof(Pixel) * voxel_count;

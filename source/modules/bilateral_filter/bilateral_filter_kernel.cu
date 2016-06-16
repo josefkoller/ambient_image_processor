@@ -77,7 +77,7 @@ Pixel* bilateral_filter_kernel_launch(Pixel* source,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+//    printf("found %d cuda devices.\n", cuda_device_count);
 
     const uint voxel_count = source_width*source_height*source_depth;
 
@@ -85,8 +85,8 @@ Pixel* bilateral_filter_kernel_launch(Pixel* source,
     const dim3 grid_dimension(
                 (voxel_count + block_dimension.x - 1) / block_dimension.x);
 
-    printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
-    printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
+//    printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
+//    printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
 
     Pixel* source_cuda, *kernel_cuda, *destination_cuda;
 

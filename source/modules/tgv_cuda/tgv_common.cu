@@ -234,7 +234,7 @@ void tgv_launch_part1(
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+ //   printf("found %d cuda devices.\n", cuda_device_count);
 
     voxel_count = width*height*depth;
 
@@ -245,8 +245,8 @@ void tgv_launch_part1(
     grid_dimension_y = dim3((depth*width + block_dimension.x - 1) / block_dimension.x);
     grid_dimension_z = dim3((width*height + block_dimension.x - 1) / block_dimension.x);
 
-    printf("block dimensions: x:%d \n", block_dimension.x);
-    printf("grid dimensions: x:%d  \n", grid_dimension.x);
+   // printf("block dimensions: x:%d \n", block_dimension.x);
+  //  printf("grid dimensions: x:%d  \n", grid_dimension.x);
 }
 
 template<typename Pixel>
@@ -257,7 +257,7 @@ void tgv_launch_part2(Pixel* f_host,
           Pixel** p_x, Pixel** p_y, Pixel** p_z,
           Pixel** p_xx, Pixel** p_yy, Pixel** p_zz) {
 
-    printf("voxel_count: %d \n", voxel_count);
+//    printf("voxel_count: %d \n", voxel_count);
 
     size_t size = sizeof(Pixel) * voxel_count;
     cudaCheckError( cudaMallocManaged(f, size) )

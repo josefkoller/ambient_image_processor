@@ -71,7 +71,7 @@ int process(
 
 int main(int argc, char *argv[])
 {
-    std::cout << "started program: " << argv[0] << std::endl;
+ //   std::cout << "started program: " << argv[0] << std::endl;
     if(argc < 8)
     {
         printUsage();
@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
         output_metric_file_name = argv[6];
     }
 
+    /*
     std::cout << "parameter: " << std::endl <<
                  "input_image_path=" << input_image_path << std::endl <<
                  "lambda=" << lambda << std::endl <<
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
                  "iteration_count=" << iteration_count << std::endl <<
                  "mask=" << (is_mask_given ? mask_path : "none") << std::endl <<
                  "output_metric_file_name=" << output_metric_file_name;
+*/
 
     return process(input_image_path,
                    lambda,

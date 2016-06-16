@@ -22,7 +22,7 @@ Pixel* multiply_constant_kernel_launch(Pixel* image_host,
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
 
-    printf("found %d cuda devices.\n", cuda_device_count);
+ //   printf("found %d cuda devices.\n", cuda_device_count);
 
     uint voxel_count = width*height*depth;
     dim3 block_dimension(CUDA_BLOCK_DIMENSON);
