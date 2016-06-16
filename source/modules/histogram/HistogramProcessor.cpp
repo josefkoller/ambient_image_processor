@@ -77,6 +77,43 @@ double HistogramProcessor::calculateEntropy(const std::vector<double>& probabili
     return -entropy;
 }
 
+
+double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_bandwidth)
+{
+    typedef ITKImage::PixelType Pixel;
+    Pixel min, max;
+    image.minimumAndMaximum(min, max);
+
+    const uint spectrum_bandwidth = std::ceil(std::sqrt(image.voxel_count));
+    if(kde_bandwidth < 0)
+        kde_bandwidth = (max - min) / spectrum_bandwidth;
+
+    Pixel* image_pixels = image.cloneToPixelArray();
+    Pixel* spectrum = kernel_density_estimation_kernel_launch(
+       image_pixels, image.voxel_count, spectrum_bandwidth, kde_bandwidth,
+       3, // kernel type = Epanechnik
+       min, max);
+    delete[] image_pixels;
+
+    Pixel sum = 0;
+    for(uint a = 0; a < spectrum_bandwidth; a++)
+        sum += spectrum[a];
+    if(sum == 0)
+        sum = 1;
+
+    Pixel entropy = 0;
+    for(uint a = 0; a < spectrum_bandwidth; a++)
+    {
+        Pixel probability = spectrum[a] / sum;
+        if(probability < 1e-5)
+            continue;
+        entropy += probability * std::log2(probability);
+    }
+
+    delete[] spectrum;
+    return -entropy;
+}
+
 void HistogramProcessor::calculateFast(ITKImage image,
                uint spectrum_bandwidth,
                ITKImage::PixelType window_from,

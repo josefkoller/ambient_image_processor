@@ -3,7 +3,8 @@
 #include <string>
 typedef std::string String;
 
-void perform(const char* database_file_path);
+void perform(int argc, char *argv[]);
+
 int main(int argc, char *argv[])
 {
     std::cout << "started program: " << argv[0] << std::endl;
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
         std::cout << "Usage: database_file_path as the only argument" << std::endl;
         return 1;
     }
-    perform(argv[1]);
+    perform(argc, argv);
     std::cout << "finished program: " << argv[0] << std::endl;
     return 0;
 }
@@ -76,20 +77,25 @@ struct RunMetrics
   float denoised_mean_total_variation = 0;
   float deshaded_coefficient_of_variation = 0;
   float deshaded_mean_total_variation = 0;
+  float deshaded_entropy = 0;
 };
 
 void write_metrics_to_database(RunMetrics run, int run_id, Database database)
 {
   char command[512];
-  sprintf(command, "update run set denoised_coefficient_of_variation=%f,denoised_mean_total_variation=%f,deshaded_coefficient_of_variation=%f,deshaded_mean_total_variation=%f where id=%d",
+  sprintf(command, "update run set denoised_coefficient_of_variation=%f,denoised_mean_total_variation=%f,deshaded_coefficient_of_variation=%f,deshaded_mean_total_variation=%f,deshaded_entropy=%f where id=%d",
   run.denoised_coefficient_of_variation,
   run.denoised_mean_total_variation,
   run.deshaded_coefficient_of_variation,
+  run.deshaded_mean_total_variation,
+  run.deshaded_entropy,
   run_id);
+
   sqlite3_stmt* statement;
   if(sqlite3_prepare(database, command, -1, &statement, NULL) != SQLITE_OK)
   {
      std::cout << "  SQL error: " << sqlite3_errmsg(database) << std::endl;
+     std::cout << "  SQL command: " << command << std::endl;
      exit(1);
   }
   sqlite3_step(statement);
@@ -98,7 +104,8 @@ void write_metrics_to_database(RunMetrics run, int run_id, Database database)
 #include "ITKImage.h"
 #include "ImageInformationProcessor.h"
 #include "CudaImageOperationsProcessor.h"
-RunMetrics calculate_metrics(RunParameter parameter)
+#include "HistogramProcessor.h"
+RunMetrics calculate_metrics(RunParameter parameter, const double kde_bandwidth)
 {
   RunMetrics metrics;
 
@@ -110,17 +117,22 @@ RunMetrics calculate_metrics(RunParameter parameter)
   metrics.deshaded_mean_total_variation = CudaImageOperationsProcessor::tv(deshaded_image) / deshaded_image.voxel_count;
   metrics.deshaded_coefficient_of_variation = ImageInformationProcessor::coefficient_of_variation(deshaded_image);
 
+  metrics.deshaded_entropy = HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth);
+
   return metrics;
 }
 
 
-void perform(const char* database_file_path)
+void perform(int argc, char *argv[])
 {
+  const char* database_file_path = argv[1];
+  double kde_bandwidth = argc > 2 ? std::stod(argv[2]) : -1;
+
   Database database = openDatabase(database_file_path);
   std::vector<RunParameter> run_parameters = readRunParameters(database);
   for(RunParameter parameter : run_parameters)
   {
-    RunMetrics metrics = calculate_metrics(parameter);
+    RunMetrics metrics = calculate_metrics(parameter, kde_bandwidth);
     write_metrics_to_database(metrics, parameter.id, database);
   }
   sqlite3_close(database);

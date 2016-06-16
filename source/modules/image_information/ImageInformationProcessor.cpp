@@ -85,5 +85,5 @@ double ImageInformationProcessor::coefficient_of_variation(ITKImage itk_image)
     statistics_calculator->SetInput(itk_image.getPointer());
     statistics_calculator->Update();
 
-    return statistics_calculator->GetVariance() / statistics_calculator->GetMean();
+    return statistics_calculator->GetSigma() / statistics_calculator->GetMean();
 }
