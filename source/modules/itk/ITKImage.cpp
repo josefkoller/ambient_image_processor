@@ -13,6 +13,8 @@
 
 #include <vector>
 
+#include "cuda_host_helper.cuh"
+
 const ITKImage ITKImage::Null = ITKImage();
 
 ITKImage::ITKImage(uint width, uint height, uint depth)
@@ -385,6 +387,28 @@ ITKImage::PixelType* ITKImage::cloneToPixelArray() const
     });
     return clone;
 }
+
+
+ITKImage::PixelType* ITKImage::cloneToCudaPixelArray() const
+{
+    if(this->isNull())
+        return nullptr;
+
+    ITKImage::PixelType* clone = cudaMalloc<ITKImage::PixelType>(this->voxel_count);
+    if(clone == nullptr) {
+        std::cerr << "memory allocation error in cloneToPixelArray: " <<
+                     sizeof(ITKImage::PixelType)*this->width*this->height*this->depth <<
+                     " bytes could not be reservated" << std::endl;
+        return clone;
+    }
+
+    this->foreachPixel([clone, this](uint x, uint y, uint z, PixelType pixel) {
+        uint i = this->linearIndex(x,y,z);
+        clone[i] = pixel;
+    });
+    return clone;
+}
+
 ITKImage ITKImage::cloneSameSizeWithZeros() const
 {
     ITKImage clone = ITKImage(this->width, this->height, this->depth);

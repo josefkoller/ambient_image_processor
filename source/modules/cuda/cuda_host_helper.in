@@ -1,0 +1,57 @@
+#ifndef CUDA_HOST_HELPER
+#define CUDA_HOST_HELPER
+
+#include <cuda_runtime.h>
+#include <stdio.h>
+
+#define CUDA_BLOCK_DIMENSON 1024 // @CUDA_BLOCK_DIMENSON@
+#define CUDA_BLOCK_DIMENSON_TEST @CUDA_BLOCK_DIMENSON@
+
+#define cudaCheckError(ans) { cudaAssert((ans), __FILE__, __LINE__); }
+inline void cudaAssert(cudaError_t error_code, const char *file, int line, bool abort=true)
+{
+    if (error_code != cudaSuccess)
+    {
+        printf("cuda error: %s %s %d\n", cudaGetErrorString(error_code), file, line);
+        if (abort)
+        {
+            exit(error_code);
+        }
+    }
+}
+
+template<typename T>
+T* copyToDevice(T* host_data, size_t size)
+{
+    T* device_data;
+    cudaCheckError( cudaMalloc(&device_data, size) );
+    cudaCheckError( cudaMemcpy(device_data, host_data, size, cudaMemcpyHostToDevice) );
+    return device_data;
+}
+
+template<typename T>
+T* copyToHost(T* device_data, unsigned int array_length)
+{
+    T* host_data = new T[array_length];
+    cudaCheckError( cudaMemcpy(host_data, device_data, sizeof(T) * array_length,
+                               cudaMemcpyDeviceToHost) );
+    return host_data;
+}
+
+template<typename Pixel>
+Pixel* cudaMalloc(const unsigned int voxel_count)
+{
+    Pixel* pixels;
+    size_t size = sizeof(Pixel) * voxel_count;
+    cudaError_t status = cudaMallocManaged(&pixels, size);
+
+    if (status != cudaSuccess)
+    {
+        printf("cuda error: %s %s %d\n", cudaGetErrorString(status), __FILE__, __LINE__);
+        return nullptr;
+    }
+
+    return pixels;
+}
+
+#endif //CUDA_HOST_HELPER

@@ -94,6 +94,7 @@ public:
     ITKImage::Index linearTo3DIndex(uint linear_index) const;
 
     PixelType* cloneToPixelArray() const;
+    PixelType* cloneToCudaPixelArray() const;
     ITKImage cloneSameSizeWithZeros() const;
 
     static uint linearIndex(Size size, ITKImage::InnerITKImage::IndexType index);
