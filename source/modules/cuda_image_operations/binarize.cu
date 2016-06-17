@@ -28,6 +28,7 @@ Pixel* binarize_kernel_launch(Pixel* image_host,
                       block_dimension, grid_dimension);
 
     binarize_kernel<<<grid_dimension, block_dimension>>>(image, width, height, depth);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     return unary_operation_part2(image, width, height, depth);
 }

@@ -30,6 +30,7 @@ Pixel* divide_kernel_launch(Pixel* image1_host, Pixel* image2_host,
 
     divide_kernel<<<grid_dimension, block_dimension>>>(
          image1, image2, width, height, depth);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     return binary_operation_part2(image1, image2,
                                   width, height, depth);

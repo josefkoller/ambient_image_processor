@@ -21,6 +21,8 @@ void binary_operation_part1(Pixel* image1_host, Pixel* image2_host,
     cudaCheckError( cudaMemcpy(*image1, image1_host, size, cudaMemcpyHostToDevice) )
     cudaCheckError( cudaMallocManaged(image2, size) )
     cudaCheckError( cudaMemcpy(*image2, image2_host, size, cudaMemcpyHostToDevice) )
+
+    cudaCheckError( cudaDeviceSynchronize() );
 }
 
 

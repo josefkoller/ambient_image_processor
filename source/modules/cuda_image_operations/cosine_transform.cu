@@ -146,8 +146,6 @@ Pixel* cosine_transform_kernel_launch(Pixel* image_host,
     cudaCheckError( cudaMallocManaged(&result, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
-    cudaCheckError( cudaDeviceSynchronize() );
-
     if(depth == 1)
     {
         zero_kernel<<<grid_dimension, block_dimension>>>(result, width, height);
@@ -170,6 +168,7 @@ Pixel* cosine_transform_kernel_launch(Pixel* image_host,
           image, width, height, depth,
           result);
     }
+    cudaCheckError( cudaDeviceSynchronize() );
 
     Pixel* result_host = new Pixel[voxel_count];
     cudaCheckError( cudaMemcpy(result_host, result, size, cudaMemcpyDeviceToHost) );

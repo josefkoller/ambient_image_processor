@@ -30,6 +30,7 @@ Pixel* clamp_negative_values_kernel_launch(Pixel* image_host,
                       block_dimension, grid_dimension);
 
     clamp_negative_values_kernel<<<grid_dimension, block_dimension>>>(image, width, height, depth, value);
+    cudaCheckError( cudaDeviceSynchronize() );
 
     return unary_operation_part2(image, width, height, depth);
 }
