@@ -37,6 +37,7 @@
 #include "TGVNonParametricDeshadeWidget.h"
 #include "TGVDeshadeMetricPlotWidget.h"
 #include "TGVDeshadeIntegralMetricPlotWidget.h"
+#include "ConjugateGradientWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -112,6 +113,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgv_deshade_metric_plot_widget);
     modules.push_back(tgv_deshade_integral_metric_plot_widget);
     modules.push_back(tgv_non_parametric_deshade_widget);
+    modules.push_back(new ConjugateGradientWidget("Conjugate Gradient", module_parent));
 
     // register modules and add widget modules
     module_parent->hide();

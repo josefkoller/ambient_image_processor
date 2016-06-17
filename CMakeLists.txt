@@ -92,6 +92,7 @@ include(source/modules/image_view_control/CMakeLists.txt)
 include(source/modules/tgv_non_parametric_deshade/CMakeLists.txt)
 include(source/modules/tgv_deshade_metric_plot/CMakeLists.txt)
 include(source/modules/tgv_deshade_integral_metric_plot/CMakeLists.txt)
+include(source/modules/conjugate_gradient/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
@@ -118,7 +119,7 @@ target_link_libraries(ambient_application
   -lfftw3
 )
 
-include(source/terminal_programs/CMakeLists.txt)
+#include(source/terminal_programs/CMakeLists.txt)
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})  # import itk after cuda_add_executable, else an invalid nvcc flag is set
