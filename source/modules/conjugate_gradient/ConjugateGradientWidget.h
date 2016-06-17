@@ -16,7 +16,7 @@ public:
     ~ConjugateGradientWidget();
 
 private slots:
-    void on_pushButton_clicked();
+    void on_solve_poisson_button_clicked();
 
 private:
     Ui::ConjugateGradientWidget *ui;

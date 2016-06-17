@@ -27,8 +27,25 @@ template<typename Pixel>
 void image_assign_kernel_launch(Pixel* source, Pixel* destination,
                              ImageVectorOperations::Dimension voxel_count);
 
+template<typename Pixel>
+void laplace_kernel_launch(Pixel* source, Pixel* destination,
+                           ImageVectorOperations::Dimension image_width,
+                           ImageVectorOperations::Dimension image_height,
+                           ImageVectorOperations::Dimension image_depth);
+
+template<typename Pixel>
+void image_set_zeros_kernel_launch(Pixel* image,
+                             ImageVectorOperations::Dimension voxel_count);
+
 ImageVectorOperations::ImageVectorOperations()
 {
+}
+
+
+template<typename Pixel>
+void ImageVectorOperations::setZeros(Pixel* image, Dimension voxel_count)
+{
+    image_set_zeros_kernel_launch(image, voxel_count);
 }
 
 template<typename Pixel>
@@ -73,10 +90,17 @@ void ImageVectorOperations::assign(Pixel* source, Pixel* destination, Dimension 
     image_assign_kernel_launch(source, destination, voxel_count);
 }
 
+template<typename Pixel>
+void ImageVectorOperations::laplace(Pixel* vector, Pixel* result,
+  Dimension image_width, Dimension image_height, Dimension image_depth)
+{
+    laplace_kernel_launch(vector, result, image_width, image_height, image_depth);
+}
 
 
-
-
+template void ImageVectorOperations::setZeros(float* vector, Dimension voxel_count);
+template void ImageVectorOperations::laplace(float* vector, float* result,
+  Dimension image_width, Dimension image_height, Dimension image_depth);
 template float ImageVectorOperations::scalarProduct(float* image1, float* image2, float* temp, Dimension voxel_count);
 template void ImageVectorOperations::add(float* image1, float* image2, float* result, Dimension voxel_count);
 template void ImageVectorOperations::subtract(float* image1, float* image2, float* result, Dimension voxel_count);
@@ -84,6 +108,9 @@ template void ImageVectorOperations::scale(float* image1, float factor, float* r
 template void ImageVectorOperations::assign(float* source, float* destination, Dimension voxel_count);
 template void ImageVectorOperations::matrixVectorMultiply(ImageMatrix<float>* matrix, float* vector, float* result);
 
+template void ImageVectorOperations::setZeros(double* vector, Dimension voxel_count);
+template void ImageVectorOperations::laplace(double* vector, double* result,
+  Dimension image_width, Dimension image_height, Dimension image_depth);
 template double ImageVectorOperations::scalarProduct(double* image1, double* image2, double* temp, Dimension voxel_count);
 template void ImageVectorOperations::add(double* image1, double* image2, double* result, Dimension voxel_count);
 template void ImageVectorOperations::subtract(double* image1, double* image2, double* result, Dimension voxel_count);

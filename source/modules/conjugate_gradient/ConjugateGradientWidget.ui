@@ -6,44 +6,91 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>403</width>
+    <height>225</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <item>
-    <widget class="QGroupBox" name="groupBox">
+   <item alignment="Qt::AlignTop">
+    <widget class="QWidget" name="widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title">
-      <string>Epsilon</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item alignment="Qt::AlignTop">
-       <widget class="QDoubleSpinBox" name="epsilon_spinbox">
-        <property name="decimals">
-         <number>8</number>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="maximum">
-         <double>999999999.000000000000000</double>
+        <property name="title">
+         <string>Epsilon</string>
         </property>
-        <property name="value">
-         <double>0.100000000000000</double>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QDoubleSpinBox" name="epsilon_spinbox">
+           <property name="decimals">
+            <number>12</number>
+           </property>
+           <property name="maximum">
+            <double>999999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.000001000000000</double>
+           </property>
+           <property name="value">
+            <double>0.000001000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
+        <property name="title">
+         <string>Solver</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="conjugate_gradient_checkbox">
+           <property name="text">
+            <string>Conjugate Gradient</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="text">
+            <string>Cosine Transform</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="pushButton">
+   <item alignment="Qt::AlignTop">
+    <widget class="QPushButton" name="solve_poisson_button">
      <property name="text">
       <string>Solve Poisson Equation</string>
      </property>

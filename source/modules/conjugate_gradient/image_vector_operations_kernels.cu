@@ -132,7 +132,6 @@ void image_scale_kernel_launch(Pixel* image1, Pixel factor, Pixel* result,
     cudaCheckError( cudaDeviceSynchronize() );
 }
 
-
 template<typename Pixel>
 __global__ void image_assign_kernel(
         Pixel* source, Pixel* destination,
@@ -157,8 +156,109 @@ void image_assign_kernel_launch(Pixel* source, Pixel* destination,
     cudaCheckError( cudaDeviceSynchronize() );
 }
 
+template<typename Pixel>
+__global__ void image_laplace_kernel(
+        Pixel* source, Pixel* destination,
+        Dimension voxel_count, Dimension width, Dimension height, Dimension depth)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= voxel_count)
+        return;
+
+    const int z_offset = width*height;
+
+    const int z = floorf(index / z_offset);
+    int index_rest = index - z * z_offset;
+    const int y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const int x = index_rest;
 
 
+    destination[index] = 0;
+    Pixel center = 0;
+
+    if(x > 0)
+    {
+        destination[index] -= source[index - 1];
+        center += 1;
+    }
+    if(x < width - 1)
+    {
+        destination[index] -= source[index + 1];
+        center += 1;
+    }
+
+    if(y > 0)
+    {
+        destination[index] -= source[index - width];
+        center += 1;
+    }
+    if(y < height - 1)
+    {
+        destination[index] -= source[index + width];
+        center += 1;
+    }
+
+    if(z > 0)
+    {
+        destination[index] -= source[index - z_offset];
+        center += 1;
+    }
+    if(z < depth - 1)
+    {
+        destination[index] -= source[index + z_offset];
+        center += 1;
+    }
+
+    destination[index] += source[index] * center;
+}
+
+template<typename Pixel>
+void laplace_kernel_launch(Pixel* source, Pixel* destination,
+                           Dimension image_width, Dimension image_height, Dimension image_depth)
+{
+    Dimension voxel_count = image_width * image_height * image_depth;
+
+    dim3 block_dimension = dim3(CUDA_BLOCK_DIMENSON);
+    dim3 grid_dimension = dim3((voxel_count + block_dimension.x - 1) / block_dimension.x);
+
+    image_laplace_kernel<<<grid_dimension, block_dimension>>>(
+         source, destination, voxel_count, image_width, image_height, image_depth);
+    cudaCheckError( cudaDeviceSynchronize() );
+}
+
+template<typename Pixel>
+__global__ void image_set_zeros_kernel(
+        Pixel* source,
+        Dimension voxel_count)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= voxel_count)
+        return;
+
+    source[index] = 0;
+}
+
+template<typename Pixel>
+void image_set_zeros_kernel_launch(Pixel* source,
+                           Dimension voxel_count)
+{
+    dim3 block_dimension = dim3(CUDA_BLOCK_DIMENSON);
+    dim3 grid_dimension = dim3((voxel_count + block_dimension.x - 1) / block_dimension.x);
+
+    image_set_zeros_kernel<<<grid_dimension, block_dimension>>>(
+         source, voxel_count);
+    cudaCheckError( cudaDeviceSynchronize() );
+}
+
+
+
+
+template void image_set_zeros_kernel_launch(float* source, Dimension voxel_count);
+template void laplace_kernel_launch(float* source, float* destination,
+                           Dimension image_width, Dimension image_height, Dimension image_depth);
 template void image_assign_kernel_launch(float* source, float* destination, Dimension voxel_count);
 template void image_scale_kernel_launch(float* image1, float factor, float* result, Dimension voxel_count);
 template void image_subtract_kernel_launch(float* image1, float* image2, float* result, Dimension voxel_count);
@@ -167,6 +267,9 @@ template void image_multiply_matrix_kernel_launch(float* matrix_elements, float*
                                                     Dimension voxel_count);
 template void image_multiply_kernel_launch(float* image1, float* image2, float* temp, Dimension voxel_count);
 
+template void image_set_zeros_kernel_launch(double* source, Dimension voxel_count);
+template void laplace_kernel_launch(double* source, double* destination,
+                           Dimension image_width, Dimension image_height, Dimension image_depth);
 template void image_assign_kernel_launch(double* source, double* destination, Dimension voxel_count);
 template void image_scale_kernel_launch(double* image1, double factor, double* result, Dimension voxel_count);
 template void image_subtract_kernel_launch(double* image1, double* image2, double* result, Dimension voxel_count);
