@@ -18,7 +18,7 @@ __global__  void solve_poisson_in_cosine_domain_kernel(Pixel* image,
     index_rest = index_rest - y * width;
     const Pixel x = index_rest;
 
-    if(x == 0 && y == 0)
+    if(x == 0 && y == 0 && z == 0)
     {
         result[index] = 0;
         return;
@@ -30,6 +30,35 @@ __global__  void solve_poisson_in_cosine_domain_kernel(Pixel* image,
              - 2.0*cospi(x / width)
              - 2.0*cospi(y / height)
              - 2.0*cospi(z / depth) );
+}
+
+template<typename Pixel>
+__global__  void solve_poisson_in_cosine_domain_kernel_2D(Pixel* image,
+                              uint width, uint height, uint depth,
+                              Pixel* result)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= width * height * depth)
+        return;
+
+    const Pixel z = floorf(index / (width*height));
+    int index_rest = index - z * (width*height);
+    const Pixel y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const Pixel x = index_rest;
+
+    if(x == 0 && y == 0)
+    {
+        result[index] = 0;
+        return;
+    }
+
+    result[index] = image[index]
+            /
+            (4.0
+             - 2.0*cospi(x / width)
+             - 2.0*cospi(y / height) );
 }
 
 template<typename Pixel>
@@ -54,9 +83,18 @@ Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
     cudaCheckError( cudaMallocManaged(&result, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
-    solve_poisson_in_cosine_domain_kernel<<<grid_dimension, block_dimension>>>(
-      image, width, height, depth,
-      result);
+    if(depth == 1)
+    {
+        solve_poisson_in_cosine_domain_kernel_2D<<<grid_dimension, block_dimension>>>(
+          image, width, height, depth,
+          result);
+    }
+    else
+    {
+        solve_poisson_in_cosine_domain_kernel<<<grid_dimension, block_dimension>>>(
+          image, width, height, depth,
+          result);
+    }
     cudaCheckError( cudaDeviceSynchronize() );
 
     Pixel* result_host = new Pixel[voxel_count];
