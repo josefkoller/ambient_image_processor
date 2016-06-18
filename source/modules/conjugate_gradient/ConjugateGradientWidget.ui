@@ -38,7 +38,7 @@
          <item>
           <widget class="QDoubleSpinBox" name="epsilon_spinbox">
            <property name="decimals">
-            <number>12</number>
+            <number>20</number>
            </property>
            <property name="maximum">
             <double>999999999.000000000000000</double>
