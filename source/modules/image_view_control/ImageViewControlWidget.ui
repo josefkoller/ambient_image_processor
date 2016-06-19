@@ -21,7 +21,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QCheckBox" name="do_rescale_checkbox">
+       <widget class="QRadioButton" name="do_rescale_checkbox">
         <property name="text">
          <string>rescale</string>
         </property>
@@ -31,7 +31,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="do_multiply_checkbox">
+       <widget class="QRadioButton" name="do_multiply_checkbox">
         <property name="text">
          <string>multiply</string>
         </property>
