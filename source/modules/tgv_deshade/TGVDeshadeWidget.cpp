@@ -70,6 +70,8 @@ ITKImage TGVDeshadeWidget::processImage(ITKImage image)
     const bool set_negative_values_to_zero = this->ui->set_negative_values_to_zero_checkbox->isChecked();
     auto mask = this->mask_view->getImage();
 
+    const bool add_background_back = this->ui->add_background_back_checkbox->isChecked();
+
 
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
@@ -82,6 +84,7 @@ ITKImage TGVDeshadeWidget::processImage(ITKImage image)
                                               this->iteration_finished_callback,
                                               mask,
                                               set_negative_values_to_zero,
+                                              add_background_back,
                                               denoised_image,
                                               shading_image);
     this->denoised_output_view->setImage(denoised_image);

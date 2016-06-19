@@ -143,6 +143,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="add_background_back_checkbox">
+           <property name="text">
+            <string>add back</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_8">
            <property name="title">
             <string>Mask</string>

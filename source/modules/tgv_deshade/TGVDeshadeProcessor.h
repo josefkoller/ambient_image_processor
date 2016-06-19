@@ -28,6 +28,7 @@ private:
     static ITKImage processTVGPUCuda(ITKImage input_image,
                                      const ITKImage& mask,
                                      const bool set_negative_values_to_zero,
+                                     const bool add_background_back,
                                      IterationFinishedThreeImages iteration_finished_callback,
                                      ITKImage& denoised_image,
                                      ITKImage& shading_image,
@@ -61,6 +62,7 @@ public:
                                          const uint paint_iteration_interval, IterationFinishedThreeImages iteration_finished_callback,
                                          const ITKImage& mask,
                                          const bool set_negative_values_to_zero,
+                                         const bool add_background_back,
                                          ITKImage& denoised_image,
                                          ITKImage& shading_image);
 
