@@ -6,6 +6,7 @@
 #include "ITKToQImageConverter.h"
 
 #include <QClipboard>
+#include <QFileDialog>
 
 HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -218,4 +219,22 @@ void HistogramWidget::on_copy_to_clipboard_button_clicked()
             this->ui->entropy_label->text();
 
     QApplication::clipboard()->setText(text);
+}
+
+void HistogramWidget::on_save_button_clicked()
+{
+    if(this->image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save histogram image file");
+    if(file_name.isNull())
+        return;
+
+    bool saved = false;
+    if(file_name.endsWith("pdf"))
+        saved = this->ui->custom_plot_widget->savePdf(file_name);
+    if(file_name.endsWith("png"))
+        saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
+
+    this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
 }

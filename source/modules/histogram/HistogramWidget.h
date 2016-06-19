@@ -67,6 +67,7 @@ private slots:
                               std::vector<double> probabilities);
     void handleEntropyLabelTextChange(QString text);
     void on_copy_to_clipboard_button_clicked();
+    void on_save_button_clicked();
 };
 
 #endif // HISTOGRAMWIDGET_H
