@@ -170,7 +170,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
     Pixel* f = input_image.cloneToPixelArray();
 
     ITKImage background_mask;
-    if(add_background_back)
+    if(add_background_back && !mask.isNull())
       background_mask = CudaImageOperationsProcessor::invert(mask);
 
     IterationCallback<Pixel> iteration_callback =
@@ -185,7 +185,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
                                                   mask, set_negative_values_to_zero,
                                                   l);
 
-        if(add_background_back)
+        if(add_background_back && !mask.isNull())
         {
             auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
             r = CudaImageOperationsProcessor::add(r, background);
@@ -209,7 +209,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
     if(input_image.depth > 1)
         delete[] v_z;
 
-    if(add_background_back)
+    if(add_background_back && !mask.isNull())
     {
         auto background = CudaImageOperationsProcessor::multiply(denoised_image, background_mask);
         deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
