@@ -65,6 +65,13 @@ template<typename Pixel>
 double tv_kernel_launch(Pixel* image,
                         uint width, uint height, uint depth);
 
+template<typename Pixel>
+Pixel* log_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+template<typename Pixel>
+Pixel* exp_kernel_launch(Pixel* image,
+                              uint width, uint height, uint depth);
+
 #include <fftw3.h>
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
@@ -235,6 +242,22 @@ ITKImage CudaImageOperationsProcessor::invert(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
             return invert_kernel_launch(image_pixels,
                                         image.width, image.height, image.depth);
+    });
+}
+
+
+ITKImage CudaImageOperationsProcessor::log(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return log_kernel_launch(image_pixels,
+                                    image.width, image.height, image.depth);
+    });
+}
+ITKImage CudaImageOperationsProcessor::exp(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return exp_kernel_launch(image_pixels,
+                                    image.width, image.height, image.depth);
     });
 }
 

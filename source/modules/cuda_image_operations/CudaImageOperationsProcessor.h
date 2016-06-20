@@ -31,6 +31,9 @@ public:
     static ITKImage cosineTransform(ITKImage image);
     static ITKImage inverseCosineTransform(ITKImage image);
 
+    static ITKImage log(ITKImage image);
+    static ITKImage exp(ITKImage image);
+
     static Pixel* divergence(Pixel* dx, Pixel* dy, Pixel* dz,
                                const uint width, const uint height, const uint depth, bool is_host_data=false);
 

@@ -57,6 +57,20 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QRadioButton" name="log_checkbox">
+        <property name="text">
+         <string>log</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="exp_checkbox">
+        <property name="text">
+         <string>exp</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

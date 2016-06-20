@@ -27,6 +27,11 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
         return CudaImageOperationsProcessor::cosineTransform(image);
     if(this->ui->idct_checkbox->isChecked())
         return CudaImageOperationsProcessor::inverseCosineTransform(image);
+
+    if(this->ui->exp_checkbox->isChecked())
+        return CudaImageOperationsProcessor::log(image);
+    if(this->ui->log_checkbox->isChecked())
+        return CudaImageOperationsProcessor::exp(image);
 }
 
 void UnaryOperationsWidget::on_perform_button_clicked()
