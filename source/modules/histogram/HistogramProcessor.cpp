@@ -84,6 +84,14 @@ double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_ba
     Pixel min, max;
     image.minimumAndMaximum(min, max);
 
+    return calculateEntropy(image, kde_bandwidth, min, max);
+}
+
+double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_bandwidth,
+                                            const double min, const double max)
+{
+    typedef ITKImage::PixelType Pixel;
+
     const uint spectrum_bandwidth = std::ceil(std::sqrt(image.voxel_count));
     if(kde_bandwidth < 0)
         kde_bandwidth = (max - min) / spectrum_bandwidth;

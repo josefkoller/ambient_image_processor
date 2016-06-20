@@ -36,6 +36,8 @@ def optimize_and_calculate_metric parameter
 
   command = "build/output/image_metric_to_sqlite #{parameter[:output_sql_file_path]}"
   command += " #{parameter[:entropy_kde_bandwidth]}"
+  command += " #{parameter[:entropy_window_from]}"
+  command += " #{parameter[:entropy_window_to]}"
   puts command.yellow
   system command
 end

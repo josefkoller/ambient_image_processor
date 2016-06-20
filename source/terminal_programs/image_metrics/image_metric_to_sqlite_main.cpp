@@ -105,7 +105,8 @@ void write_metrics_to_database(RunMetrics run, int run_id, Database database)
 #include "ImageInformationProcessor.h"
 #include "CudaImageOperationsProcessor.h"
 #include "HistogramProcessor.h"
-RunMetrics calculate_metrics(RunParameter parameter, const double kde_bandwidth)
+RunMetrics calculate_metrics(RunParameter parameter, const double kde_bandwidth,
+                             const double window_from, const double window_to)
 {
   RunMetrics metrics;
 
@@ -117,7 +118,10 @@ RunMetrics calculate_metrics(RunParameter parameter, const double kde_bandwidth)
   metrics.deshaded_mean_total_variation = CudaImageOperationsProcessor::tv(deshaded_image) / deshaded_image.voxel_count;
   metrics.deshaded_coefficient_of_variation = ImageInformationProcessor::coefficient_of_variation(deshaded_image);
 
-  metrics.deshaded_entropy = HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth);
+  metrics.deshaded_entropy = window_from == window_to ?
+              HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth) :
+              HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth,
+                                                   window_from, window_to);
 
   return metrics;
 }
@@ -128,11 +132,23 @@ void perform(int argc, char *argv[])
   const char* database_file_path = argv[1];
   double kde_bandwidth = argc > 2 ? std::stod(argv[2]) : -1;
 
+  double window_from = -1;
+  double window_to = -1;
+  try
+  {
+      window_from = argc > 3 ? std::stod(argv[3]) : -1;
+      window_to = argc > 4 ? std::stod(argv[4]) : -1;
+  }
+  catch(std::runtime_error exception)
+  {
+      std::cerr << exception.what() << std::endl;
+  }
+
   Database database = openDatabase(database_file_path);
   std::vector<RunParameter> run_parameters = readRunParameters(database);
   for(RunParameter parameter : run_parameters)
   {
-    RunMetrics metrics = calculate_metrics(parameter, kde_bandwidth);
+    RunMetrics metrics = calculate_metrics(parameter, kde_bandwidth, window_from, window_to);
     write_metrics_to_database(metrics, parameter.id, database);
   }
   sqlite3_close(database);
