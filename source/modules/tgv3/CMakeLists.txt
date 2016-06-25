@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 2.8.11)
+
+list(APPEND SOURCE_UI_FILES
+   ${CMAKE_CURRENT_LIST_DIR}/TGV3Widget.ui
+  )
+  
+list(APPEND SOURCE_H_FILES
+   ${CMAKE_CURRENT_LIST_DIR}/TGV3Widget.h
+   ${CMAKE_CURRENT_LIST_DIR}/TGV3Processor.h
+  )
+
+list(APPEND SOURCE_CPP_FILES
+   ${CMAKE_CURRENT_LIST_DIR}/TGV3Widget.cpp
+   ${CMAKE_CURRENT_LIST_DIR}/TGV3Processor.cpp
+  )
+
+list(APPEND CUDA_CPP_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/tgv3_common.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv3_l1.cu
+  )
+include_directories(${CMAKE_CURRENT_LIST_DIR})

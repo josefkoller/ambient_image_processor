@@ -38,6 +38,7 @@
 #include "TGVDeshadeMetricPlotWidget.h"
 #include "TGVDeshadeIntegralMetricPlotWidget.h"
 #include "ConjugateGradientWidget.h"
+#include "TGV3Widget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -74,6 +75,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshadeWidget("TGV Automatic Deshade", module_parent);
     auto tgv_deshade_metric_plot_widget = new TGVDeshadeMetricPlotWidget("TGV Deshade Metric Plot", module_parent);
     auto tgv_deshade_integral_metric_plot_widget = new TGVDeshadeIntegralMetricPlotWidget("TGV Deshade Integral Metric Plot", module_parent);
+    auto tgv3_widget = new TGV3Widget("TGV3 Filter", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -99,6 +101,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
+    modules.push_back(tgv3_widget);
     modules.push_back(tgv_lambdas_widget);
 
     modules.push_back(new UnsharpMaskingWidget("Unsharp Masking", module_parent));
@@ -233,6 +236,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_integral_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv3_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()
