@@ -114,7 +114,7 @@
          <item>
           <widget class="QDoubleSpinBox" name="alpha2_spinbox">
            <property name="value">
-            <double>0.500000000000000</double>
+            <double>3.000000000000000</double>
            </property>
           </widget>
          </item>
