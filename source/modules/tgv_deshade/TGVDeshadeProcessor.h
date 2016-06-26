@@ -38,6 +38,13 @@ private:
                             const uint width,
                             const uint height,
                             const uint depth);
+
+    static ITKImage::PixelType time_tv(ITKImage image, ITKImage image_before);
+    static ITKImage::PixelType mean(const ITKImage& image);
+    static ITKImage::PixelType standard_deviation(const ITKImage& image, const ITKImage::PixelType mean);
+    static ITKImage::PixelType normalized_cross_correlation(const ITKImage& image1, const ITKImage& image2);
+public:
+
     static ITKImage deshade_poisson_cosine_transform(ITKImage u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
                                                      const uint width,
                                                      const uint height,
@@ -46,13 +53,6 @@ private:
                                                      const bool set_negative_values_to_zero,
                                                      ITKImage& l,
                                                      bool is_host_data=false);
-
-
-    static ITKImage::PixelType time_tv(ITKImage image, ITKImage image_before);
-    static ITKImage::PixelType mean(const ITKImage& image);
-    static ITKImage::PixelType standard_deviation(const ITKImage& image, const ITKImage::PixelType mean);
-    static ITKImage::PixelType normalized_cross_correlation(const ITKImage& image1, const ITKImage& image2);
-public:
 
     static ITKImage processTGV2L1GPUCuda(ITKImage input_image,
                                          const Pixel lambda,

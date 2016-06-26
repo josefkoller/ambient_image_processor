@@ -94,6 +94,7 @@ include(source/modules/tgv_deshade_metric_plot/CMakeLists.txt)
 include(source/modules/tgv_deshade_integral_metric_plot/CMakeLists.txt)
 include(source/modules/conjugate_gradient/CMakeLists.txt)
 include(source/modules/tgv3/CMakeLists.txt)
+include(source/modules/tgv3_deshade/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
