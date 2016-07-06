@@ -1,10 +1,8 @@
 
 #include "cuda_helper.cuh"
 
-#define pi 3.14159265359
-
 template<typename Pixel>
-__global__  void cosine_transform_kernel(Pixel* image,
+__global__  void cosine_transform_kernel_3D(Pixel* image,
                               uint width, uint height, uint depth,
                               Pixel* result)
 {
@@ -19,6 +17,10 @@ __global__  void cosine_transform_kernel(Pixel* image,
     index_rest = index_rest - y * width;
     const int x = index_rest;
 
+    const Pixel widthf = width;
+    const Pixel heightf = height;
+    const Pixel depthf = depth;
+
     result[index] = 0;
     for(uint z2 = 0; z2 < depth; z2++)
     {
@@ -28,9 +30,9 @@ __global__  void cosine_transform_kernel(Pixel* image,
             {
                 uint index2 = z2 * width*height + x2 + y2 * width;
                 result[index] += image[index2]
-                        * cosf(x* x2 * pi / (width-1))
-                        * cosf(y * y2 * pi / (height-1))
-                        * cosf(z * z2 * pi / (depth-1));
+                        * cospi((x2 + 0.5) * x/widthf)
+                        * cospi((y2 + 0.5) * y/heightf)
+                        * cospi((z2 + 0.5) * z/depthf);
             }
         }
     }
@@ -49,6 +51,9 @@ __global__  void cosine_transform_kernel_2D(Pixel* image,
     const int y = floorf(index / width);
     const int x = index - y * width;
 
+    const Pixel widthf = width;
+    const Pixel heightf = height;
+
     result[index] = 0;
     for(uint y2 = 0; y2 < height; y2++)
     {
@@ -56,26 +61,14 @@ __global__  void cosine_transform_kernel_2D(Pixel* image,
         {
             uint index2 = x2 + y2 * width;
             result[index] += image[index2]
-                    * cosf(x* x2 * pi / (width-1))
-                    * cosf(y * y2 * pi / (height-1));
+                    * cospi((x2 + 0.5) * x/widthf)
+                    * cospi((y2 + 0.5) * y/heightf);
         }
     }
 }
 
 template<typename Pixel>
-__global__  void zero_kernel(Pixel* image,
-                              uint width, uint height)
-{
-    const int index = blockDim.x * blockIdx.x + threadIdx.x;
-
-    if(index >= width * height)
-        return;
-
-    image[index] = 0;
-}
-
-template<typename Pixel>
-__global__  void cosine_transform_kernel_x(Pixel* image,
+__global__  void cosine_transform_kernel_x_2D(Pixel* image,
                               uint width, uint height,
                               Pixel* result)
 {
@@ -89,17 +82,18 @@ __global__  void cosine_transform_kernel_x(Pixel* image,
 
     const Pixel size = width;
 
+    result[index] = 0;
     for(uint x2 = 0; x2 < width; x2++)
     {
         uint index2 = x2 + y * width;
         result[index] += image[index2]
-                * cospi((x2 * (x+1)*0.5) / size);
+                * cospi((x2 + 0.5) * x/size);
     }
-    result[index] *= 2;
+ //   result[index] *= 2;
 }
 
 template<typename Pixel>
-__global__  void cosine_transform_kernel_y(Pixel* image,
+__global__  void cosine_transform_kernel_y_2D(Pixel* image,
                               uint width, uint height,
                               Pixel* result)
 {
@@ -113,13 +107,98 @@ __global__  void cosine_transform_kernel_y(Pixel* image,
 
     const Pixel size = height;
 
+    result[index] = 0;
     for(uint y2 = 0; y2 < height; y2++)
     {
         uint index2 = x + y2 * width;
         result[index] += image[index2]
-                * cospi((y2 * (y+1)*0.5) / size);
+                * cospi((y2 + 0.5) * y/size);
     }
-    result[index] *= 2;
+    result[index] *= 8;
+}
+
+template<typename Pixel>
+__global__  void cosine_transform_kernel_x_3D(Pixel* image,
+                              uint width, uint height, uint depth,
+                              Pixel* result)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= width * height * depth)
+        return;
+
+    const int z = floorf(index / (width*height));
+    int index_rest = index - z * (width*height);
+    const int y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const int x = index_rest;
+
+    const Pixel size = width;
+
+    result[index] = 0;
+    for(uint x2 = 0; x2 < width; x2++)
+    {
+        uint index2 = z * width*height + x2 + y * width;
+        result[index] += image[index2]
+                * cospi((x2 + 0.5) * x/size);
+    }
+ //   result[index] *= 2;
+}
+
+template<typename Pixel>
+__global__  void cosine_transform_kernel_y_3D(Pixel* image,
+                              uint width, uint height, uint depth,
+                              Pixel* result)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= width * height * depth)
+        return;
+
+    const int z = floorf(index / (width*height));
+    int index_rest = index - z * (width*height);
+    const int y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const int x = index_rest;
+
+    const Pixel size = height;
+
+    result[index] = 0;
+    for(uint y2 = 0; y2 < height; y2++)
+    {
+        uint index2 = z * width*height + x + y2 * width;
+        result[index] += image[index2]
+                * cospi((y2 + 0.5) * y/size);
+    }
+ //   result[index] *= 2;
+}
+
+template<typename Pixel>
+__global__  void cosine_transform_kernel_z_3D(Pixel* image,
+                              uint width, uint height, uint depth,
+                              Pixel* result)
+{
+    const int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(index >= width * height * depth)
+        return;
+
+    const int z = floorf(index / (width*height));
+    int index_rest = index - z * (width*height);
+    const int y = floorf(index_rest / width);
+    index_rest = index_rest - y * width;
+    const int x = index_rest;
+
+    const Pixel size = depth;
+
+    result[index] = 0;
+    for(uint z2 = 0; z2 < depth; z2++)
+    {
+        uint index2 = z2 * width*height + x + y * width;
+        result[index] += image[index2]
+                * cospi((z2 + 0.5) * z/size);
+    }
+    result[index] *= 8;
 }
 
 template<typename Pixel>
@@ -148,23 +227,35 @@ Pixel* cosine_transform_kernel_launch(Pixel* image_host,
 
     if(depth == 1)
     {
-        zero_kernel<<<grid_dimension, block_dimension>>>(result, width, height);
+      //  cosine_transform_kernel_2D<<<grid_dimension, block_dimension>>>(
+      //    image, width, height, result);
 
-        cosine_transform_kernel_x<<<grid_dimension, block_dimension>>>(
+        // separable product
+        cosine_transform_kernel_x_2D<<<grid_dimension, block_dimension>>>(
           image, width, height,
           result);
-
-        cudaCheckError( cudaMemcpy(image, result, size, cudaMemcpyDeviceToDevice) )
-
-        cosine_transform_kernel_y<<<grid_dimension, block_dimension>>>(
-          image, width, height,
-          result);
+        cosine_transform_kernel_y_2D<<<grid_dimension, block_dimension>>>(
+          result, width, height,
+          image);
+        // swap
+        Pixel* temp = result;
+        result = image;
+        image = temp;
     }
     else
     {
-        dim3 grid_dimension_z((depth + block_dimension.x - 1) / block_dimension.x);
+     //   cosine_transform_kernel_3D<<<grid_dimension, block_dimension>>>(
+     //     image, width, height, depth,
+      //    result);
 
-        cosine_transform_kernel<<<grid_dimension, block_dimension>>>(
+        // separable product
+        cosine_transform_kernel_x_3D<<<grid_dimension, block_dimension>>>(
+          image, width, height, depth,
+          result);
+        cosine_transform_kernel_y_3D<<<grid_dimension, block_dimension>>>(
+          result, width, height, depth,
+          image);
+        cosine_transform_kernel_z_3D<<<grid_dimension, block_dimension>>>(
           image, width, height, depth,
           result);
     }

@@ -8,7 +8,7 @@ cuda_add_executable(tgv2_deshade_application
 target_link_libraries(tgv2_deshade_application
   Qt5::Core
   Qt5::Widgets
-  -lfftw3
+ # -lfftw3
 )
 list(APPEND ITK_APPLICATIONS
   tgv2_deshade_application
