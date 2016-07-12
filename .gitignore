@@ -6,3 +6,4 @@ build_qtcreator
 CMakeLists.txt.user
 data/*
 octave/metric_file.txt
+*.autosave
