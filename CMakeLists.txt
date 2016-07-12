@@ -96,6 +96,7 @@ include(source/modules/conjugate_gradient/CMakeLists.txt)
 include(source/modules/tgv3/CMakeLists.txt)
 include(source/modules/tgv3_deshade/CMakeLists.txt)
 include(source/modules/tgvk/CMakeLists.txt)
+include(source/modules/tgvk_deshade/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 

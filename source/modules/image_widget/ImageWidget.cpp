@@ -41,6 +41,7 @@
 #include "TGV3Widget.h"
 #include "TGV3DeshadeWidget.h"
 #include "TGVKWidget.h"
+#include "TGVKDeshadeWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -80,6 +81,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgv3_widget = new TGV3Widget("TGV3 Filter", module_parent);
     auto tgv3_deshade_widget = new TGV3DeshadeWidget("TGV3 Deshade", module_parent);
     auto tgvk_widget = new TGVKWidget("TGVk Filter", module_parent);
+    auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGVk Deshade", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -119,6 +121,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgv_shading_growing_widget);
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv3_deshade_widget);
+    modules.push_back(tgvk_deshade_widget);
+
     modules.push_back(tgv_deshade_metric_plot_widget);
     modules.push_back(tgv_deshade_integral_metric_plot_widget);
     modules.push_back(tgv_non_parametric_deshade_widget);
@@ -245,6 +249,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgv3_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv3_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgvk_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()
