@@ -160,9 +160,9 @@ void TGVKDeshadeWidget::on_order_spinbox_editingFinished()
 void TGVKDeshadeWidget::updateAlpha()
 {
     delete this->ui->alpha_groupbox;
-    this->ui->alpha_groupbox = new QGroupBox("Alpha", this->ui->parameterGroupBox);
+    this->ui->alpha_groupbox = new QGroupBox("Alpha", this->ui->alpha_groupbox_frame);
     this->ui->alpha_groupbox->setLayout(new QVBoxLayout());
-    this->ui->parameterGroupBox->layout()->addWidget(this->ui->alpha_groupbox);
+    this->ui->alpha_groupbox_frame->layout()->addWidget(this->ui->alpha_groupbox);
 
     this->alpha_spinboxes.clear();
 
@@ -182,8 +182,10 @@ void TGVKDeshadeWidget::addAlpha(uint index)
     auto spinbox = new QDoubleSpinBox(alpha_groupbox);
     this->alpha_spinboxes.push_back(spinbox);
 
+    spinbox->setMinimum(1e-8);
     spinbox->setMaximum(1e5);
-    spinbox->setValue(index + 1);
+    double value = (index + 1) * 0.1;
+    spinbox->setValue(value);
     spinbox->setSingleStep(0.01);
     alpha_groupbox->layout()->addWidget(spinbox);
     alpha_groupbox->setTitle("Alpha" + QString::number(index));

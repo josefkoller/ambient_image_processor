@@ -96,11 +96,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="alpha_groupbox">
-        <property name="title">
-         <string>Alpha</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3"/>
+       <widget class="QWidget" name="alpha_groupbox_frame" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_12">
+         <item>
+          <widget class="QGroupBox" name="alpha_groupbox">
+           <property name="title">
+            <string>Alpha</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3"/>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
