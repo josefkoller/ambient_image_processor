@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TGV3Widget</class>
- <widget class="QWidget" name="TGV3Widget">
+ <class>TGVKWidget</class>
+ <widget class="QWidget" name="TGVKWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -76,13 +76,16 @@
       <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="title">
-         <string>Alpha0</string>
+         <string>Order</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QDoubleSpinBox" name="alpha0_spinbox">
-           <property name="value">
-            <double>2.000000000000000</double>
+          <widget class="QSpinBox" name="order_spinbox">
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
            </property>
           </widget>
          </item>
@@ -90,35 +93,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="alpha_groupbox">
         <property name="title">
-         <string>Alpha1</string>
+         <string>Alpha</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QDoubleSpinBox" name="alpha1_spinbox">
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_6">
-        <property name="title">
-         <string>Alpha2</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QDoubleSpinBox" name="alpha2_spinbox">
-           <property name="value">
-            <double>3.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <layout class="QVBoxLayout" name="verticalLayout_6"/>
        </widget>
       </item>
      </layout>
@@ -165,7 +144,7 @@
          <item>
           <widget class="QRadioButton" name="algorithm1_checkbox">
            <property name="text">
-            <string>TGV3 L1</string>
+            <string>TGVk L1</string>
            </property>
            <property name="checked">
             <bool>true</bool>
