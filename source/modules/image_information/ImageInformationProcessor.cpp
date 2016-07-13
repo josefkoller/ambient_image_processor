@@ -60,20 +60,12 @@ ImageInformationProcessor::InformationMap ImageInformationProcessor::collectInfo
     information.insert("minimum", QString::number(statistics_calculator->GetMinimum()));
     information.insert("maximum", QString::number(statistics_calculator->GetMaximum()));
 
-/*
-    this->ui->window_from_spinbox->setMinimum(statistics_calculator->GetMinimum());
-    this->ui->window_from_spinbox->setMaximum(statistics_calculator->GetMaximum());
-    this->ui->window_from_spinbox->setValue(statistics_calculator->GetMinimum());
+    ITKImage::PixelType sum_of_absolute_values = 0;
+    itk_image.foreachPixel([&sum_of_absolute_values](uint,uint,uint,ITKImage::PixelType value) {
+        sum_of_absolute_values+= std::abs(value);
+    });
+    information.insert("sum_of_absolute_values", QString::number(sum_of_absolute_values));
 
-    this->ui->window_to_spinbox->setMinimum(statistics_calculator->GetMinimum());
-    this->ui->window_to_spinbox->setMaximum(statistics_calculator->GetMaximum());
-    this->ui->window_to_spinbox->setValue(statistics_calculator->GetMaximum());
-
-    this->ui->fromMinimumButton->setText("From Minimum: " + QString::number(
-                                             statistics_calculator->GetMinimum() ));
-    this->ui->toMaximumButton->setText("To Maximum: " + QString::number(
-                                             statistics_calculator->GetMaximum() ));
-                                             */
 
     return information;
 }

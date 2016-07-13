@@ -34,6 +34,7 @@ void ImageInformationWidget::collectInformation(ITKImage image)
     this->ui->maximum_label->setText(information["maximum"]);
     this->ui->origin_label->setText(information["origin"]);
     this->ui->spacing_label->setText(information["spacing"]);
+    this->ui->sum_of_absolute_values_label->setText(information["sum_of_absolute_values"]);
 
     if(image.isNull())
         return;
@@ -54,7 +55,9 @@ void ImageInformationWidget::on_copy_to_clipboard_button_clicked()
             this->ui->coefficient_of_variation->text() + ": " +
             this->ui->coefficient_of_variation_label->text() + ", " +
             this->ui->tv_per_voxel_text_label->text() + ": " +
-            this->ui->tv_per_voxel_label->text();
+            this->ui->tv_per_voxel_label->text() +
+            this->ui->sum_of_absolute_values->text() + ": " +
+            this->ui->sum_of_absolute_values_label->text();
 
     QApplication::clipboard()->setText(text);
 
