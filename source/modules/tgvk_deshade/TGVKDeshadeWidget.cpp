@@ -184,6 +184,7 @@ void TGVKDeshadeWidget::addAlpha(uint index)
 
     spinbox->setMinimum(1e-8);
     spinbox->setMaximum(1e5);
+    spinbox->setDecimals(12);
     double value = (index + 1) * 0.1;
     spinbox->setValue(value);
     spinbox->setSingleStep(0.01);
