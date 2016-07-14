@@ -1,7 +1,7 @@
 #ifndef TGV_K_COMMON
 #define TGV_K_COMMON
 
-#include "cuda.h"
+#include "tgv2_common.cu"
 
 template<typename Pixel>
 __global__ void tgvk_kernel_part5(
@@ -67,4 +67,106 @@ __global__ void tgvk_kernel_part5(
     w_previous_y[index] = w_y[index];
     w_previous_xy[index] = w_xy[index];
 }
+
+
+template<typename Pixel>
+void tgv_launch_gradient3_backward(
+        Pixel* w_bar_x, Pixel* w_bar_y, Pixel* w_bar_z,
+        Pixel* w_bar_xy, Pixel* w_bar_xz, Pixel* w_bar_yz,
+
+        Pixel* r_x, Pixel* r_y, Pixel* r_z,
+        Pixel* r_xy, Pixel* r_xz, Pixel* r_yz,  Pixel* q_temp,
+        uint width, uint height, uint depth,
+        dim3 block_dimension,
+        dim3 grid_dimension,
+        dim3 grid_dimension_x,
+        dim3 grid_dimension_y,
+        dim3 grid_dimension_z)
+{
+    backward_difference_x<<<grid_dimension_x, block_dimension>>>(
+          w_bar_x, r_x, width, height, depth);
+
+    backward_difference_y<<<grid_dimension_y, block_dimension>>>(
+          w_bar_y, r_y, width, height, depth);
+
+    backward_difference_x<<<grid_dimension_x, block_dimension>>>(
+          w_bar_xy, r_xy, width, height, depth);
+    backward_difference_y<<<grid_dimension_y, block_dimension>>>(
+          w_bar_xy, q_temp, width, height, depth);
+    addAndHalf<<<grid_dimension, block_dimension>>>(
+            r_xy, q_temp, r_xy,
+            width, height, depth);
+
+    if(depth > 1) {
+        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+              w_bar_z, r_z, width, height, depth);
+
+        backward_difference_x<<<grid_dimension_x, block_dimension>>>(
+              w_bar_xz, r_xz, width, height, depth);
+        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+              w_bar_xz, q_temp, width, height, depth);
+        addAndHalf<<<grid_dimension, block_dimension>>>(
+                r_xz, q_temp, r_xz,
+                width, height, depth);
+
+        backward_difference_y<<<grid_dimension_y, block_dimension>>>(
+              w_bar_yz, r_yz, width, height, depth);
+        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+              w_bar_yz, q_temp, width, height, depth);
+        addAndHalf<<<grid_dimension, block_dimension>>>(
+                r_yz, q_temp, r_yz,
+                width, height, depth);
+    }
+    cudaCheckError( cudaDeviceSynchronize() );
+}
+
+
+template<typename Pixel>
+void tgv_launch_divergence3_forward(
+        Pixel* r_x, Pixel* r_y, Pixel* r_z,
+        Pixel* r_xy, Pixel* r_xz, Pixel* r_yz,
+
+        Pixel* r2_x, Pixel* r2_y, Pixel* r2_z,
+        Pixel* r2_xy, Pixel* r2_xz, Pixel* r2_yz,
+
+        Pixel* r_temp,
+
+        uint width, uint height, uint depth,
+        dim3 block_dimension,
+        dim3 grid_dimension,
+        dim3 grid_dimension_x,
+        dim3 grid_dimension_y,
+        dim3 grid_dimension_z)
+{
+    forward_difference_x<<<grid_dimension_x, block_dimension>>>(
+      r_x, r2_x, width, height, depth);
+
+    forward_difference_y<<<grid_dimension_y, block_dimension>>>(
+      r_y, r2_y, width, height, depth);
+
+    forward_difference_x<<<grid_dimension_x, block_dimension>>>(
+      r_xy, r2_xy, width, height, depth);
+    forward_difference_y<<<grid_dimension_y, block_dimension>>>(
+      r_xy, r_temp, width, height, depth);
+    add<<<grid_dimension, block_dimension>>>(r2_xy, r_temp, r2_xy, width, height, depth);
+
+    if(depth > 1) {
+        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          r_z, r2_z, width, height, depth);
+
+        forward_difference_x<<<grid_dimension_x, block_dimension>>>(
+          r_xz, r2_xz, width, height, depth);
+        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          r_xz, r_temp, width, height, depth);
+        add<<<grid_dimension, block_dimension>>>(r2_xz, r_temp, r2_xz, width, height, depth);
+
+        forward_difference_y<<<grid_dimension_y, block_dimension>>>(
+          r_yz, r2_yz, width, height, depth);
+        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          r_yz, r_temp, width, height, depth);
+        add<<<grid_dimension, block_dimension>>>(r2_yz, r_temp, r2_yz, width, height, depth);
+    }
+    cudaCheckError( cudaDeviceSynchronize() );
+}
+
 #endif // TGV_K_COMMON

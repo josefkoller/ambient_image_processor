@@ -196,7 +196,6 @@ void tgv3_launch_part33(
     }
 }
 
-
 template<typename Pixel>
 void tgv_launch_gradient3(
         Pixel* w_bar_x, Pixel* w_bar_y, Pixel* w_bar_z,

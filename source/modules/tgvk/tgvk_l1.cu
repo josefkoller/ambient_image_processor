@@ -214,21 +214,43 @@ Pixel* tgvk_l1_launch(Pixel* f_host,
 
         for(int i = 0; i < order - 2; i++)
         {
-            tgv_launch_gradient3<Pixel>(
-                    w_bar_x[i], w_bar_y[i], w_bar_z[i],
-                    w_bar_xy[i], w_bar_xz[i], w_bar_yz[i],
+            if(i % 2 == 1)
+            {
+                tgv_launch_gradient3<Pixel>(
+                        w_bar_x[i], w_bar_y[i], w_bar_z[i],
+                        w_bar_xy[i], w_bar_xz[i], w_bar_yz[i],
 
-                    r2_x[i], r2_y[i], r2_z[i],
-                    r2_xy[i], r2_xz[i], r2_yz[i],
+                        r2_x[i], r2_y[i], r2_z[i],
+                        r2_xy[i], r2_xz[i], r2_yz[i],
 
-                    q_temp,
+                        q_temp,
 
-                    width, height, depth,
-                    block_dimension,
-                    grid_dimension,
-                    grid_dimension_x,
-                    grid_dimension_y,
-                    grid_dimension_z);
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x,
+                        grid_dimension_y,
+                        grid_dimension_z);
+            }
+            else
+            {
+                tgv_launch_gradient3_backward<Pixel>(
+                        w_bar_x[i], w_bar_y[i], w_bar_z[i],
+                        w_bar_xy[i], w_bar_xz[i], w_bar_yz[i],
+
+                        r2_x[i], r2_y[i], r2_z[i],
+                        r2_xy[i], r2_xz[i], r2_yz[i],
+
+                        q_temp,
+
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x,
+                        grid_dimension_y,
+                        grid_dimension_z);
+
+            }
 
             if(i == order - 3)
             {
@@ -271,22 +293,42 @@ Pixel* tgvk_l1_launch(Pixel* f_host,
             }
             cudaCheckError( cudaDeviceSynchronize() );
 
-            tgv_launch_divergence3<Pixel>(
-                    r_x[i], r_y[i], r_z[i],
-                    r_xy[i], r_xz[i], r_yz[i],
+            if(i % 2 == 1)
+            {
+                tgv_launch_divergence3<Pixel>(
+                        r_x[i], r_y[i], r_z[i],
+                        r_xy[i], r_xz[i], r_yz[i],
 
-                    r2_x[i], r2_y[i], r2_z[i],
-                    r2_xy[i], r2_xz[i], r2_yz[i],
+                        r2_x[i], r2_y[i], r2_z[i],
+                        r2_xy[i], r2_xz[i], r2_yz[i],
 
-                    q_temp,
+                        q_temp,
 
-                    width, height, depth,
-                    block_dimension,
-                    grid_dimension,
-                    grid_dimension_x,
-                    grid_dimension_y,
-                    grid_dimension_z);
-            cudaCheckError( cudaDeviceSynchronize() );
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x,
+                        grid_dimension_y,
+                        grid_dimension_z);
+            }
+            else
+            {
+                tgv_launch_divergence3_forward<Pixel>(
+                        r_x[i], r_y[i], r_z[i],
+                        r_xy[i], r_xz[i], r_yz[i],
+
+                        r2_x[i], r2_y[i], r2_z[i],
+                        r2_xy[i], r2_xz[i], r2_yz[i],
+
+                        q_temp,
+
+                        width, height, depth,
+                        block_dimension,
+                        grid_dimension,
+                        grid_dimension_x,
+                        grid_dimension_y,
+                        grid_dimension_z);
+            }
 
 
             // primal update w
