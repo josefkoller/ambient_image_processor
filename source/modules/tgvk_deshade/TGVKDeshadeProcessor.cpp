@@ -45,7 +45,8 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
 
                              ITKImage& denoised_image,
                              ITKImage& shading_image,
-                             ITKImage& deshaded_image)
+                             ITKImage& deshaded_image,
+                             ITKImage& div_v_image)
 {
     Pixel* f = input_image.cloneToPixelArray();
 
@@ -105,6 +106,14 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
                                                            input_image.width, input_image.height, input_image.depth,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
+
+    // calculate div v
+    Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
+                                                                 input_image.width, input_image.height, input_image.depth,
+                                                                 true);
+    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+    delete[] divergence;
+
     delete[] v_x;
     delete[] v_y;
     if(input_image.depth > 1)

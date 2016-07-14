@@ -18,6 +18,9 @@ TGVKDeshadeWidget::TGVKDeshadeWidget(QString title, QWidget *parent) :
 
     this->mask_view = new ImageViewWidget("Mask", this->ui->mask_frame);
     this->ui->mask_frame->layout()->addWidget(this->mask_view);
+
+    this->div_v_view = new ImageViewWidget("div v", this->ui->div_v_frame);
+    this->ui->div_v_frame->layout()->addWidget(this->div_v_view);
 }
 
 TGVKDeshadeWidget::~TGVKDeshadeWidget()
@@ -41,6 +44,12 @@ void TGVKDeshadeWidget::registerModule(ImageWidget *image_widget)
     this->denoised_output_view->registerCrosshairSubmodule(image_widget);
     connect(image_widget, &ImageWidget::sliceIndexChanged,
             this->denoised_output_view, &ImageViewWidget::sliceIndexChanged);
+    this->mask_view->registerCrosshairSubmodule(image_widget);
+    connect(image_widget, &ImageWidget::sliceIndexChanged,
+            this->mask_view, &ImageViewWidget::sliceIndexChanged);
+    this->div_v_view->registerCrosshairSubmodule(image_widget);
+    connect(image_widget, &ImageWidget::sliceIndexChanged,
+            this->div_v_view, &ImageViewWidget::sliceIndexChanged);
 }
 
 void TGVKDeshadeWidget::setIterationFinishedCallback(TGVKDeshadeProcessor::IterationFinished iteration_finished_callback)
@@ -75,6 +84,7 @@ ITKImage TGVKDeshadeWidget::processImage(ITKImage image)
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
+    ITKImage div_v_image = ITKImage();
     TGVKDeshadeProcessor::processTGVKL1Cuda(
               image,
               lambda,
@@ -92,10 +102,12 @@ ITKImage TGVKDeshadeWidget::processImage(ITKImage image)
 
               denoised_image,
               shading_image,
-              deshaded_image);
+              deshaded_image,
+              div_v_image);
     delete[] alpha;
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
+    this->div_v_view->setImage(div_v_image);
     return deshaded_image;
 }
 
@@ -190,4 +202,17 @@ void TGVKDeshadeWidget::addAlpha(uint index)
     spinbox->setSingleStep(0.01);
     alpha_groupbox->layout()->addWidget(spinbox);
     alpha_groupbox->setTitle("Alpha" + QString::number(index));
+}
+
+void TGVKDeshadeWidget::on_save_div_v_button_clicked()
+{
+    auto image = this->div_v_view->getImage();
+    if(image.isNull())
+        return;
+
+    QString file_name = QFileDialog::getSaveFileName(this, "save volume file");
+    if(file_name.isNull())
+        return;
+
+    image.write(file_name.toStdString());
 }

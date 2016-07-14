@@ -36,7 +36,8 @@ public:
 
                                  ITKImage& denoised_image,
                                  ITKImage& shading_image,
-                                 ITKImage& deshaded_image);
+                                 ITKImage& deshaded_image,
+                                 ITKImage& div_v_image);
 };
 
 #endif // TGVKDESHADEPROCESSOR_H
