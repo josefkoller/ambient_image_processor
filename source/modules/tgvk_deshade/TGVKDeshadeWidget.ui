@@ -99,6 +99,31 @@
        <widget class="QWidget" name="alpha_groupbox_frame" native="true">
         <layout class="QVBoxLayout" name="verticalLayout_12">
          <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Alpha Factor</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <widget class="QDoubleSpinBox" name="alpha_factor_spinbox">
+              <property name="decimals">
+               <number>8</number>
+              </property>
+              <property name="maximum">
+               <double>9999.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="alpha_groupbox">
            <property name="title">
             <string>Alpha</string>

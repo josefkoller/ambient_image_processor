@@ -61,7 +61,7 @@ ITKImage TGVKDeshadeWidget::processImage(ITKImage image)
     const uint order = this->ui->order_spinbox->value();
     ITKImage::PixelType* alpha = new ITKImage::PixelType[order];
     for(int k = 0; k < order; k++)
-        alpha[k] = this->alpha_spinboxes.at(k)->value();
+        alpha[k] = this->alpha_spinboxes.at(k)->value() * this->ui->alpha_factor_spinbox->value();
 
     const float lambda = this->ui->lambda_spinbox->value();
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
