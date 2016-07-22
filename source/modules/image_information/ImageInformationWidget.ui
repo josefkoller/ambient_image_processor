@@ -177,6 +177,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="minimum_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="0">
        <widget class="QLabel" name="tv_per_voxel_text_label">
         <property name="text">
@@ -191,20 +198,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="minimum_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QPushButton" name="copy_to_clipboard_button">
-        <property name="text">
-         <string>Copy to clipboard</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0">
        <widget class="QLabel" name="sum_of_absolute_values">
         <property name="text">
@@ -212,8 +205,29 @@
         </property>
        </widget>
       </item>
+      <item row="9" column="0">
+       <widget class="QPushButton" name="copy_to_clipboard_button">
+        <property name="text">
+         <string>Copy to clipboard</string>
+        </property>
+       </widget>
+      </item>
       <item row="7" column="1">
        <widget class="QLabel" name="sum_of_absolute_values_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="sum_of_squared_values">
+        <property name="text">
+         <string>Sum of Squared Values:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="sum_of_squared_values_label">
         <property name="text">
          <string/>
         </property>

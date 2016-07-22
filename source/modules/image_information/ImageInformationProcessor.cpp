@@ -60,11 +60,14 @@ ImageInformationProcessor::InformationMap ImageInformationProcessor::collectInfo
     information.insert("minimum", QString::number(statistics_calculator->GetMinimum()));
     information.insert("maximum", QString::number(statistics_calculator->GetMaximum()));
 
+    ITKImage::PixelType sum_of_squared_values = 0;
     ITKImage::PixelType sum_of_absolute_values = 0;
-    itk_image.foreachPixel([&sum_of_absolute_values](uint,uint,uint,ITKImage::PixelType value) {
+    itk_image.foreachPixel([&](uint,uint,uint,ITKImage::PixelType value) {
         sum_of_absolute_values+= std::abs(value);
+        sum_of_squared_values+= value*value;
     });
     information.insert("sum_of_absolute_values", QString::number(sum_of_absolute_values));
+    information.insert("sum_of_squared_values", QString::number(sum_of_squared_values));
 
 
     return information;
