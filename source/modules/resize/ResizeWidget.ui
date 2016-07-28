@@ -96,6 +96,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QRadioButton" name="interpolate_auto">
+           <property name="text">
+            <string>Choose Automatically</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

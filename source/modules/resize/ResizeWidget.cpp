@@ -23,6 +23,12 @@ void ResizeWidget::on_perform_button_clicked()
 ITKImage ResizeWidget::processImage(ITKImage image)
 {
     ITKImage::PixelType size_factor = this->ui->size_factor_spinbox->value();
+
+    if(this->ui->interpolate_auto->isChecked())
+    {
+        return ResizeProcessor::process(image, size_factor);
+    }
+
     ResizeProcessor::InterpolationMethod interpolation_method =
             this->ui->interpolate_nearest_neighbour_checkbox->isChecked() ?
                 ResizeProcessor::InterpolationMethod::NearestNeighbour :

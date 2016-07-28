@@ -7,6 +7,9 @@
 
 #include <itkWindowedSincInterpolateImageFunction.h>
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+
 ResizeProcessor::ResizeProcessor()
 {
 }
@@ -15,7 +18,6 @@ ITKImage ResizeProcessor::process(ITKImage image,
                                   ITKImage::PixelType size_factor,
                                   ResizeProcessor::InterpolationMethod interpolation_method)
 {
-
     typedef ITKImage::InnerITKImage Image;
     typedef itk::ResampleImageFilter<Image, Image> ResampleFilter;
     typedef itk::ScaleTransform<Image::PixelType, Image::ImageDimension>  Transform;
@@ -67,5 +69,33 @@ ITKImage ResizeProcessor::process(ITKImage image,
 
     return ITKImage(resampled_image);
 
+}
+
+ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor)
+{
+    if(image.depth > 1)
+        return ResizeProcessor::process(image, size_factor, InterpolationMethod::Linear);
+
+    typedef cv::Mat2d CVImage;
+
+    CVImage cv_image(image.height, image.width);
+    image.foreachPixel([&](uint x, uint y, uint, ITKImage::PixelType pixel) {
+        cv_image.at<double>(y,x) = pixel;
+    });
+
+    int cv_interpolation_method = size_factor < 1 ? cv::INTER_AREA : cv::INTER_CUBIC;
+
+    cv::Size cv_size;
+    cv_size.width = std::ceil(image.width * size_factor);
+    cv_size.height = std::ceil(image.height * size_factor);
+    CVImage resized_cv_image(cv_size.height, cv_size.width);
+    cv::resize(cv_image, resized_cv_image, resized_cv_image.size(),
+               0, 0, cv_interpolation_method);
+
+    ITKImage resized_image(resized_cv_image.cols, resized_cv_image.rows, 1);
+    resized_image.setEachPixel([&](uint x, uint y, uint) {
+        return resized_cv_image.at<double>(y,x);
+    });
+    return resized_image;
 }
 
