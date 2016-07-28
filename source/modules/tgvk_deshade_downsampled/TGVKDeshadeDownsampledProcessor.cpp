@@ -28,7 +28,7 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& deshaded_image,
                              ITKImage& div_v_image)
 {
-    ResizeProcessor::InterpolationMethod interpolation_method = ResizeProcessor::InterpolationMethod::Linear;
+    ResizeProcessor::InterpolationMethod interpolation_method = ResizeProcessor::InterpolationMethod::BSpline3;
     auto downsample = [=](ITKImage original_image) {
         return ResizeProcessor::process(original_image, downsampling_factor, interpolation_method);
     };

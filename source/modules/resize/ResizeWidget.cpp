@@ -34,7 +34,9 @@ ITKImage ResizeWidget::processImage(ITKImage image)
                 ResizeProcessor::InterpolationMethod::NearestNeighbour :
                 (this->ui->interpolate_linear_checkbox->isChecked() ?
                     ResizeProcessor::InterpolationMethod::Linear :
-                    ResizeProcessor::InterpolationMethod::Sinc);
+                    (this->ui->interpolate_bspline3_checkbox->isChecked() ?
+                     ResizeProcessor::InterpolationMethod::BSpline3 :
+                     ResizeProcessor::InterpolationMethod::Sinc));
 
     return ResizeProcessor::process(image, size_factor, interpolation_method);
 }

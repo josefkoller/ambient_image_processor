@@ -85,7 +85,7 @@
             <string>Linear</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -93,6 +93,16 @@
           <widget class="QRadioButton" name="interpolate_sinc_checkbox">
            <property name="text">
             <string>Sinc</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="interpolate_bspline3_checkbox">
+           <property name="text">
+            <string>BSpline Order 3</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

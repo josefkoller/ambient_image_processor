@@ -13,7 +13,8 @@ public:
     {
         NearestNeighbour = 0,
         Linear,
-        Sinc
+        Sinc,
+        BSpline3
     };
 
     static ITKImage process(ITKImage image,
