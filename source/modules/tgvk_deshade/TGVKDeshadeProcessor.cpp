@@ -54,25 +54,28 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
     if(add_background_back && !mask.isNull())
       background_mask = CudaImageOperationsProcessor::invert(mask);
 
-    IterationCallback<Pixel> iteration_callback =
-            [add_background_back, &background_mask, &input_image, iteration_finished_callback, &mask,
-            set_negative_values_to_zero] (
-            uint iteration_index, uint iteration_count, Pixel* u_pixels,
-            Pixel* v_x, Pixel* v_y, Pixel* v_z) {
-        auto u = ITKImage(input_image.width, input_image.height, input_image.depth, u_pixels);
-        auto l = ITKImage();
-        auto r = TGVDeshadeProcessor::deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
-                                                  input_image.width, input_image.height, input_image.depth,
-                                                  mask, set_negative_values_to_zero,
-                                                  l);
+    IterationCallback<Pixel> iteration_callback = nullptr;
 
-        if(add_background_back && !mask.isNull())
-        {
-            auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
-            r = CudaImageOperationsProcessor::add(r, background);
-        }
+    if(iteration_finished_callback != nullptr)
+        iteration_callback =
+        [add_background_back, &background_mask, &input_image, iteration_finished_callback, &mask,
+        set_negative_values_to_zero] (
+        uint iteration_index, uint iteration_count, Pixel* u_pixels,
+        Pixel* v_x, Pixel* v_y, Pixel* v_z) {
+            auto u = ITKImage(input_image.width, input_image.height, input_image.depth, u_pixels);
+            auto l = ITKImage();
+            auto r = TGVDeshadeProcessor::deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
+                                                      input_image.width, input_image.height, input_image.depth,
+                                                      mask, set_negative_values_to_zero,
+                                                      l);
 
-        return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
+            if(add_background_back && !mask.isNull())
+            {
+                auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
+                r = CudaImageOperationsProcessor::add(r, background);
+            }
+
+            return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
     };
 
     Pixel* v_x, *v_y, *v_z;
