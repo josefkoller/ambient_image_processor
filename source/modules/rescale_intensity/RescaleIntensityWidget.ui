@@ -28,6 +28,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QDoubleSpinBox" name="minimum_spinbox">
+           <property name="decimals">
+            <number>8</number>
+           </property>
+           <property name="minimum">
+            <double>-99999999999.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>99999999999.000000000000000</double>
            </property>
@@ -47,6 +53,12 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QDoubleSpinBox" name="maximum_spinbox">
+           <property name="decimals">
+            <number>8</number>
+           </property>
+           <property name="minimum">
+            <double>-99999999999.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>9999999999.000000000000000</double>
            </property>
