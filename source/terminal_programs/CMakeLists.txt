@@ -14,6 +14,20 @@ list(APPEND ITK_APPLICATIONS
   tgv2_deshade_application
   )
 
+
+cuda_add_executable(tgvk_deshade_downsampled_application
+  ${CMAKE_CURRENT_LIST_DIR}/tgvk_deshade_downsampled_main.cpp
+  ${SOURCE_ALL_FILES}
+  ${CUDA_CPP_FILES}
+)
+target_link_libraries(tgvk_deshade_downsampled_application
+  Qt5::Core
+  Qt5::Widgets
+)
+list(APPEND ITK_APPLICATIONS
+  tgv2_deshade_application
+  )
+
 cuda_add_executable(tgv2_deshade_convergence_test_application
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_deshade_convergence_test_main.cpp
   ${SOURCE_ALL_FILES}
