@@ -44,6 +44,7 @@
 #include "TGVKDeshadeWidget.h"
 #include "TGVKDeshadeConvergenceWidget.h"
 #include "ResizeWidget.h"
+#include "TGVKDeshadeDownsampledWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -85,6 +86,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgvk_widget = new TGVKWidget("TGVk Filter", module_parent);
     auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGVk Deshade", module_parent);
     auto tgvk_deshade_convergence_widget = new TGVKDeshadeConvergenceWidget("TGVk Deshade Convergence", module_parent);
+    auto tgvk_deshade_downsampled_widget = new TGVKDeshadeDownsampledWidget("TGVk Deshade Downsampled", module_parent);
 
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
@@ -128,6 +130,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv3_deshade_widget);
     modules.push_back(tgvk_deshade_widget);
+    modules.push_back(tgvk_deshade_downsampled_widget);
     modules.push_back(tgvk_deshade_convergence_widget);
 
     modules.push_back(tgv_deshade_metric_plot_widget);
@@ -257,6 +260,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgv3_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgvk_deshade_downsampled_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_convergence_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 

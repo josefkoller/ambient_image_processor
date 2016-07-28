@@ -99,6 +99,7 @@ include(source/modules/tgvk/CMakeLists.txt)
 include(source/modules/tgvk_deshade/CMakeLists.txt)
 include(source/modules/tgvk_deshade_convergence/CMakeLists.txt)
 include(source/modules/resize/CMakeLists.txt)
+include(source/modules/tgvk_deshade_downsampled/CMakeLists.txt)
 
 QT5_WRAP_UI(SOURCE_UID_FILES ${SOURCE_UI_FILES})
 
