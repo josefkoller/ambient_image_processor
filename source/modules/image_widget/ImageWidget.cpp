@@ -43,6 +43,7 @@
 #include "TGVKWidget.h"
 #include "TGVKDeshadeWidget.h"
 #include "TGVKDeshadeConvergenceWidget.h"
+#include "ResizeWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -105,6 +106,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));
     modules.push_back(new ExtractWidget("Extract", module_parent));
+    modules.push_back(new ResizeWidget("Resize", module_parent));
     modules.push_back(non_local_gradient_widget);
     modules.push_back(region_growing_segmentation_widget);
     modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
@@ -122,6 +124,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
     modules.push_back(deshade_segmented_widget);
     modules.push_back(tgv_shading_growing_widget);
+
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv3_deshade_widget);
     modules.push_back(tgvk_deshade_widget);
@@ -210,7 +213,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
         if(widget->getTitle() == "Histogram" ||
            widget->getTitle() == "Rescale Intensity" ||
-           widget->getTitle() == "Extract" ||
+           widget->getTitle() == "Resize" ||
            widget->getTitle() == "TGV Lambdas" ||
            widget->getTitle() == "Multiscale Retinex" )
             tools_menu->addSeparator();
