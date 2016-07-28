@@ -18,6 +18,17 @@ ITKImage ResizeProcessor::process(ITKImage image,
                                   ITKImage::PixelType size_factor,
                                   ResizeProcessor::InterpolationMethod interpolation_method)
 {
+    uint width = image.width * size_factor;
+    uint height = image.height * size_factor;
+    uint depth = image.depth == 1 ? 1 : image.depth * size_factor;
+
+    return process(image, size_factor, width, height, depth, interpolation_method);
+}
+
+ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor,
+                                  uint width, uint height, uint depth,
+                                  ResizeProcessor::InterpolationMethod interpolation_method)
+{
     typedef ITKImage::InnerITKImage Image;
     typedef itk::ResampleImageFilter<Image, Image> ResampleFilter;
     typedef itk::ScaleTransform<Image::PixelType, Image::ImageDimension>  Transform;
@@ -40,8 +51,9 @@ ITKImage ResizeProcessor::process(ITKImage image,
 
     Image::SizeType image_size = image.getPointer()->GetLargestPossibleRegion().GetSize();
     Image::SizeType size;
-    for(int i = 0; i < Image::ImageDimension; i++)
-        size[i] = std::max(1.0, image_size[i] * size_factor);
+    size[0] = width;
+    size[1] = height;
+    size[2] = depth;
 
     std::cout << "resizing from : " << image_size << std::endl;
     std::cout << "to : " << size << std::endl;
@@ -68,7 +80,6 @@ ITKImage ResizeProcessor::process(ITKImage image,
     resampled_image->SetDirection(direction);
 
     return ITKImage(resampled_image);
-
 }
 
 ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor)

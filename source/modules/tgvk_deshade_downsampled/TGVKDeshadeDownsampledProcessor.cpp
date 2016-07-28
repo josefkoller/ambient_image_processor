@@ -54,7 +54,10 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
                 downsampled_div_v_image);
 
     auto upsample = [=](ITKImage original_image) {
-        return ResizeProcessor::process(original_image, 1.0/downsampling_factor, interpolation_method);
+        return ResizeProcessor::process(original_image,
+                                        1 / downsampling_factor,
+                                        input_image.width, input_image.height, input_image.depth,
+                                        interpolation_method);
     };
 
     denoised_image = upsample(downsampled_denoised_image);
