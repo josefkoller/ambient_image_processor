@@ -67,6 +67,14 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     if(!mask.isNull())
         deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask);
 
+    if(add_background_back && !mask.isNull())
+    {
+        auto background_mask = CudaImageOperationsProcessor::invert(mask);
+        auto background = CudaImageOperationsProcessor::multiply(input_image, background_mask);
+        deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
+    }
+
+
     if(set_negative_values_to_zero)
         deshaded_image = CudaImageOperationsProcessor::clamp_negative_values(deshaded_image, 0);
 
