@@ -67,5 +67,8 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     if(!mask.isNull())
         deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask);
 
+    if(set_negative_values_to_zero)
+        deshaded_image = CudaImageOperationsProcessor::clamp_negative_values(deshaded_image, 0);
+
     div_v_image = upsample(downsampled_div_v_image);
 }
