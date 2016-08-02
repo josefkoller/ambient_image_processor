@@ -30,7 +30,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>154</width>
+           <width>134</width>
            <height>174</height>
           </rect>
          </property>
@@ -78,7 +78,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>154</width>
+           <width>134</width>
            <height>174</height>
           </rect>
          </property>
@@ -126,6 +126,12 @@
           <widget class="QDoubleSpinBox" name="toleranceSpinbox">
            <property name="decimals">
             <number>10</number>
+           </property>
+           <property name="minimum">
+            <double>-9999999999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>99999999999.000000000000000</double>
            </property>
            <property name="singleStep">
             <double>0.000100000000000</double>
