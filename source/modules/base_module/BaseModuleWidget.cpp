@@ -29,8 +29,10 @@ void BaseModuleWidget::processInWorkerThread()
 
     if(worker_thread != nullptr) {
         int duration = this->start_timestamp.msecsTo(QTime::currentTime());
-        this->setStatusText(this->getTitle() + " already started " +
-                            QString::number(duration) + "ms ago");
+        QString text = this->getTitle() + " already started " +
+                QString::number(duration) + "ms ago";
+        this->setStatusText(text);
+        std::cout << text.toStdString() << std::endl;
         return;
 
     }
@@ -47,8 +49,9 @@ void BaseModuleWidget::processInWorkerThread()
                 this->result_processor(result_image);
 
             int duration = this->start_timestamp.msecsTo(QTime::currentTime());
-            this->setStatusText(this->getTitle() + " finished after "
-                                + QString::number(duration) + "ms");
+            QString text = this->getTitle() + " finished after " + QString::number(duration) + "ms";
+            this->setStatusText(text);
+            std::cout << text.toStdString() << std::endl;
         }
         catch(std::runtime_error exception)
         {
