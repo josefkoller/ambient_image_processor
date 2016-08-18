@@ -20,29 +20,21 @@
 #include "ThresholdFilterWidget.h"
 #include "ExtractWidget.h"
 #include "BilateralFilterWidget.h"
-#include "DeshadeSegmentedWidget.h"
 #include "TGVWidget.h"
-#include "TGVL1ThresholdGradientWidget.h"
 #include "ManualMultiplicativeDeshade.h"
 #include "TGVLambdasWidget.h"
 #include "BinaryOperationsWidget.h"
 #include "ConvolutionWidget.h"
-#include "RegionCurvatureEdgeCorrection.h"
 #include "RescaleIntensityWidget.h"
-#include "TGVShadingGrowingWidget.h"
 #include "TGVDeshadeWidget.h"
 #include "UnaryOperationsWidget.h"
 #include "MorphologicalFilterWidget.h"
 #include "ImageViewControlWidget.h"
-#include "TGVNonParametricDeshadeWidget.h"
-#include "TGVDeshadeMetricPlotWidget.h"
-#include "TGVDeshadeIntegralMetricPlotWidget.h"
 #include "ConjugateGradientWidget.h"
 #include "TGV3Widget.h"
 #include "TGV3DeshadeWidget.h"
 #include "TGVKWidget.h"
 #include "TGVKDeshadeWidget.h"
-#include "TGVKDeshadeConvergenceWidget.h"
 #include "ResizeWidget.h"
 #include "TGVKDeshadeDownsampledWidget.h"
 
@@ -73,19 +65,13 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto region_growing_segmentation_widget =
             new RegionGrowingSegmentationWidget("Region Growing Segmentation", module_parent);
     auto non_local_gradient_widget = new NonLocalGradientWidget("Non-local Gradient", module_parent);
-    auto deshade_segmented_widget = new DeshadeSegmentedWidget("Deshade Segmented", module_parent);
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
     auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
-    auto tgv_shading_growing_widget = new TGVShadingGrowingWidget("TGV Shading Growing", module_parent);
-    auto tgv_deshade_widget = new TGVDeshadeWidget("TGV Deshade", module_parent);
-    auto tgv_non_parametric_deshade_widget = new TGVNonParametricDeshadeWidget("TGV Automatic Deshade", module_parent);
-    auto tgv_deshade_metric_plot_widget = new TGVDeshadeMetricPlotWidget("TGV Deshade Metric Plot", module_parent);
-    auto tgv_deshade_integral_metric_plot_widget = new TGVDeshadeIntegralMetricPlotWidget("TGV Deshade Integral Metric Plot", module_parent);
+    auto tgv_deshade_widget = new TGVDeshadeWidget("TGV2 Deshade", module_parent);
     auto tgv3_widget = new TGV3Widget("TGV3 Filter", module_parent);
     auto tgv3_deshade_widget = new TGV3DeshadeWidget("TGV3 Deshade", module_parent);
     auto tgvk_widget = new TGVKWidget("TGVk Filter", module_parent);
     auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGVk Deshade", module_parent);
-    auto tgvk_deshade_convergence_widget = new TGVKDeshadeConvergenceWidget("TGVk Deshade Convergence", module_parent);
     auto tgvk_deshade_downsampled_widget = new TGVKDeshadeDownsampledWidget("TGVk Deshade Downsampled", module_parent);
 
 
@@ -121,21 +107,13 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new UnsharpMaskingWidget("Unsharp Masking", module_parent));
     modules.push_back(new MultiScaleRetinexWidget("Multiscale Retinex", module_parent));
 
-    modules.push_back(new RegionCurvatureEdgeCorrection("Region Curvature Edge Correction", module_parent));
     modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
-    modules.push_back(new TGVL1ThresholdGradientWidget("TGVL1 Thresholded Gradient", module_parent));
-    modules.push_back(deshade_segmented_widget);
-    modules.push_back(tgv_shading_growing_widget);
 
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv3_deshade_widget);
     modules.push_back(tgvk_deshade_widget);
     modules.push_back(tgvk_deshade_downsampled_widget);
-    modules.push_back(tgvk_deshade_convergence_widget);
 
-    modules.push_back(tgv_deshade_metric_plot_widget);
-    modules.push_back(tgv_deshade_integral_metric_plot_widget);
-    modules.push_back(tgv_non_parametric_deshade_widget);
     modules.push_back(new ConjugateGradientWidget("Conjugate Gradient", module_parent));
 
     // register modules and add widget modules
@@ -217,8 +195,11 @@ ImageWidget::ImageWidget(QWidget *parent) :
         if(widget->getTitle() == "Histogram" ||
            widget->getTitle() == "Rescale Intensity" ||
            widget->getTitle() == "Resize" ||
+           widget->getTitle() == "Bilateral Filter" ||
            widget->getTitle() == "TGV Lambdas" ||
-           widget->getTitle() == "Multiscale Retinex" )
+           widget->getTitle() == "Multiscale Retinex" ||
+           widget->getTitle() == "Manual Multiplicative Deshade" ||
+           widget->getTitle() == "TGVk Deshade Downsampled")
             tools_menu->addSeparator();
 
         this->connect(module_action, &QAction::triggered, this, [this, widget]() {
@@ -235,13 +216,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     connect(image_view_control_widget, &ImageViewControlWidget::doMultiplyChanged,
             this->image_view_widget, &ImageViewWidget::doMultiplyChanged);
 
-    deshade_segmented_widget->setSegmentsFetcher([region_growing_segmentation_widget]() {
-        return region_growing_segmentation_widget->getSegments();
-    });
-    deshade_segmented_widget->setLabelImageFetcher([region_growing_segmentation_widget]() {
-        return region_growing_segmentation_widget->getLabelImage();
-    });
-
     // iteration finished callback...
     auto iteration_finished_callback = [this](uint index, uint count, ITKImage u) {
         emit this->fireStatusTextChange(QString("iteration %1 / %2").arg(
@@ -252,16 +226,12 @@ ImageWidget::ImageWidget(QWidget *parent) :
     };
     tgv_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_lambdas_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv_shading_growing_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv_deshade_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv_deshade_integral_metric_plot_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv3_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv3_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_downsampled_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgvk_deshade_convergence_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()
