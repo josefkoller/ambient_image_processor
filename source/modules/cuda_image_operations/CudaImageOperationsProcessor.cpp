@@ -130,6 +130,7 @@ ITKImage CudaImageOperationsProcessor::perform(ITKImage image1, ITKImage image2,
     delete[] image2_pixels;
     delete[] result_pixels;
 
+    result.setOriginAndSpacingOf(image1);
     return result;
 }
 

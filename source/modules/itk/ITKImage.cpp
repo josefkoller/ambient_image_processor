@@ -435,3 +435,12 @@ void ITKImage::setPixel(PixelType* image_data, Size size, ITKImage::InnerITKImag
 {
     image_data[linearIndex(size, index)] = value;
 }
+
+void ITKImage::setOriginAndSpacingOf(const ITKImage& source_image)
+{
+    InnerITKImage::SpacingType spacing = source_image.getPointer()->GetSpacing();
+    InnerITKImage::PointType origin = source_image.getPointer()->GetOrigin();
+
+    this->getPointer()->SetSpacing(spacing);
+    this->getPointer()->SetOrigin(origin);
+}

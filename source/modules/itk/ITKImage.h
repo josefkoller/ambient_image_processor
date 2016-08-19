@@ -100,6 +100,8 @@ public:
     static uint linearIndex(Size size, ITKImage::InnerITKImage::IndexType index);
     static PixelType getPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index);
     static void setPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index, PixelType value);
+
+    void setOriginAndSpacingOf(const ITKImage& source_image);
 };
 
 #endif // ITKIMAGE_H

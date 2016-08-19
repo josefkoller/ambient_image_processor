@@ -68,6 +68,8 @@ RegionGrowingSegmentationProcessor::LabelImage RegionGrowingSegmentationProcesso
     output_labels = LabelImage(output_labels.width, output_labels.height, output_labels.depth,
                                output_labels_raw);
 
+    output_labels.setOriginAndSpacingOf(source_image);
+
     delete[] output_labels_raw;
     delete[] source_image_raw;
 
