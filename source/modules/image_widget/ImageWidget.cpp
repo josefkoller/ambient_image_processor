@@ -37,6 +37,7 @@
 #include "TGVKDeshadeWidget.h"
 #include "ResizeWidget.h"
 #include "TGVKDeshadeDownsampledWidget.h"
+#include "OriginSpacingWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -83,6 +84,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(this->image_view_widget);
     modules.push_back(this->slice_control_widget);
     modules.push_back(new ImageInformationWidget("Image Information", module_parent));
+    modules.push_back(new OriginSpacingWidget("Origin Spacing", module_parent));
     modules.push_back(image_view_control_widget);
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
