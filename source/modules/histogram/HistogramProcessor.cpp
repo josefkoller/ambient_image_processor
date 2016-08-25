@@ -78,7 +78,7 @@ double HistogramProcessor::calculateEntropy(const std::vector<double>& probabili
 }
 
 
-double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_bandwidth)
+double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::PixelType kde_bandwidth)
 {
     typedef ITKImage::PixelType Pixel;
     Pixel min, max;
@@ -87,8 +87,8 @@ double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_ba
     return calculateEntropy(image, kde_bandwidth, min, max);
 }
 
-double HistogramProcessor::calculateEntropy(const ITKImage& image, double kde_bandwidth,
-                                            const double min, const double max)
+double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::PixelType kde_bandwidth,
+                                            const ITKImage::PixelType min, const ITKImage::PixelType max)
 {
     typedef ITKImage::PixelType Pixel;
 

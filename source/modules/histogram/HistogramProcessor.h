@@ -35,9 +35,9 @@ public:
                           std::vector<double>& probabilities);
 
     static double calculateEntropy(const std::vector<double>& probabilities);
-    static double calculateEntropy(const ITKImage& image, const double kde_bandwidth);
-    static double calculateEntropy(const ITKImage& image, const double kde_bandwidth,
-                                   const double window_from, const double window_to);
+    static double calculateEntropy(const ITKImage& image, const ITKImage::PixelType kde_bandwidth);
+    static double calculateEntropy(const ITKImage& image, const ITKImage::PixelType kde_bandwidth,
+                                   const ITKImage::PixelType window_from, const ITKImage::PixelType window_to);
 };
 
 #endif // HISTOGRAMPROCESSOR_H

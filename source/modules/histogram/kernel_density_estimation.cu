@@ -198,6 +198,7 @@ double kernel_bandwidth,
 uint kernel_type,
 double window_from,
 double window_to);
+
 template float* kernel_density_estimation_kernel_launch(float* image_pixels,
 uint voxel_count,
 uint spectrum_bandwidth,
