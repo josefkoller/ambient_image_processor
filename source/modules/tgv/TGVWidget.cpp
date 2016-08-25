@@ -47,50 +47,34 @@ ITKImage TGVWidget::processImage(ITKImage image)
     const uint iteration_count = this->ui->iteration_count_spinbox->value();
     const uint paint_iteration_interval = this->ui->paint_iteration_interval_spinbox->value();
 
-    bool perform_on_gpu = this->ui->gpu_radio_button->isChecked();
-
-    if(perform_on_gpu) {
-        bool perform_using_thrust = this->ui->thrust_runtime_checkbox->isChecked();
-
-        if(perform_using_thrust)
-            return TGVProcessor::processTVL2GPUThrust(image, lambda, iteration_count,
-                                                paint_iteration_interval,
-                                                this->iteration_finished_callback);
-
-        if(this->ui->tgv1_l2_algorithm_checkbox->isChecked())
-            return TGVProcessor::processTVL2GPUCuda(image, lambda,
-                                                    alpha0,
-                                                    alpha1,
-                                                    iteration_count,
-                                                paint_iteration_interval,
-                                                this->iteration_finished_callback);
-        if(this->ui->tgv1_l1_algorithm_checkbox->isChecked())
-            return TGVProcessor::processTVL1GPUCuda(image, lambda,
-                                                    alpha0,
-                                                    alpha1,
-                                                    iteration_count,
-                                                paint_iteration_interval,
-                                                this->iteration_finished_callback);
-        if(this->ui->tgv2_l1_algorithm_checkbox->isChecked())
-            return TGVProcessor::processTGV2L1GPUCuda(image, lambda,
-                                                    alpha0,
-                                                    alpha1,
-                                                    iteration_count,
-                                                paint_iteration_interval,
-                                                this->iteration_finished_callback);
-        if(this->ui->tgv2_l2_algorithm_checkbox->isChecked())
-            return TGVProcessor::processTGV2L2GPUCuda(image, lambda,
-                                                    alpha0,
-                                                    alpha1,
-                                                    iteration_count,
-                                                paint_iteration_interval,
-                                                this->iteration_finished_callback);
-    }
-
-    return TGVProcessor::processTVL2CPU(image,
-                                        lambda, iteration_count,
-                                        paint_iteration_interval,
-                                        this->iteration_finished_callback);
+    if(this->ui->tgv1_l2_algorithm_checkbox->isChecked())
+        return TGVProcessor::processTVL2GPUCuda(image, lambda,
+                                                alpha0,
+                                                alpha1,
+                                                iteration_count,
+                                            paint_iteration_interval,
+                                            this->iteration_finished_callback);
+    if(this->ui->tgv1_l1_algorithm_checkbox->isChecked())
+        return TGVProcessor::processTVL1GPUCuda(image, lambda,
+                                                alpha0,
+                                                alpha1,
+                                                iteration_count,
+                                            paint_iteration_interval,
+                                            this->iteration_finished_callback);
+    if(this->ui->tgv2_l1_algorithm_checkbox->isChecked())
+        return TGVProcessor::processTGV2L1GPUCuda(image, lambda,
+                                                alpha0,
+                                                alpha1,
+                                                iteration_count,
+                                            paint_iteration_interval,
+                                            this->iteration_finished_callback);
+    if(this->ui->tgv2_l2_algorithm_checkbox->isChecked())
+        return TGVProcessor::processTGV2L2GPUCuda(image, lambda,
+                                                alpha0,
+                                                alpha1,
+                                                iteration_count,
+                                            paint_iteration_interval,
+                                            this->iteration_finished_callback);
 }
 
 void TGVWidget::on_stop_button_clicked()
