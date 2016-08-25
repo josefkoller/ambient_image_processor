@@ -15,7 +15,7 @@ class ITKImage
 public:
     typedef unsigned int uint;
     static const uint ImageDimension = 3;
-    typedef double PixelType;
+    typedef float PixelType;
 
     typedef itk::Image<PixelType, ImageDimension> InnerITKImage;
     typedef InnerITKImage::IndexType Index;
