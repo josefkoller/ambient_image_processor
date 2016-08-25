@@ -1,7 +1,6 @@
 #include "ResizeProcessor.h"
 
 #include <itkResampleImageFilter.h>
-#include <itkIdentityTransform.h>
 
 #include <itkNearestNeighborInterpolateImageFunction.h>
 #include <itkLinearInterpolateImageFunction.h>
@@ -32,14 +31,11 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
 {
     typedef ITKImage::InnerITKImage Image;
     typedef itk::ResampleImageFilter<Image, Image> ResampleFilter;
-    typedef itk::IdentityTransform<Image::PixelType, Image::ImageDimension>  Transform;
 
     typedef itk::NearestNeighborInterpolateImageFunction<Image> NearestNeighborInterpolation;
     typedef itk::LinearInterpolateImageFunction<Image> LinearInterpolation;
     typedef itk::WindowedSincInterpolateImageFunction<Image, 4> SincInterpolation;
     typedef itk::BSplineInterpolateImageFunction<Image> BSplineInterpolation;
-
-    Transform::Pointer transform = Transform::New();
 
     Image::PointType original_origin = image.getPointer()->GetOrigin();
     Image::PointType origin;
@@ -68,7 +64,6 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
     std::cout << "to : " << size << std::endl;
 
     ResampleFilter::Pointer resample_filter = ResampleFilter::New();
-    resample_filter->SetTransform(transform);
 
     if(interpolation_method == InterpolationMethod::NearestNeighbour)
         resample_filter->SetInterpolator(NearestNeighborInterpolation::New());
