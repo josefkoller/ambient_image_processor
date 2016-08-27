@@ -204,13 +204,11 @@ __global__ void tgv_kernel_part2(
     if(depth > 1)
         p_zz[index] += sigma * p_z[index];
 
-    Pixel normalization =
-            p_xx[index] * p_xx[index] +
-            p_yy[index] * p_yy[index];
-    if(depth > 1)
-        normalization += p_zz[index] * p_zz[index];
+    Pixel normalization = depth > 1 ?
+            norm3df(p_xx[index], p_yy[index], p_zz[index]) :
+            sqrtf(p_xx[index] * p_xx[index] + p_yy[index] * p_yy[index]);
 
-    normalization = fmax(1, sqrt(normalization)/alpha1);
+    normalization = fmax(1, normalization/alpha1);
 
     p_xx[index] /= normalization;
     p_yy[index] /= normalization;

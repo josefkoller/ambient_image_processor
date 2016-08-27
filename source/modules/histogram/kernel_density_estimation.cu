@@ -62,7 +62,7 @@ __global__ void kernel_density_estimation_kernel_gaussian(
         if(fabs(u) >= 1)
             continue;
 
-        spectrum[spectrum_index]+= exp(-u*u/2) / sqrt(2*PI);
+        spectrum[spectrum_index]+= exp(-u*u/2) / sqrtf(2*PI);
     }
 }
 
