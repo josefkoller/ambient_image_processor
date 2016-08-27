@@ -97,10 +97,10 @@ __global__ void tgv_kernel_part22(
     */
 
 
-    p_xx[index] += sigma * (p_x[index] - v_bar_x[index]);
-    p_yy[index] += sigma * (p_y[index] - v_bar_y[index]);
+    p_xx[index] = fmaf(sigma, p_x[index] - v_bar_x[index], p_xx[index]);
+    p_yy[index] = fmaf(sigma, p_y[index] - v_bar_y[index], p_yy[index]);
     if(depth > 1)
-        p_zz[index] += sigma * (p_z[index] - v_bar_z[index]);
+        p_zz[index] = fmaf(sigma, p_z[index] - v_bar_z[index], p_zz[index]);
 
 
     /*
@@ -242,14 +242,14 @@ __global__ void tgv_kernel_part5(
         q = q./max(1, repmat(norm_q, 6, 1)/alpha0);
        */
 
-    q_x2[index] += sigma * q_x[index];
-    q_y2[index] += sigma * q_y[index];
-    q_xy2[index] += sigma * q_xy[index];
+    q_x2[index] = fmaf(sigma, q_x[index], q_x2[index]);
+    q_y2[index] = fmaf(sigma, q_y[index], q_y2[index]);
+    q_xy2[index] = fmaf(sigma, q_xy[index], q_xy2[index]);
 
     if(depth > 1) {
-        q_z2[index] += sigma * q_z[index];
-        q_xz2[index] += sigma * q_xz[index];
-        q_yz2[index] += sigma * q_yz[index];
+        q_z2[index] = fmaf(sigma, q_z[index], q_z2[index]);
+        q_xz2[index] = fmaf(sigma, q_xz[index], q_xz2[index]);
+        q_yz2[index] = fmaf(sigma, q_yz[index], q_yz2[index]);
     }
 
     Pixel normalization =

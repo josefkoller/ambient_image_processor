@@ -199,10 +199,10 @@ __global__ void tgv_kernel_part2(
     u_old = u;
     */
 
-    p_xx[index] += sigma * p_x[index];
-    p_yy[index] += sigma * p_y[index];
+    p_xx[index] = fmaf(sigma, p_x[index], p_xx[index]);
+    p_yy[index] = fmaf(sigma, p_y[index], p_yy[index]);
     if(depth > 1)
-        p_zz[index] += sigma * p_z[index];
+        p_zz[index] = fmaf(sigma, p_z[index], p_zz[index]);
 
     Pixel normalization = depth > 1 ?
             norm3df(p_xx[index], p_yy[index], p_zz[index]) :

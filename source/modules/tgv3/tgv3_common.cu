@@ -32,14 +32,14 @@ __global__ void tgv3_kernel_part5(
         q = q./max(1, repmat(norm_q, 6, 1)/alpha0);
        */
 
-    q_x2[index] += sigma * (q_x[index] - w_x[index]);
-    q_y2[index] += sigma * (q_y[index] - w_y[index]);
-    q_xy2[index] += sigma * (q_xy[index] - w_xy[index]);
+    q_x2[index] = fmaf(sigma, q_x[index] - w_x[index], q_x2[index]);
+    q_y2[index] = fmaf(sigma, q_y[index] - w_y[index], q_y2[index]);
+    q_xy2[index] = fmaf(sigma,  q_xy[index] - w_xy[index], q_xy2[index]);
 
     if(depth > 1) {
-        q_z2[index] += sigma * (q_z[index] - w_z[index]);
-        q_xz2[index] += sigma * (q_xz[index] - w_xz[index]);
-        q_yz2[index] += sigma * (q_yz[index] - w_yz[index]);
+        q_z2[index] = fmaf(sigma, q_z[index] - w_z[index], q_z2[index]);
+        q_xz2[index] = fmaf(sigma, q_xz[index] - w_xz[index], q_xz2[index]);
+        q_yz2[index] = fmaf(sigma, q_yz[index] - w_yz[index], q_yz2[index]);
     }
 
     Pixel normalization =
@@ -318,14 +318,14 @@ __global__ void tgv3_kernel_part52(
     if(index >= width * height * depth)
         return;
 
-    r_x[index] += sigma * r2_x[index];
-    r_y[index] += sigma * r2_y[index];
-    r_xy[index] += sigma * r2_xy[index];
+    r_x[index] = fmaf(sigma, r2_x[index], r_x[index]);
+    r_y[index] = fmaf(sigma, r2_y[index], r_y[index]);
+    r_xy[index] = fmaf(sigma, r2_xy[index], r_xy[index]);
 
     if(depth > 1) {
-        r_z[index] += sigma * r2_z[index];
-        r_xz[index] += sigma * r2_xz[index];
-        r_yz[index] += sigma * r2_yz[index];
+        r_z[index] = fmaf(sigma, r2_z[index], r_z[index]);
+        r_xz[index] = fmaf(sigma, r2_xz[index], r_xz[index]);
+        r_yz[index] = fmaf(sigma, r2_yz[index], r_yz[index]);
     }
 
     Pixel normalization =

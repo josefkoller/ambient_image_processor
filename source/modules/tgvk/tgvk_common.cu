@@ -28,14 +28,14 @@ __global__ void tgvk_kernel_part5(
     if(index >= width * height * depth)
         return;
 
-    r_x[index] += sigma * (r2_x[index] - w_prime_x[index]);
-    r_y[index] += sigma * (r2_y[index] - w_prime_y[index]);
-    r_xy[index] += sigma * (r2_xy[index] - w_prime_xy[index]);
+    r_x[index] = fmaf(sigma, r2_x[index] - w_prime_x[index], r_x[index]);
+    r_y[index] = fmaf(sigma, r2_y[index] - w_prime_y[index], r_y[index]);
+    r_xy[index] = fmaf(sigma, r2_xy[index] - w_prime_xy[index], r_xy[index]);
 
     if(depth > 1) {
-        r_z[index] += sigma * (r2_z[index] - w_prime_z[index]);
-        r_xz[index] += sigma * (r2_xz[index] - w_prime_xz[index]);
-        r_yz[index] += sigma * (r2_yz[index] - w_prime_yz[index]);
+        r_z[index] = fmaf(sigma, r2_z[index] - w_prime_z[index], r_z[index]);
+        r_xz[index] = fmaf(sigma, r2_xz[index] - w_prime_xz[index], r_xz[index]);
+        r_yz[index] = fmaf(sigma, r2_yz[index] - w_prime_yz[index], r_yz[index]);
     }
 
     Pixel normalization =
