@@ -48,7 +48,7 @@ __global__ void tgvk_kernel_part5(
                 2 * r_xz[index] * r_xz[index] +
                 2 * r_yz[index] * r_yz[index];
 
-    normalization = fmax(1, sqrt(normalization) / alpha2);
+    normalization = fmaxf(1, sqrtf(normalization) / alpha2);
 
     r_x[index] /= normalization;
     r_y[index] /= normalization;

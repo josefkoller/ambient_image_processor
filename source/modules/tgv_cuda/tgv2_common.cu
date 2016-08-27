@@ -115,7 +115,7 @@ __global__ void tgv_kernel_part22(
             norm3df(p_xx[index], p_yy[index], p_zz[index]) :
             sqrtf(p_xx[index] * p_xx[index] + p_yy[index] * p_yy[index]);
 
-    normalization = fmax(1, normalization/alpha1);
+    normalization = fmaxf(1, normalization/alpha1);
 
     p_xx[index] /= normalization;
     p_yy[index] /= normalization;
@@ -262,7 +262,7 @@ __global__ void tgv_kernel_part5(
                 2 * q_xz2[index] * q_xz2[index] +
                 2 * q_yz2[index] * q_yz2[index];
 
-    normalization = fmax(1, sqrt(normalization) / alpha0);
+    normalization = fmaxf(1, sqrtf(normalization) / alpha0);
 
     q_x2[index] /= normalization;
     q_y2[index] /= normalization;

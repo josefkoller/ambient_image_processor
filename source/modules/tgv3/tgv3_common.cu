@@ -52,7 +52,7 @@ __global__ void tgv3_kernel_part5(
                 2 * q_xz2[index] * q_xz2[index] +
                 2 * q_yz2[index] * q_yz2[index];
 
-    normalization = fmax(1, sqrtf(normalization) / alpha0);
+    normalization = fmaxf(1, sqrtf(normalization) / alpha0);
 
     q_x2[index] /= normalization;
     q_y2[index] /= normalization;
@@ -338,7 +338,7 @@ __global__ void tgv3_kernel_part52(
                 2 * r_xz[index] * r_xz[index] +
                 2 * r_yz[index] * r_yz[index];
 
-    normalization = fmax(1, sqrtf(normalization) / alpha2);
+    normalization = fmaxf(1, sqrtf(normalization) / alpha2);
 
     r_x[index] /= normalization;
     r_y[index] /= normalization;
