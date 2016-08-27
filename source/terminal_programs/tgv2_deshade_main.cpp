@@ -10,7 +10,7 @@ using string = std::string;
 
 void printUsage()
 {
-    std::cout << "parameter: input_image_path lambda alpha0 alpha1 iteration_count [mask] " <<
+    std::cout << "parameter: input_image_path lambda alpha0 alpha1 iteration_count cuda_block_dimension [mask] " <<
                  "output_denoised_path output_shading_path output_deshaded_path";
 }
 
@@ -20,6 +20,7 @@ int process(
         float alpha0,
         float alpha1,
         int iteration_count,
+        int cuda_block_dimension,
         ITKImage mask_image,
         string output_denoised_path,
         string output_shading_path,
@@ -35,6 +36,7 @@ int process(
                 alpha0,
                 alpha1,
                 iteration_count,
+                cuda_block_dimension,
                 mask_image,
                 true,
                 denoised_image,
@@ -55,6 +57,7 @@ int process(
         float alpha0,
         float alpha1,
         int iteration_count,
+        int cuda_block_dimension,
         string mask_path,
         string output_denoised_path,
         string output_shading_path,
@@ -78,6 +81,7 @@ int process(
                    alpha0,
                    alpha1,
                    iteration_count,
+                   cuda_block_dimension,
                    mask_image,
                    output_denoised_path,
                    output_shading_path,
@@ -88,7 +92,7 @@ int process(
 int main(int argc, char *argv[])
 {
  //   std::cout << "started program: " << argv[0] << std::endl;
-    if(argc < 8)
+    if(argc < 9)
     {
         printUsage();
         return 1;
@@ -99,44 +103,33 @@ int main(int argc, char *argv[])
     float alpha0 = std::stof(argv[3]);
     float alpha1 = std::stof(argv[4]);
     int iteration_count = std::stoi(argv[5]);
+    int cuda_block_dimension = std::stoi(argv[6]);
 
-    bool is_mask_given = argc == 10;
+    bool is_mask_given = argc == 11;
     string mask_path = "";
     string output_denoised_path = "";
     string output_shading_path = "";
     string output_deshaded_path = "";
     if(is_mask_given)
     {
-        mask_path = argv[6];
+        mask_path = argv[7];
+        output_denoised_path = argv[8];
+        output_shading_path = argv[9];
+        output_deshaded_path = argv[10];
+    }
+    else
+    {
         output_denoised_path = argv[7];
         output_shading_path = argv[8];
         output_deshaded_path = argv[9];
     }
-    else
-    {
-        output_denoised_path = argv[6];
-        output_shading_path = argv[7];
-        output_deshaded_path = argv[8];
-    }
-
-    /*
-    std::cout << "parameter: " << std::endl <<
-                 "input_image_path=" << input_image_path << std::endl <<
-                 "lambda=" << lambda << std::endl <<
-                 "alpha0=" << alpha0 << std::endl <<
-                 "alpha1=" << alpha1 << std::endl <<
-                 "iteration_count=" << iteration_count << std::endl <<
-                 "mask=" << (is_mask_given ? mask_path : "none") << std::endl <<
-                 "output_denoised_path=" << output_denoised_path << std::endl <<
-                 "output_shading_path=" << output_shading_path << std::endl <<
-                 "output_deshaded_path=" << output_deshaded_path << std::endl;
-*/
 
     return process(input_image_path,
                    lambda,
                    alpha0,
                    alpha1,
                    iteration_count,
+                   cuda_block_dimension,
                    mask_path,
                    output_denoised_path,
                    output_shading_path,

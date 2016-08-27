@@ -20,11 +20,11 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                               Pixel lambda,
                               uint iteration_count,
                               uint paint_iteration_interval,
+                              const int cuda_block_dimension,
                               TGVDeshadeProcessor::IterationCallback<Pixel> iteration_finished_callback,
                               Pixel alpha0,
                               Pixel alpha1,
                               Pixel** v_x, Pixel**v_y, Pixel**v_z);
-
 
 template<typename Pixel>
 Pixel* tgvk_l1_deshade_launch_2d(Pixel* f_host,
@@ -111,6 +111,7 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
                                   lambda,
                                   iteration_count,
                                   paint_iteration_interval,
+                                  -1,
                                   iteration_callback,
                                   alpha[1], alpha[0],
                                   &v_x, &v_y, &v_z);

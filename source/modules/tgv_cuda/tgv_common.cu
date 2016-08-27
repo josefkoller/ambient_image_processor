@@ -227,16 +227,30 @@ void tgv_launch_part1(
           dim3 &grid_dimension,
           dim3 &grid_dimension_x,
           dim3 &grid_dimension_y,
-          dim3 &grid_dimension_z)
+          dim3 &grid_dimension_z,
+          int cuda_block_dimension = -1)
 {
     int cuda_device_count;
     cudaCheckError( cudaGetDeviceCount(&cuda_device_count) );
+
+    cudaDeviceProp device_properties;
+    cudaCheckError( cudaGetDeviceProperties(&device_properties, 0) );
+
 
  //   printf("found %d cuda devices.\n", cuda_device_count);
 
     voxel_count = width*height*depth;
 
-    block_dimension = dim3(CUDA_BLOCK_DIMENSON);
+    if(cuda_block_dimension < 0)
+        cuda_block_dimension = CUDA_BLOCK_DIMENSON;
+
+    if(cuda_block_dimension > device_properties.maxThreadsPerBlock) {
+        cuda_block_dimension = device_properties.maxThreadsPerBlock;
+        printf("setting the maximum block dimension: %d \n", cuda_block_dimension);
+    }
+    //printf("block dimension3: %d \n", cuda_block_dimension);
+    block_dimension = dim3(cuda_block_dimension);
+
     grid_dimension = dim3((voxel_count + block_dimension.x - 1) / block_dimension.x);
 
     grid_dimension_x = dim3((depth*height + block_dimension.x - 1) / block_dimension.x);

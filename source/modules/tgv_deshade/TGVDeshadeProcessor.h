@@ -114,6 +114,7 @@ public:
                                  const Pixel alpha0,
                                  const Pixel alpha1,
                                  const uint iteration_count,
+                                 const int cuda_block_dimension,
                                  const ITKImage& mask_image,
                                  const bool set_negative_values_to_zero,
                                  ITKImage& denoised_image,

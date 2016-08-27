@@ -14,6 +14,7 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                   Pixel lambda,
                   uint iteration_count,
                   uint paint_iteration_interval,
+                  const int cuda_block_dimension,
                   DeshadeIterationCallback<Pixel> iteration_finished_callback,
                   Pixel alpha0,
                   Pixel alpha1, Pixel** v_x_host, Pixel**v_y_host, Pixel**v_z_host)
@@ -94,7 +95,8 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                         grid_dimension,
                         grid_dimension_x,
                         grid_dimension_y,
-                        grid_dimension_z);
+                        grid_dimension_z,
+                        cuda_block_dimension);
 
     Pixel* f, *u;
     Pixel* u_previous, *u_bar, *p_x, *p_y, *p_z, *p_xx, *p_yy, *p_zz;
@@ -292,6 +294,7 @@ uint width, uint height, uint depth,
 float lambda,
 uint iteration_count,
 uint paint_iteration_interval,
+const int cuda_block_dimension,
 DeshadeIterationCallback<float> iteration_finished_callback,
 float alpha0,
 float alpha1, float** v_x, float** v_y, float** v_z);
@@ -301,6 +304,7 @@ uint width, uint height, uint depth,
 double lambda,
 uint iteration_count,
 uint paint_iteration_interval,
+const int cuda_block_dimension,
 DeshadeIterationCallback<double> iteration_finished_callback,
 double alpha0,
 double alpha1, double** v_x, double** v_y, double** v_z);
