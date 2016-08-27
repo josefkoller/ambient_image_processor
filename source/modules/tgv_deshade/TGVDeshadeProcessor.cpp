@@ -16,6 +16,17 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
                               Pixel alpha1,
                               Pixel** v_x, Pixel**v_y, Pixel**v_z);
 
+template<typename Pixel>
+Pixel* tgv2_l1_deshade_launch_2d(Pixel* f_host,
+                              uint width, uint height,
+                              Pixel lambda,
+                              uint iteration_count,
+                              uint paint_iteration_interval,
+                              TGVDeshadeProcessor::IterationCallback2D<Pixel> iteration_finished_callback,
+                              Pixel alpha0,
+                              Pixel alpha1,
+                              Pixel** v_x, Pixel**v_y);
+
 TGVDeshadeProcessor::TGVDeshadeProcessor()
 {
 }
@@ -46,6 +57,28 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(ITKImage u, Pixel
 {
     l = integrate_image_gradients_poisson_cosine_transform(v_x, v_y, v_z,
                                                            width, height, depth,
+                                                           is_host_data);
+    auto r = CudaImageOperationsProcessor::subtract(u, l);
+
+    if(!mask.isNull())
+        r = CudaImageOperationsProcessor::multiply(r, mask);
+
+    if(set_negative_values_to_zero)
+        r = CudaImageOperationsProcessor::clamp_negative_values(r, 0);
+
+    return r;
+}
+
+ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform_2d(ITKImage u, Pixel* v_x, Pixel* v_y,
+                                                               const uint width,
+                                                               const uint height,
+                                                               const ITKImage& mask,
+                                                               const bool set_negative_values_to_zero,
+                                                               ITKImage& l,
+                                                               bool is_host_data)
+{
+    l = integrate_image_gradients_poisson_cosine_transform_2d(v_x, v_y,
+                                                           width, height,
                                                            is_host_data);
     auto r = CudaImageOperationsProcessor::subtract(u, l);
 
@@ -249,6 +282,76 @@ ITKImage TGVDeshadeProcessor::processTGV2L1GPUCuda(ITKImage input_image,
     });
 }
 
+ITKImage TGVDeshadeProcessor::processTGV2L1GPUCuda2D(ITKImage input_image,
+                                                   const Pixel lambda,
+                                                   const Pixel alpha0,
+                                                   const Pixel alpha1,
+                                                   const uint iteration_count,
+                                                   const uint paint_iteration_interval,
+                                                   IterationFinishedThreeImages iteration_finished_callback,
+                                                   const ITKImage& mask,
+                                                   const bool set_negative_values_to_zero,
+                                                   const bool add_background_back,
+                                                   ITKImage& denoised_image,
+                                                   ITKImage& shading_image)
+{
+    Pixel* f = input_image.cloneToPixelArray();
+
+    ITKImage background_mask;
+    if(add_background_back && !mask.isNull())
+      background_mask = CudaImageOperationsProcessor::invert(mask);
+
+    IterationCallback2D<Pixel> iteration_callback =
+            [add_background_back, &background_mask, &input_image, iteration_finished_callback, &mask,
+            set_negative_values_to_zero] (
+            uint iteration_index, uint iteration_count, Pixel* u_pixels,
+            Pixel* v_x, Pixel* v_y) {
+        auto u = ITKImage(input_image.width, input_image.height, input_image.depth, u_pixels);
+        auto l = ITKImage();
+        auto r = deshade_poisson_cosine_transform_2d(u, v_x, v_y,
+                                                  input_image.width, input_image.height,
+                                                  mask, set_negative_values_to_zero,
+                                                  l);
+
+        if(add_background_back && !mask.isNull())
+        {
+            auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
+            r = CudaImageOperationsProcessor::add(r, background);
+        }
+
+        return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
+    };
+
+    Pixel* v_x, *v_y;
+
+    Pixel* u = tgv2_l1_deshade_launch_2d<Pixel>(f,
+                                             input_image.width, input_image.height,
+                                             lambda,
+                                             iteration_count,
+                                             paint_iteration_interval,
+                                             iteration_callback,
+                                             alpha0, alpha1,
+                                             &v_x, &v_y);
+
+    delete[] f;
+    denoised_image = ITKImage(input_image.width, input_image.height, input_image.depth, u);
+    delete[] u;
+    auto deshaded_image = deshade_poisson_cosine_transform_2d(denoised_image, v_x, v_y,
+                                                           input_image.width, input_image.height,
+                                                           mask, set_negative_values_to_zero,
+                                                           shading_image, true);
+    delete[] v_x;
+    delete[] v_y;
+
+    if(add_background_back && !mask.isNull())
+    {
+        auto background = CudaImageOperationsProcessor::multiply(denoised_image, background_mask);
+        deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
+    }
+
+    return deshaded_image;
+}
+
 ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform(Pixel* gradient_x,
                                                                                  Pixel* gradient_y,
                                                                                  Pixel* gradient_z,
@@ -259,6 +362,29 @@ ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform
 {
     Pixel* divergence = CudaImageOperationsProcessor::divergence(gradient_x, gradient_y, gradient_z,
                                                                  width, height, depth, is_host_data);
+    ITKImage divergence_image = ITKImage(width, height, depth, divergence);
+    delete[] divergence;
+
+    // return divergence_image;
+
+    ITKImage divergence_image_cosine = CudaImageOperationsProcessor::cosineTransform(divergence_image);
+
+    // return divergence_image_cosine;
+
+    ITKImage result_cosine_domain = CudaImageOperationsProcessor::solvePoissonInCosineDomain(divergence_image_cosine);
+
+    return CudaImageOperationsProcessor::inverseCosineTransform(result_cosine_domain); // inverse
+}
+
+ITKImage TGVDeshadeProcessor::integrate_image_gradients_poisson_cosine_transform_2d(Pixel* gradient_x,
+                                                                                 Pixel* gradient_y,
+                                                                                 const uint width,
+                                                                                 const uint height,
+                                                                                 bool is_host_data)
+{
+    Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(gradient_x, gradient_y,
+                                                                 width, height, is_host_data);
+    const uint depth = 1;
     ITKImage divergence_image = ITKImage(width, height, depth, divergence);
     delete[] divergence;
 

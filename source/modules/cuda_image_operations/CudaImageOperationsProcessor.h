@@ -37,6 +37,9 @@ public:
     static Pixel* divergence(Pixel* dx, Pixel* dy, Pixel* dz,
                                const uint width, const uint height, const uint depth, bool is_host_data=false);
 
+    static Pixel* divergence_2d(Pixel* dx, Pixel* dy,
+                               const uint width, const uint height, bool is_host_data=false);
+
     static ITKImage solvePoissonInCosineDomain(ITKImage image);
 
     static ITKImage invert(ITKImage image);

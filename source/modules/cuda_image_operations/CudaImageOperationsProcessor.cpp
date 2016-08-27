@@ -45,6 +45,11 @@ Pixel* divergence_kernel_launch(
         const uint width, const uint height, const uint depth, bool is_host_data=false);
 
 template<typename Pixel>
+Pixel* divergence_2d_kernel_launch(
+        Pixel* dx, Pixel* dy,
+        const uint width, const uint height, bool is_host_data=false);
+
+template<typename Pixel>
 Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
                               uint width, uint height, uint depth);
 
@@ -231,7 +236,13 @@ ITKImage::PixelType* CudaImageOperationsProcessor::divergence(
         const uint width, const uint height, const uint depth, bool is_host_data)
 {
     return divergence_kernel_launch(dx, dy, dz, width, height, depth, is_host_data);
+}
 
+ITKImage::PixelType* CudaImageOperationsProcessor::divergence_2d(
+        ITKImage::PixelType* dx, ITKImage::PixelType* dy,
+        const uint width, const uint height, bool is_host_data)
+{
+    return divergence_2d_kernel_launch(dx, dy, width, height, is_host_data);
 }
 
 ITKImage CudaImageOperationsProcessor::solvePoissonInCosineDomain(ITKImage image)

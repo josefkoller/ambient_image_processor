@@ -16,6 +16,8 @@ list(APPEND SOURCE_CPP_FILES
 
 list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/tgv3_common.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv3_common_2d.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv3_l1.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv3_l1_2d.cu
   )
 include_directories(${CMAKE_CURRENT_LIST_DIR})

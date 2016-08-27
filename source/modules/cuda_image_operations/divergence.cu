@@ -2,20 +2,6 @@
 #include "add.cu"
 
 template<typename Pixel>
-__global__ void divergence_kernel(
-        Pixel* image1, Pixel* image2,
-        const uint width, const uint height, const uint depth)
-{
-    const int index = blockDim.x * blockIdx.x + threadIdx.x;
-
-    if(index >= width * height * depth)
-        return;
-
-    image1[index] = image1[index] * image2[index];
-}
-
-
-template<typename Pixel>
 void launch_divergence(
         Pixel* dx, Pixel* dy, Pixel* dz,
         Pixel* dxdx, Pixel* dydy, Pixel* dzdz,

@@ -22,6 +22,10 @@ private:
     Pixel* v_x, Pixel* v_y, Pixel* v_z)>;
 
     template<typename Pixel>
+    using IterationCallback2D = std::function<bool(uint iteration_index, uint iteration_count, Pixel* u,
+    Pixel* v_x, Pixel* v_y)>;
+
+    template<typename Pixel>
     using TGVAlgorithm = std::function<Pixel*(Pixel* f, IterationCallback<Pixel> iteration_callback,
     Pixel** v_x, Pixel**v_y, Pixel**v_z)>;
 
@@ -54,12 +58,34 @@ public:
                                                      ITKImage& l,
                                                      bool is_host_data=false);
 
+    static ITKImage deshade_poisson_cosine_transform_2d(ITKImage u, Pixel* v_x, Pixel* v_y,
+                                                     const uint width,
+                                                     const uint height,
+                                                     const ITKImage& mask,
+                                                     const bool set_negative_values_to_zero,
+                                                     ITKImage& l,
+                                                     bool is_host_data=false);
+
     static ITKImage processTGV2L1GPUCuda(ITKImage input_image,
                                          const Pixel lambda,
                                          const Pixel alpha0,
                                          const Pixel alpha1,
                                          const uint iteration_count,
-                                         const uint paint_iteration_interval, IterationFinishedThreeImages iteration_finished_callback,
+                                         const uint paint_iteration_interval,
+                                         IterationFinishedThreeImages iteration_finished_callback,
+                                         const ITKImage& mask,
+                                         const bool set_negative_values_to_zero,
+                                         const bool add_background_back,
+                                         ITKImage& denoised_image,
+                                         ITKImage& shading_image);
+
+    static ITKImage processTGV2L1GPUCuda2D(ITKImage input_image,
+                                         const Pixel lambda,
+                                         const Pixel alpha0,
+                                         const Pixel alpha1,
+                                         const uint iteration_count,
+                                         const uint paint_iteration_interval,
+                                         IterationFinishedThreeImages iteration_finished_callback,
                                          const ITKImage& mask,
                                          const bool set_negative_values_to_zero,
                                          const bool add_background_back,
@@ -74,7 +100,14 @@ public:
                                                                        Pixel* gradient_z,
                                                                        const uint width,
                                                                        const uint height,
-                                                                       const uint depth, bool is_host_data=false);
+                                                                       const uint depth,
+                                                                       bool is_host_data=false);
+
+    static ITKImage integrate_image_gradients_poisson_cosine_transform_2d(Pixel* gradient_x,
+                                                                       Pixel* gradient_y,
+                                                                       const uint width,
+                                                                       const uint height,
+                                                                       bool is_host_data=false);
 
     static void processTGV2L1GPUCuda(ITKImage input_image,
                                  const Pixel lambda,

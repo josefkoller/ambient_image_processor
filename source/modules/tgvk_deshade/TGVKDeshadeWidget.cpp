@@ -85,7 +85,10 @@ ITKImage TGVKDeshadeWidget::processImage(ITKImage image)
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
     ITKImage div_v_image = ITKImage();
-    TGVKDeshadeProcessor::processTGVKL1Cuda(
+
+    if(image.depth > 1)
+    {
+       TGVKDeshadeProcessor::processTGVKL1Cuda(
               image,
               lambda,
 
@@ -104,6 +107,27 @@ ITKImage TGVKDeshadeWidget::processImage(ITKImage image)
               shading_image,
               deshaded_image,
               div_v_image);
+    } else {
+        TGVKDeshadeProcessor::processTGVKL1Cuda2D(
+               image,
+               lambda,
+
+               order,
+               alpha,
+
+               iteration_count,
+               mask,
+               set_negative_values_to_zero,
+               add_background_back,
+
+               paint_iteration_interval,
+               this->iteration_finished_callback,
+
+               denoised_image,
+               shading_image,
+               deshaded_image,
+               div_v_image);
+    }
     delete[] alpha;
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);

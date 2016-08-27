@@ -72,23 +72,48 @@ ITKImage TGV3DeshadeWidget::processImage(ITKImage image)
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
-    TGV3DeshadeProcessor::processTGV3L1Cuda(
-              image,
-              lambda,
-              alpha0,
-              alpha1,
-              alpha2,
-              iteration_count,
-              mask,
-              set_negative_values_to_zero,
-              add_background_back,
 
-              paint_iteration_interval,
-              this->iteration_finished_callback,
+    if(image.depth > 1)
+    {
+        TGV3DeshadeProcessor::processTGV3L1Cuda(
+                  image,
+                  lambda,
+                  alpha0,
+                  alpha1,
+                  alpha2,
+                  iteration_count,
+                  mask,
+                  set_negative_values_to_zero,
+                  add_background_back,
 
-              denoised_image,
-              shading_image,
-              deshaded_image);
+                  paint_iteration_interval,
+                  this->iteration_finished_callback,
+
+                  denoised_image,
+                  shading_image,
+                  deshaded_image);
+    }
+    else
+    {
+        TGV3DeshadeProcessor::processTGV3L1Cuda2D(
+                  image,
+                  lambda,
+                  alpha0,
+                  alpha1,
+                  alpha2,
+                  iteration_count,
+                  mask,
+                  set_negative_values_to_zero,
+                  add_background_back,
+
+                  paint_iteration_interval,
+                  this->iteration_finished_callback,
+
+                  denoised_image,
+                  shading_image,
+                  deshaded_image);
+    }
+
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
     return deshaded_image;

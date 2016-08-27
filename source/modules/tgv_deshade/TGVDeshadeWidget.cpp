@@ -76,17 +76,36 @@ ITKImage TGVDeshadeWidget::processImage(ITKImage image)
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
-    deshaded_image = TGVDeshadeProcessor::processTGV2L1GPUCuda(image, lambda,
-                                              alpha0,
-                                              alpha1,
-                                              iteration_count,
-                                              paint_iteration_interval,
-                                              this->iteration_finished_callback,
-                                              mask,
-                                              set_negative_values_to_zero,
-                                              add_background_back,
-                                              denoised_image,
-                                              shading_image);
+
+    if(image.depth > 1)
+    {
+        deshaded_image = TGVDeshadeProcessor::processTGV2L1GPUCuda(image, lambda,
+                                                  alpha0,
+                                                  alpha1,
+                                                  iteration_count,
+                                                  paint_iteration_interval,
+                                                  this->iteration_finished_callback,
+                                                  mask,
+                                                  set_negative_values_to_zero,
+                                                  add_background_back,
+                                                  denoised_image,
+                                                  shading_image);
+    }
+    else
+    {
+        deshaded_image = TGVDeshadeProcessor::processTGV2L1GPUCuda2D(image, lambda,
+                                                  alpha0,
+                                                  alpha1,
+                                                  iteration_count,
+                                                  paint_iteration_interval,
+                                                  this->iteration_finished_callback,
+                                                  mask,
+                                                  set_negative_values_to_zero,
+                                                  add_background_back,
+                                                  denoised_image,
+                                                  shading_image);
+
+    }
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
     return deshaded_image;
