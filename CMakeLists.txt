@@ -24,7 +24,7 @@ set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(CUDA_VERBOSE_BUILD ON)
 
-add_definitions("-DCUDA_BLOCK_DIMENSION=1024")
+add_definitions("-DCUDA_BLOCK_DIMENSION=96")
 
 #enable openmp
 #set(CMAKE_CXX_FLAGS "-fopenmp -lgomp ${CMAKE_CXX_FLAGS}")
