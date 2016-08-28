@@ -1,47 +1,6 @@
 #!/usr/bin/ruby
 require 'colorize'
 
-def optimize_and_calculate_metric parameter
-  load "ruby/optimize.rb"
-  run parameter
-
-  command = "build/output/image_metric_to_sqlite #{parameter[:output_sql_file_path]}"
-  command += " #{parameter[:entropy_kde_bandwidth]}"
-  command += " #{parameter[:entropy_window_from]}"
-  command += " #{parameter[:entropy_window_to]}"
-  puts command.yellow
-  system command
-end
-
-def plot parameter, plot_logarithmic=false
-  begin
-    plot_data_file = "#{parameter[:output_path]}/gnuplot.dat"
-    if File.exists? plot_data_file
-      plot_data_file += "_next"
-    end
-    command = "build/output/sqlite_to_gnuplot #{parameter[:output_sql_file_path]}"
-    command += " #{plot_data_file}"
-    command += " #{parameter[:parameter1_name]}"
-    command += " #{parameter[:parameter2_name]}"
-    command += " #{parameter[:metric_name]}"
-    puts command.yellow
-    system command
-
-    command = "gnuplot -e \"filename='#{plot_data_file}';"
-    command += " x='#{parameter[:parameter1_name]}';"
-    command += " y='#{parameter[:parameter2_name]}';"
-    command += " z='#{parameter[:metric_name]}';"
-    command += " use_logscale=1;" if plot_logarithmic
-    command += "\""
-    command += " gnuplot/plot_data.gp"
-    puts command.yellow
-    pid = spawn command
-    Process.detach pid
-  rescue => exception
-    puts exception.to_s.red
-  end
-end
-
 def run_program command
   start = Time.now
   duration = -1
