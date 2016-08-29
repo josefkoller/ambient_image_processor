@@ -88,7 +88,7 @@ Pixel* bilateral_filter_kernel_launch(Pixel* source,
 //    printf("block dimensions: x:%d, y:%d \n", block_dimension.x);
 //    printf("grid dimensions: x:%d, y:%d \n", grid_dimension.x);
 
-    Pixel* source_cuda, *kernel_cuda, *destination_cuda;
+    Pixel* source_cuda, *destination_cuda;
 
     size_t size = sizeof(Pixel) * voxel_count;
     cudaCheckError( cudaMalloc(&source_cuda, size) );
