@@ -17,6 +17,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_common.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_common_2d.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_l1.cu
+  ${CMAKE_CURRENT_LIST_DIR}/tgv2_l1_2d.cu
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_l2.cu
   )
 

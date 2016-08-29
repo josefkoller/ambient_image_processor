@@ -15,10 +15,7 @@ __global__ void tgv_kernel_part4_tgv2_l1(
     if(index >= width * height * depth)
         return;
 
-    if(depth > 1)
-        u[index] -= tau * (p_x[index] + p_y[index] + p_z[index]);
-    else
-        u[index] -= tau * (p_x[index] + p_y[index]);
+    u[index] -= tau * (p_x[index] + p_y[index] + p_z[index]);
 
     const Pixel tau_x_lambda = tau*lambda;
     const Pixel u_minus_f = u[index] - f[index];

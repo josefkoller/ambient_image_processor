@@ -58,20 +58,17 @@ void tgv_launch_part22(
     cudaCheckError( cudaMallocManaged(q_xy2, size) )
     cudaCheckError( cudaMallocManaged(q_temp, size) )
 
-    if(depth > 1) {
-        cudaCheckError( cudaMallocManaged(v_z, size) )
-        cudaCheckError( cudaMallocManaged(v_bar_z, size) )
-        cudaCheckError( cudaMallocManaged(v_previous_z, size) )
+    cudaCheckError( cudaMallocManaged(v_z, size) )
+    cudaCheckError( cudaMallocManaged(v_bar_z, size) )
+    cudaCheckError( cudaMallocManaged(v_previous_z, size) )
 
-        cudaCheckError( cudaMallocManaged(q_z, size) )
-        cudaCheckError( cudaMallocManaged(q_xz, size) )
-        cudaCheckError( cudaMallocManaged(q_yz, size) )
+    cudaCheckError( cudaMallocManaged(q_z, size) )
+    cudaCheckError( cudaMallocManaged(q_xz, size) )
+    cudaCheckError( cudaMallocManaged(q_yz, size) )
 
-        cudaCheckError( cudaMallocManaged(q_z2, size) )
-        cudaCheckError( cudaMallocManaged(q_xz2, size) )
-        cudaCheckError( cudaMallocManaged(q_yz2, size) )
-    }
-
+    cudaCheckError( cudaMallocManaged(q_z2, size) )
+    cudaCheckError( cudaMallocManaged(q_xz2, size) )
+    cudaCheckError( cudaMallocManaged(q_yz2, size) )
 }
 
 template<typename Pixel>
@@ -99,28 +96,15 @@ __global__ void tgv_kernel_part22(
 
     p_xx[index] = fmaf(sigma, p_x[index] - v_bar_x[index], p_xx[index]);
     p_yy[index] = fmaf(sigma, p_y[index] - v_bar_y[index], p_yy[index]);
-    if(depth > 1)
-        p_zz[index] = fmaf(sigma, p_z[index] - v_bar_z[index], p_zz[index]);
+    p_zz[index] = fmaf(sigma, p_z[index] - v_bar_z[index], p_zz[index]);
 
-
-    /*
-    /// TGV1
-    p_xx[index] += sigma * (p_x[index]);
-    p_yy[index] += sigma * (p_y[index]);
-    if(depth > 1)
-        p_zz[index] += sigma * (p_z[index]);
-    */
-
-    Pixel normalization = depth > 1 ?
-            norm3df(p_xx[index], p_yy[index], p_zz[index]) :
-            sqrtf(p_xx[index] * p_xx[index] + p_yy[index] * p_yy[index]);
+    Pixel normalization = norm3df(p_xx[index], p_yy[index], p_zz[index]);
 
     normalization = fmaxf(1, normalization/alpha1);
 
     p_xx[index] /= normalization;
     p_yy[index] /= normalization;
-    if(depth > 1)
-        p_zz[index] /= normalization;
+    p_zz[index] /= normalization;
 
     u_previous[index] = u[index];
 }
@@ -150,19 +134,17 @@ void tgv_launch_part32(uint depth,
     cudaFree(q_xy2);
     cudaFree(q_temp);
 
-    if(depth > 1) {
-        cudaFree(v_z);
-        cudaFree(v_bar_z);
-        cudaFree(v_previous_z);
+    cudaFree(v_z);
+    cudaFree(v_bar_z);
+    cudaFree(v_previous_z);
 
-        cudaFree(q_z);
-        cudaFree(q_xz);
-        cudaFree(q_yz);
+    cudaFree(q_z);
+    cudaFree(q_xz);
+    cudaFree(q_yz);
 
-        cudaFree(q_z2);
-        cudaFree(q_xz2);
-        cudaFree(q_yz2);
-    }
+    cudaFree(q_z2);
+    cudaFree(q_xz2);
+    cudaFree(q_yz2);
 }
 
 
@@ -193,26 +175,24 @@ void tgv_launch_gradient2(
             q_xy, q_temp, q_xy,
             width, height, depth);
 
-    if(depth > 1) {
-        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
-              v_bar_z, q_z, width, height, depth);
+    backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          v_bar_z, q_z, width, height, depth);
 
-        backward_difference_x<<<grid_dimension_x, block_dimension>>>(
-              v_bar_z, q_xz, width, height, depth);
-        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
-              v_bar_x, q_temp, width, height, depth);
-        addAndHalf<<<grid_dimension, block_dimension>>>(
-                q_xz, q_temp, q_xz,
-                width, height, depth);
+    backward_difference_x<<<grid_dimension_x, block_dimension>>>(
+          v_bar_z, q_xz, width, height, depth);
+    backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          v_bar_x, q_temp, width, height, depth);
+    addAndHalf<<<grid_dimension, block_dimension>>>(
+            q_xz, q_temp, q_xz,
+            width, height, depth);
 
-        backward_difference_y<<<grid_dimension_y, block_dimension>>>(
-              v_bar_z, q_yz, width, height, depth);
-        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
-              v_bar_y, q_temp, width, height, depth);
-        addAndHalf<<<grid_dimension, block_dimension>>>(
-                q_yz, q_temp, q_yz,
-                width, height, depth);
-    }
+    backward_difference_y<<<grid_dimension_y, block_dimension>>>(
+          v_bar_z, q_yz, width, height, depth);
+    backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          v_bar_y, q_temp, width, height, depth);
+    addAndHalf<<<grid_dimension, block_dimension>>>(
+            q_yz, q_temp, q_yz,
+            width, height, depth);
 
     cudaCheckError( cudaDeviceSynchronize() );
 }
@@ -246,34 +226,29 @@ __global__ void tgv_kernel_part5(
     q_y2[index] = fmaf(sigma, q_y[index], q_y2[index]);
     q_xy2[index] = fmaf(sigma, q_xy[index], q_xy2[index]);
 
-    if(depth > 1) {
-        q_z2[index] = fmaf(sigma, q_z[index], q_z2[index]);
-        q_xz2[index] = fmaf(sigma, q_xz[index], q_xz2[index]);
-        q_yz2[index] = fmaf(sigma, q_yz[index], q_yz2[index]);
-    }
+    q_z2[index] = fmaf(sigma, q_z[index], q_z2[index]);
+    q_xz2[index] = fmaf(sigma, q_xz[index], q_xz2[index]);
+    q_yz2[index] = fmaf(sigma, q_yz[index], q_yz2[index]);
 
     Pixel normalization =
             q_x2[index] * q_x2[index] +
             q_y2[index] * q_y2[index] +
-            2 * q_xy2[index] * q_xy2[index];
-
-    if(depth > 1)
-        normalization += q_z2[index] * q_z2[index] +
-                2 * q_xz2[index] * q_xz2[index] +
-                2 * q_yz2[index] * q_yz2[index];
+            2 * q_xy2[index] * q_xy2[index] +
+            q_z2[index] * q_z2[index] +
+            2 * q_xz2[index] * q_xz2[index] +
+            2 * q_yz2[index] * q_yz2[index];
 
     normalization = fmaxf(1, sqrtf(normalization) / alpha0);
 
     q_x2[index] /= normalization;
     q_y2[index] /= normalization;
     q_xy2[index] /= normalization;
-    if(depth > 1) {
-        q_z2[index] /= normalization;
-        q_xz2[index] /= normalization;
-        q_yz2[index] /= normalization;
 
-        v_previous_z[index] = v_z[index];
-    }
+    q_z2[index] /= normalization;
+    q_xz2[index] /= normalization;
+    q_yz2[index] /= normalization;
+
+    v_previous_z[index] = v_z[index];
 
     v_previous_x[index] = v_x[index];
     v_previous_y[index] = v_y[index];
@@ -304,24 +279,22 @@ void tgv_launch_divergence2(
       q_xy, q_temp, width, height, depth);
     add<<<grid_dimension, block_dimension>>>(q_y2, q_temp, q_y2, width, height, depth);
 
-    if(depth > 1) {
-        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
-          q_xz, q_temp, width, height, depth);
-        add<<<grid_dimension, block_dimension>>>(q_x2, q_temp, q_x2, width, height, depth);
+    forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+      q_xz, q_temp, width, height, depth);
+    add<<<grid_dimension, block_dimension>>>(q_x2, q_temp, q_x2, width, height, depth);
 
-        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
-          q_yz, q_temp, width, height, depth);
-        add<<<grid_dimension, block_dimension>>>(q_y2, q_temp, q_y2, width, height, depth);
+    forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+      q_yz, q_temp, width, height, depth);
+    add<<<grid_dimension, block_dimension>>>(q_y2, q_temp, q_y2, width, height, depth);
 
-        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
-          q_z, q_z2, width, height, depth);
-        forward_difference_x<<<grid_dimension_x, block_dimension>>>(
-          q_xz, q_temp, width, height, depth);
-        add<<<grid_dimension, block_dimension>>>(q_z2, q_temp, q_z2, width, height, depth);
-        forward_difference_y<<<grid_dimension_y, block_dimension>>>(
-          q_yz, q_temp, width, height, depth);
-        add<<<grid_dimension, block_dimension>>>(q_z2, q_temp, q_z2, width, height, depth);
-    }
+    forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+      q_z, q_z2, width, height, depth);
+    forward_difference_x<<<grid_dimension_x, block_dimension>>>(
+      q_xz, q_temp, width, height, depth);
+    add<<<grid_dimension, block_dimension>>>(q_z2, q_temp, q_z2, width, height, depth);
+    forward_difference_y<<<grid_dimension_y, block_dimension>>>(
+      q_yz, q_temp, width, height, depth);
+    add<<<grid_dimension, block_dimension>>>(q_z2, q_temp, q_z2, width, height, depth);
     cudaCheckError( cudaDeviceSynchronize() );
 }
 
@@ -344,11 +317,9 @@ __global__ void tgv_kernel_part6(
     v_x[index] -= tau * (q_x2[index] - p_x[index]);
     v_y[index] -= tau * (q_y2[index] - p_y[index]);
 
-    if(depth > 1) {
-        v_z[index] -= tau * (q_z2[index] - p_z[index]);
+    v_z[index] -= tau * (q_z2[index] - p_z[index]);
 
-        v_bar_z[index] = v_z[index] + theta*(v_z[index] - v_previous_z[index]);
-    }
+    v_bar_z[index] = v_z[index] + theta*(v_z[index] - v_previous_z[index]);
 
 
     v_bar_x[index] = v_x[index] + theta*(v_x[index] - v_previous_x[index]);
@@ -375,8 +346,7 @@ __global__ void zeroInit2(
     p_x[index] = p_y[index] =
     p_xx[index] = 0;
 
-    if(depth > 1)
-        p_z[index] = p_zz[index] = q_xz[index] = 0;
+    p_z[index] = p_zz[index] = q_xz[index] = 0;
 }
 
 #endif // TGV_2_COMMON

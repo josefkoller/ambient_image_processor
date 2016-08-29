@@ -38,8 +38,7 @@ __global__ void zeroInit(
     p_x[index] = p_y[index] =
     p_xx[index] = p_yy[index] = 0;
 
-    if(depth > 1)
-        p_z[index] = p_zz[index] = 0;
+    p_z[index] = p_zz[index] = 0;
 }
 
 template<typename Pixel>
@@ -201,19 +200,15 @@ __global__ void tgv_kernel_part2(
 
     p_xx[index] = fmaf(sigma, p_x[index], p_xx[index]);
     p_yy[index] = fmaf(sigma, p_y[index], p_yy[index]);
-    if(depth > 1)
-        p_zz[index] = fmaf(sigma, p_z[index], p_zz[index]);
+    p_zz[index] = fmaf(sigma, p_z[index], p_zz[index]);
 
-    Pixel normalization = depth > 1 ?
-            norm3df(p_xx[index], p_yy[index], p_zz[index]) :
-            sqrtf(p_xx[index] * p_xx[index] + p_yy[index] * p_yy[index]);
+    Pixel normalization = norm3df(p_xx[index], p_yy[index], p_zz[index]);
 
     normalization = fmaxf(1, normalization/alpha1);
 
     p_xx[index] /= normalization;
     p_yy[index] /= normalization;
-    if(depth > 1)
-        p_zz[index] /= normalization;
+    p_zz[index] /= normalization;
 
     u_previous[index] = u[index];
 }
@@ -282,10 +277,8 @@ void tgv_launch_part2(Pixel* f_host,
     cudaCheckError( cudaMallocManaged(p_y, size) )
     cudaCheckError( cudaMallocManaged(p_xx, size) )
     cudaCheckError( cudaMallocManaged(p_yy, size) )
-    if(depth > 1) {
-        cudaCheckError( cudaMallocManaged(p_z, size) )
-        cudaCheckError( cudaMallocManaged(p_zz, size) )
-    }
+    cudaCheckError( cudaMallocManaged(p_z, size) )
+    cudaCheckError( cudaMallocManaged(p_zz, size) )
 }
 
 
@@ -302,9 +295,8 @@ void tgv_launch_forward_differences(Pixel* u_bar,
           u_bar, p_x, width, height, depth);
     forward_difference_y<<<grid_dimension_y, block_dimension>>>(
           u_bar, p_y, width, height, depth);
-    if(depth > 1)
-        forward_difference_z<<<grid_dimension_z, block_dimension>>>(
-             u_bar, p_z, width, height, depth);
+    forward_difference_z<<<grid_dimension_z, block_dimension>>>(
+          u_bar, p_z, width, height, depth);
     cudaCheckError( cudaDeviceSynchronize() );
 }
 
@@ -322,8 +314,7 @@ void tgv_launch_backward_differences(
                                                                    p_xx, p_x, width, height, depth);
     backward_difference_y<<<grid_dimension_y, block_dimension>>>(
                                                                    p_yy, p_y, width, height, depth);
-    if(depth > 1)
-        backward_difference_z<<<grid_dimension_z, block_dimension>>>(
+    backward_difference_z<<<grid_dimension_z, block_dimension>>>(
                                                                    p_zz, p_z, width, height, depth);
     cudaCheckError( cudaDeviceSynchronize() );
 }
@@ -348,10 +339,10 @@ void tgv_launch_part3(
     cudaFree(p_y);
     cudaFree(p_xx);
     cudaFree(p_yy);
-    if(depth > 1) {
-        cudaFree(p_z);
-        cudaFree(p_zz);
-    }
+
+    cudaFree(p_z);
+    cudaFree(p_zz);
+
     cudaFree(f);
     cudaFree(u);
 }

@@ -268,11 +268,8 @@ Pixel* tgv2_l1_deshade_launch(Pixel* f_host,
     size_t size = sizeof(Pixel) * voxel_count;
     cudaCheckError( cudaMemcpy(*v_x_host, v_x, size, cudaMemcpyDeviceToHost) );
     cudaCheckError( cudaMemcpy(*v_y_host, v_y, size, cudaMemcpyDeviceToHost) );
-    if(depth > 1)
-    {
-        *v_z_host = new Pixel[voxel_count];
-        cudaCheckError( cudaMemcpy(*v_z_host, v_z, size, cudaMemcpyDeviceToHost) );
-    }
+    *v_z_host = new Pixel[voxel_count];
+    cudaCheckError( cudaMemcpy(*v_z_host, v_z, size, cudaMemcpyDeviceToHost) );
     cudaCheckError( cudaDeviceSynchronize() );
 
     tgv_launch_part32<Pixel>( depth,
