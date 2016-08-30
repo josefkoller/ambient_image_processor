@@ -65,7 +65,7 @@ Pixel* tgv1_l2_launch(Pixel* f_host,
     Pixel* u_previous, *u_bar, *p_x, *p_y, *p_z, *p_xx, *p_yy, *p_zz;
 
     tgv_launch_part2<Pixel>(f_host,
-                voxel_count, depth,
+                voxel_count,
                 &f, &u,
                 &u_previous, &u_bar, &p_x, &p_y, &p_z, &p_xx, &p_yy, &p_zz);
 
@@ -76,12 +76,10 @@ Pixel* tgv1_l2_launch(Pixel* f_host,
     const Pixel theta = 1;
 
     // algorithm begin
-    zeroInit<<<grid_dimension, block_dimension>>>(
-                                                    p_x, p_y, p_z,
+    zeroInit<<<grid_dimension, block_dimension>>>(  p_x, p_y, p_z,
                                                     p_xx, p_yy, p_zz,
-                                                    voxel_count, depth);
-    clone2<<<grid_dimension, block_dimension>>>(
-                                                  f, u, u_bar, voxel_count);
+                                                    voxel_count);
+    clone2<<<grid_dimension, block_dimension>>>(f, u, u_bar, voxel_count);
     cudaCheckError( cudaDeviceSynchronize() );
 
     for(uint iteration_index = 0; iteration_index < iteration_count; iteration_index++)

@@ -28,7 +28,7 @@ template<typename Pixel>
 __global__ void zeroInit(
         Pixel* p_x, Pixel* p_y, Pixel* p_z,
         Pixel* p_xx, Pixel* p_yy, Pixel* p_zz,
-        uint voxel_count, uint depth) {
+        uint voxel_count) {
 
     const int index = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -258,7 +258,7 @@ void tgv_launch_part1(
 
 template<typename Pixel>
 void tgv_launch_part2(Pixel* f_host,
-          uint voxel_count, uint depth,
+          uint voxel_count,
           Pixel** f, Pixel** u,
           Pixel** u_previous, Pixel** u_bar,
           Pixel** p_x, Pixel** p_y, Pixel** p_z,
@@ -277,6 +277,7 @@ void tgv_launch_part2(Pixel* f_host,
     cudaCheckError( cudaMallocManaged(p_y, size) )
     cudaCheckError( cudaMallocManaged(p_xx, size) )
     cudaCheckError( cudaMallocManaged(p_yy, size) )
+
     cudaCheckError( cudaMallocManaged(p_z, size) )
     cudaCheckError( cudaMallocManaged(p_zz, size) )
 }

@@ -33,7 +33,7 @@ __global__ void add(
 
 template<typename Pixel>
 void tgv_launch_part22(
-        uint voxel_count, uint depth,
+        uint voxel_count,
         Pixel** v_bar_x, Pixel** v_bar_y, Pixel** v_bar_z,
         Pixel** v_previous_x, Pixel** v_previous_y, Pixel** v_previous_z,
         Pixel** v_x, Pixel** v_y, Pixel** v_z,
@@ -336,7 +336,7 @@ template<typename Pixel>
 __global__ void zeroInit2(
         Pixel* p_x, Pixel* p_y, Pixel* p_z,
         Pixel* p_xx, Pixel* q_xz, Pixel* p_zz,
-        uint voxel_count, uint depth) {
+        uint voxel_count) {
 
     const int index = blockDim.x * blockIdx.x + threadIdx.x;
 

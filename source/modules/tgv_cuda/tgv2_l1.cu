@@ -131,7 +131,7 @@ Pixel* tgv2_l1_launch(Pixel* f_host,
     Pixel* u_previous, *u_bar, *p_x, *p_y, *p_z, *p_xx, *p_yy, *p_zz;
 
     tgv_launch_part2<Pixel>(f_host,
-                voxel_count, depth,
+                voxel_count,
                 &f, &u,
                 &u_previous, &u_bar, &p_x, &p_y, &p_z, &p_xx, &p_yy, &p_zz);
 
@@ -143,7 +143,7 @@ Pixel* tgv2_l1_launch(Pixel* f_host,
     Pixel * q_temp;
 
     tgv_launch_part22<Pixel>(
-                voxel_count, depth,
+                voxel_count,
                 &v_previous_x, &v_previous_y, &v_previous_z,
                 &v_bar_x, &v_bar_y, &v_bar_z,
                 &v_x, &v_y, &v_z,
@@ -161,15 +161,15 @@ Pixel* tgv2_l1_launch(Pixel* f_host,
     zeroInit<<<grid_dimension, block_dimension>>>(
                                                     p_x, p_y, p_z,
                                                     p_xx, p_yy, p_zz,
-                                                    voxel_count, depth);
+                                                    voxel_count);
     zeroInit<<<grid_dimension, block_dimension>>>(
                                                     v_x, v_y, v_z,
                                                     v_bar_x, v_bar_y, v_bar_z,
-                                                    voxel_count, depth);
+                                                    voxel_count);
     zeroInit2<<<grid_dimension, block_dimension>>>(
                                                     q_x, q_y, q_z,
                                                     q_xy, q_xz, q_yz,
-                                                    voxel_count, depth);
+                                                    voxel_count);
     clone2<<<grid_dimension, block_dimension>>>(
                                                   f, u, u_bar, voxel_count);
     cudaCheckError( cudaDeviceSynchronize() );
