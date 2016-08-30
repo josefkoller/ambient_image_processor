@@ -44,14 +44,48 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     ITKImage downsampled_deshaded_image;
     ITKImage downsampled_div_v_image;
 
-    TGVKDeshadeProcessor::processTGVKL1Cuda(
-                downsampled_image, lambda, order, alpha, iteration_count,
-                downsampled_mask, set_negative_values_to_zero, add_background_back,
-                paint_iteration_interval, iteration_finished_callback,
-                downsampled_denoised_image,
-                downsampled_shading_image,
-                downsampled_deshaded_image,
-                downsampled_div_v_image);
+    if(input_image.depth > 1)
+    {
+       TGVKDeshadeProcessor::processTGVKL1Cuda(
+              downsampled_image,
+              lambda,
+
+              order,
+              alpha,
+
+              iteration_count,
+              mask,
+              set_negative_values_to_zero,
+              add_background_back,
+
+              paint_iteration_interval,
+              iteration_finished_callback,
+
+              downsampled_denoised_image,
+              downsampled_shading_image,
+              downsampled_deshaded_image,
+              downsampled_div_v_image);
+    } else {
+        TGVKDeshadeProcessor::processTGVKL1Cuda2D(
+               downsampled_image,
+               lambda,
+
+               order,
+               alpha,
+
+               iteration_count,
+               mask,
+               set_negative_values_to_zero,
+               add_background_back,
+
+               paint_iteration_interval,
+               iteration_finished_callback,
+
+               downsampled_denoised_image,
+               downsampled_shading_image,
+               downsampled_deshaded_image,
+               downsampled_div_v_image);
+    }
 
     auto upsample = [=](ITKImage original_image) {
         return ResizeProcessor::process(original_image,
