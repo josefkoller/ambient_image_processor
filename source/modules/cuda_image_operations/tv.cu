@@ -44,8 +44,7 @@ double tv_kernel_launch(Pixel* f_host,
 
     cudaCheckError( cudaMalloc(&p_x, size) )
     cudaCheckError( cudaMalloc(&p_y, size) )
-    if(depth > 1)
-        cudaCheckError( cudaMalloc(&p_z, size) )
+    cudaCheckError( cudaMalloc(&p_z, size) )
 
     cudaCheckError( cudaDeviceSynchronize() );
 
@@ -67,8 +66,7 @@ double tv_kernel_launch(Pixel* f_host,
     cudaFree(f);
     cudaFree(p_x);
     cudaFree(p_y);
-    if(depth > 1)
-        cudaFree(p_z);
+    cudaFree(p_z);
 
     double total_variation = 0;
     for(int i = 0; i < voxel_count; i++)
