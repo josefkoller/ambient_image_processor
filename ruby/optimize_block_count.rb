@@ -17,7 +17,11 @@ def run_program command
   duration
 end
 
-image_path = '~/Documents/tu/master_thesis/test_data/MR/serie14_slice27/serie14_slice27_rescaled.mha'
+data_path = '~/Documents/tu/master_thesis/test_data/MR_volume_rendering/tissue_only/'
+data_path = ARGV[0] if ARGV.length > 0
+
+image_path = "#{data_path}/image.mha"
+mask_path = "#{data_path}/mask.mha"
 
 wrap_size = 32
 max_block_dimension = 1024
@@ -25,7 +29,7 @@ program_path = 'build/output/tgv2_deshade_application'
 lambda_value = 1
 alpha0 = 2
 alpha1 = 1
-iteration_count = 1000
+iteration_count = 100
 output_denoised_path = '/tmp/denoised.mha'
 output_shading_path = '/tmp/shading.mha'
 output_deshaded_path = '/tmp/deshaded.mha'
@@ -37,7 +41,8 @@ durations = []
 
 begin
   while cuda_block_dimension >= wrap_size do
-    command = "#{program_path} #{image_path} #{lambda_value} #{alpha0} #{alpha1} #{iteration_count} #{cuda_block_dimension}"
+    command = "#{program_path} #{image_path} #{lambda_value} #{alpha0} #{alpha1} #{iteration_count}"
+    command += " #{cuda_block_dimension} #{mask_path}"
     command += " #{output_denoised_path} #{output_shading_path} #{output_deshaded_path}"
     duration = run_program command
     puts "block dimension: #{cuda_block_dimension} duration: #{duration} s"

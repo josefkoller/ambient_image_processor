@@ -43,6 +43,7 @@ public:
                                          const Pixel alpha0,
                                          const Pixel alpha1,
                                          const uint iteration_count,
+                                         const int cuda_block_dimension,
                                          const uint paint_iteration_interval,
                                          IterationFinishedThreeImages iteration_finished_callback,
                                          const ITKImage& mask,

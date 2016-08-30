@@ -4,6 +4,7 @@
 
 #include "ITKImage.h"
 #include "TGVDeshadeProcessor.h"
+#include "TGVDeshadeMaskedProcessor.h"
 
 using string = std::string;
 
@@ -30,18 +31,36 @@ int process(
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
 
-    TGVDeshadeProcessor::processTGV2L1GPUCuda(
-                input_image,
-                lambda,
-                alpha0,
-                alpha1,
-                iteration_count,
-                cuda_block_dimension,
-                mask_image,
-                true,
-                denoised_image,
-                shading_image,
-                deshaded_image);
+    if(mask_image.isNull())
+    {
+        TGVDeshadeProcessor::processTGV2L1GPUCuda(
+                    input_image,
+                    lambda,
+                    alpha0,
+                    alpha1,
+                    iteration_count,
+                    cuda_block_dimension,
+                    mask_image,
+                    true,
+                    denoised_image,
+                    shading_image,
+                    deshaded_image);
+    } else {
+        deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(
+                    input_image,
+                     lambda,
+                     alpha0,
+                     alpha1,
+                     iteration_count,
+                     cuda_block_dimension,
+                     -1,
+                     nullptr,
+                     mask_image,
+                     true,
+                     true,
+                     denoised_image,
+                     shading_image);
+    }
 
     denoised_image.write(output_denoised_path);
     shading_image.write(output_shading_path);

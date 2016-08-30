@@ -83,6 +83,7 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
                                                   alpha0,
                                                   alpha1,
                                                   iteration_count,
+                                                  -1,
                                                   paint_iteration_interval,
                                                   this->iteration_finished_callback,
                                                   mask,
