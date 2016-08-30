@@ -118,7 +118,7 @@ target_link_libraries(ambient_application
  # -lfftw3
 )
 
-#include(source/terminal_programs/CMakeLists.txt)
+include(source/terminal_programs/CMakeLists.txt)
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})  # import itk after cuda_add_executable, else an invalid nvcc flag is set
