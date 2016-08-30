@@ -169,16 +169,16 @@ void tgv_launch_part2_2d(Pixel* f_host,
 //    printf("voxel_count: %d \n", voxel_count);
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(f, size) )
+    cudaCheckError( cudaMalloc(f, size) )
     cudaCheckError( cudaMemcpy(*f, f_host, size, cudaMemcpyHostToDevice) )
 
-    cudaCheckError( cudaMallocManaged(u, size) )
-    cudaCheckError( cudaMallocManaged(u_previous, size) )
-    cudaCheckError( cudaMallocManaged(u_bar, size) )
-    cudaCheckError( cudaMallocManaged(p_x, size) )
-    cudaCheckError( cudaMallocManaged(p_y, size) )
-    cudaCheckError( cudaMallocManaged(p_xx, size) )
-    cudaCheckError( cudaMallocManaged(p_yy, size) )
+    cudaCheckError( cudaMalloc(u, size) )
+    cudaCheckError( cudaMalloc(u_previous, size) )
+    cudaCheckError( cudaMalloc(u_bar, size) )
+    cudaCheckError( cudaMalloc(p_x, size) )
+    cudaCheckError( cudaMalloc(p_y, size) )
+    cudaCheckError( cudaMalloc(p_xx, size) )
+    cudaCheckError( cudaMalloc(p_yy, size) )
 }
 
 

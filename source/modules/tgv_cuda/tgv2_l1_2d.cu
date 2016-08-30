@@ -2,6 +2,8 @@
 #include "tgv_common_2d.cu"
 #include "tgv2_common_2d.cu"
 
+#include "tgv2_common.cu"
+
 template<typename Pixel>
 __global__ void tgv_kernel_part4_tgv2_l1_2d(
         Pixel* p_x, Pixel* p_y,
@@ -264,14 +266,12 @@ Pixel* tgv2_l1_launch_2d(Pixel* f_host,
                 width, height);
         cudaCheckError( cudaDeviceSynchronize() );
 
-
-        if(paint_iteration_interval > 0 &&
-                iteration_index % paint_iteration_interval == 0) {
-            printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
-            bool stop = iteration_finished_callback(iteration_index, iteration_count, u);
-            if(stop)
-                break;
-        }
+        bool stop = tgv2_iteration_callback(
+                    iteration_index, iteration_count, paint_iteration_interval,
+                    u,
+                    iteration_finished_callback, voxel_count);
+        if(stop)
+            break;
     }
 
     Pixel* destination = new Pixel[voxel_count];

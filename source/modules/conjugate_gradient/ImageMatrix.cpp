@@ -33,7 +33,7 @@ ImageMatrix<Pixel>::ImageMatrix(Dimension voxel_count)
     :voxel_count(voxel_count), element_count(voxel_count*voxel_count)
 {
     size_t size = sizeof(Pixel) * element_count;
-    cudaCheckError( cudaMallocManaged(&this->elements, size) )
+    cudaCheckError( cudaMalloc(&this->elements, size) )
 
             this->block_dimension = dim3(CUDA_BLOCK_DIMENSON);
     this->grid_dimension = dim3((element_count + block_dimension.x - 1) / block_dimension.x);

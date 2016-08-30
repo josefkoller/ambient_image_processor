@@ -39,13 +39,13 @@ double tv_kernel_launch(Pixel* f_host,
 
     Pixel *f, *p_x, *p_y, *p_z;
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&f, size) )
+    cudaCheckError( cudaMalloc(&f, size) )
     cudaCheckError( cudaMemcpy(f, f_host, size, cudaMemcpyHostToDevice) )
 
-    cudaCheckError( cudaMallocManaged(&p_x, size) )
-    cudaCheckError( cudaMallocManaged(&p_y, size) )
+    cudaCheckError( cudaMalloc(&p_x, size) )
+    cudaCheckError( cudaMalloc(&p_y, size) )
     if(depth > 1)
-        cudaCheckError( cudaMallocManaged(&p_z, size) )
+        cudaCheckError( cudaMalloc(&p_z, size) )
 
     cudaCheckError( cudaDeviceSynchronize() );
 

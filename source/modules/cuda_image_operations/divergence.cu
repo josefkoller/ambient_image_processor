@@ -61,10 +61,10 @@ Pixel* divergence_kernel_launch(
         size_t size = sizeof(Pixel) * voxel_count;
 
         Pixel *dx2, *dy2, *dz2;
-        cudaCheckError( cudaMallocManaged(&dx2, size) )
-        cudaCheckError( cudaMallocManaged(&dy2, size) )
+        cudaCheckError( cudaMalloc(&dx2, size) )
+        cudaCheckError( cudaMalloc(&dy2, size) )
         if(depth > 1)
-          cudaCheckError( cudaMallocManaged(&dz2, size) )
+          cudaCheckError( cudaMalloc(&dz2, size) )
         cudaCheckError( cudaDeviceSynchronize() );
 
         cudaCheckError( cudaMemcpy(dx2, dx, size, cudaMemcpyHostToDevice) )
@@ -81,10 +81,10 @@ Pixel* divergence_kernel_launch(
 
     Pixel *dxdx, *dydy, *dzdz;
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&dxdx, size) )
-    cudaCheckError( cudaMallocManaged(&dydy, size) )
+    cudaCheckError( cudaMalloc(&dxdx, size) )
+    cudaCheckError( cudaMalloc(&dydy, size) )
     if(depth > 1)
-      cudaCheckError( cudaMallocManaged(&dzdz, size) )
+      cudaCheckError( cudaMalloc(&dzdz, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
     launch_divergence(dx, dy, dz,

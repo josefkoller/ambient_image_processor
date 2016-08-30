@@ -267,19 +267,19 @@ void tgv_launch_part2(Pixel* f_host,
 //    printf("voxel_count: %d \n", voxel_count);
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(f, size) )
+    cudaCheckError( cudaMalloc(f, size) )
     cudaCheckError( cudaMemcpy(*f, f_host, size, cudaMemcpyHostToDevice) )
 
-    cudaCheckError( cudaMallocManaged(u, size) )
-    cudaCheckError( cudaMallocManaged(u_previous, size) )
-    cudaCheckError( cudaMallocManaged(u_bar, size) )
-    cudaCheckError( cudaMallocManaged(p_x, size) )
-    cudaCheckError( cudaMallocManaged(p_y, size) )
-    cudaCheckError( cudaMallocManaged(p_xx, size) )
-    cudaCheckError( cudaMallocManaged(p_yy, size) )
+    cudaCheckError( cudaMalloc(u, size) )
+    cudaCheckError( cudaMalloc(u_previous, size) )
+    cudaCheckError( cudaMalloc(u_bar, size) )
+    cudaCheckError( cudaMalloc(p_x, size) )
+    cudaCheckError( cudaMalloc(p_y, size) )
+    cudaCheckError( cudaMalloc(p_xx, size) )
+    cudaCheckError( cudaMalloc(p_yy, size) )
 
-    cudaCheckError( cudaMallocManaged(p_z, size) )
-    cudaCheckError( cudaMallocManaged(p_zz, size) )
+    cudaCheckError( cudaMalloc(p_z, size) )
+    cudaCheckError( cudaMalloc(p_zz, size) )
 }
 
 
@@ -346,6 +346,33 @@ void tgv_launch_part3(
 
     cudaFree(f);
     cudaFree(u);
+}
+
+template<typename Pixel>
+bool tgv2_iteration_callback(
+        uint iteration_index, const uint iteration_count, const int paint_iteration_interval,
+        Pixel* u,
+        std::function<bool(uint iteration_index, uint iteration_count,
+                           Pixel* u)> iteration_callback,
+        const uint voxel_count)
+{
+
+    if(paint_iteration_interval > 0 && iteration_index > 0 &&
+            iteration_index % paint_iteration_interval == 0 &&
+            iteration_callback != nullptr) {
+        printf("iteration %d / %d \n", iteration_index, iteration_count);
+
+        Pixel* u_host = new Pixel[voxel_count];
+        auto size = sizeof(Pixel) * voxel_count;
+        cudaCheckError( cudaMemcpy(u_host, u, size, cudaMemcpyDeviceToHost) );
+        bool stop = iteration_callback(iteration_index, iteration_count, u_host);
+        delete[] u_host;
+        return stop;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 #endif //TGV_COMMON

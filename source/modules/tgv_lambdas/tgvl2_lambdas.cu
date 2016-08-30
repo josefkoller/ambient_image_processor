@@ -100,7 +100,7 @@ Pixel* tgv2_l1_lambdas_launch(Pixel* f_host,
 
     Pixel* lambdas;
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&lambdas, size) )
+    cudaCheckError( cudaMalloc(&lambdas, size) )
     cudaCheckError( cudaMemcpy(lambdas, lambdas_host, size, cudaMemcpyHostToDevice) )
 
             // algorithm variables..

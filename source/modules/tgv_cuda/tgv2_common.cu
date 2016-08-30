@@ -43,32 +43,32 @@ void tgv_launch_part22(
         Pixel** q_xy2, Pixel** q_xz2, Pixel** q_yz2, Pixel** q_temp)
 {
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(v_x, size) )
-    cudaCheckError( cudaMallocManaged(v_y, size) )
-    cudaCheckError( cudaMallocManaged(v_bar_x, size) )
-    cudaCheckError( cudaMallocManaged(v_bar_y, size) )
-    cudaCheckError( cudaMallocManaged(v_previous_x, size) )
-    cudaCheckError( cudaMallocManaged(v_previous_y, size) )
+    cudaCheckError( cudaMalloc(v_x, size) )
+    cudaCheckError( cudaMalloc(v_y, size) )
+    cudaCheckError( cudaMalloc(v_bar_x, size) )
+    cudaCheckError( cudaMalloc(v_bar_y, size) )
+    cudaCheckError( cudaMalloc(v_previous_x, size) )
+    cudaCheckError( cudaMalloc(v_previous_y, size) )
 
-    cudaCheckError( cudaMallocManaged(q_x, size) )
-    cudaCheckError( cudaMallocManaged(q_y, size) )
-    cudaCheckError( cudaMallocManaged(q_xy, size) )
-    cudaCheckError( cudaMallocManaged(q_x2, size) )
-    cudaCheckError( cudaMallocManaged(q_y2, size) )
-    cudaCheckError( cudaMallocManaged(q_xy2, size) )
-    cudaCheckError( cudaMallocManaged(q_temp, size) )
+    cudaCheckError( cudaMalloc(q_x, size) )
+    cudaCheckError( cudaMalloc(q_y, size) )
+    cudaCheckError( cudaMalloc(q_xy, size) )
+    cudaCheckError( cudaMalloc(q_x2, size) )
+    cudaCheckError( cudaMalloc(q_y2, size) )
+    cudaCheckError( cudaMalloc(q_xy2, size) )
+    cudaCheckError( cudaMalloc(q_temp, size) )
 
-    cudaCheckError( cudaMallocManaged(v_z, size) )
-    cudaCheckError( cudaMallocManaged(v_bar_z, size) )
-    cudaCheckError( cudaMallocManaged(v_previous_z, size) )
+    cudaCheckError( cudaMalloc(v_z, size) )
+    cudaCheckError( cudaMalloc(v_bar_z, size) )
+    cudaCheckError( cudaMalloc(v_previous_z, size) )
 
-    cudaCheckError( cudaMallocManaged(q_z, size) )
-    cudaCheckError( cudaMallocManaged(q_xz, size) )
-    cudaCheckError( cudaMallocManaged(q_yz, size) )
+    cudaCheckError( cudaMalloc(q_z, size) )
+    cudaCheckError( cudaMalloc(q_xz, size) )
+    cudaCheckError( cudaMalloc(q_yz, size) )
 
-    cudaCheckError( cudaMallocManaged(q_z2, size) )
-    cudaCheckError( cudaMallocManaged(q_xz2, size) )
-    cudaCheckError( cudaMallocManaged(q_yz2, size) )
+    cudaCheckError( cudaMalloc(q_z2, size) )
+    cudaCheckError( cudaMalloc(q_xz2, size) )
+    cudaCheckError( cudaMalloc(q_yz2, size) )
 }
 
 template<typename Pixel>
@@ -347,6 +347,43 @@ __global__ void zeroInit2(
     p_xx[index] = 0;
 
     p_z[index] = p_zz[index] = q_xz[index] = 0;
+}
+
+template<typename Pixel>
+bool tgv2_deshade_iteration_callback(
+        uint iteration_index, const uint iteration_count, const int paint_iteration_interval,
+        Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z,
+        std::function<bool(uint iteration_index, uint iteration_count,
+                           Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z)> iteration_callback,
+        const uint voxel_count)
+{
+
+    if(paint_iteration_interval > 0 && iteration_index > 0 &&
+            iteration_index % paint_iteration_interval == 0 &&
+            iteration_callback != nullptr) {
+        printf("iteration %d / %d \n", iteration_index, iteration_count);
+
+        Pixel* u_host = new Pixel[voxel_count];
+        Pixel* v_x_host = new Pixel[voxel_count];
+        Pixel* v_y_host = new Pixel[voxel_count];
+        Pixel* v_z_host = new Pixel[voxel_count];
+        auto size = sizeof(Pixel) * voxel_count;
+        cudaCheckError( cudaMemcpy(u_host, u, size, cudaMemcpyDeviceToHost) );
+        cudaCheckError( cudaMemcpy(v_x_host, v_x, size, cudaMemcpyDeviceToHost) );
+        cudaCheckError( cudaMemcpy(v_y_host, v_y, size, cudaMemcpyDeviceToHost) );
+        cudaCheckError( cudaMemcpy(v_z_host, v_z, size, cudaMemcpyDeviceToHost) );
+        bool stop = iteration_callback(iteration_index, iteration_count, u_host,
+                                       v_x_host, v_y_host, v_z_host);
+        delete[] u_host;
+        delete[] v_x_host;
+        delete[] v_y_host;
+        delete[] v_z_host;
+        return stop;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 #endif // TGV_2_COMMON

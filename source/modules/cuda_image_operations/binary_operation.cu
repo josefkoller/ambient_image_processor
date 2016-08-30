@@ -17,9 +17,9 @@ void binary_operation_part1(Pixel* image1_host, Pixel* image2_host,
     grid_dimension = dim3((voxel_count + block_dimension.x - 1) / block_dimension.x);
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(image1, size) )
+    cudaCheckError( cudaMalloc(image1, size) )
     cudaCheckError( cudaMemcpy(*image1, image1_host, size, cudaMemcpyHostToDevice) )
-    cudaCheckError( cudaMallocManaged(image2, size) )
+    cudaCheckError( cudaMalloc(image2, size) )
     cudaCheckError( cudaMemcpy(*image2, image2_host, size, cudaMemcpyHostToDevice) )
 
     cudaCheckError( cudaDeviceSynchronize() );

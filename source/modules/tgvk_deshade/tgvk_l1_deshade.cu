@@ -368,15 +368,12 @@ Pixel* tgvk_l1_deshade_launch(Pixel* f_host,
         }
 
 
-        if(paint_iteration_interval > 0 &&
-                iteration_index % paint_iteration_interval == 0 &&
-                iteration_finished_callback != nullptr) {
-            printf("tgvkL1, iteration=%d / %d \n", iteration_index, iteration_count);
-            bool stop = iteration_finished_callback(iteration_index, iteration_count, u,
-                                                    v_x, v_y, v_z);
-            if(stop)
-                break;
-        }
+        bool stop = tgv2_deshade_iteration_callback(
+                    iteration_index, iteration_count, paint_iteration_interval,
+                    u, v_x, v_y, v_z,
+                    iteration_finished_callback, voxel_count);
+        if(stop)
+            break;
     }
 
     Pixel* destination = new Pixel[voxel_count];

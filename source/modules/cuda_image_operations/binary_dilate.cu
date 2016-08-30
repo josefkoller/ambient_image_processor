@@ -45,7 +45,7 @@ Pixel* binary_dilate_kernel_launch(Pixel* image_host,
     uint voxel_count = width*height*depth;
     Pixel* result;
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&result, size) )
+    cudaCheckError( cudaMalloc(&result, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
     binary_dilate_kernel<<<grid_dimension, block_dimension>>>(image, width, height, depth, result);

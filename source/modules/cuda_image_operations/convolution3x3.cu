@@ -64,14 +64,14 @@ Pixel* convolution3x3_kernel_launch(Pixel* image_host,
     Pixel* image, *kernel, *result;
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&image, size) )
+    cudaCheckError( cudaMalloc(&image, size) )
     cudaCheckError( cudaMemcpy(image, image_host, size, cudaMemcpyHostToDevice) )
 
     size_t kernel_size = sizeof(Pixel) * 9;
-    cudaCheckError( cudaMallocManaged(&kernel, size) )
+    cudaCheckError( cudaMalloc(&kernel, size) )
     cudaCheckError( cudaMemcpy(kernel, kernel_host, kernel_size, cudaMemcpyHostToDevice) )
 
-    cudaCheckError( cudaMallocManaged(&result, size) )
+    cudaCheckError( cudaMalloc(&result, size) )
 
     cudaCheckError( cudaDeviceSynchronize() );
 

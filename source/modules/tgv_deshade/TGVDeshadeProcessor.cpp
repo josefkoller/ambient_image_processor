@@ -219,7 +219,7 @@ ITKImage TGVDeshadeProcessor::processTVGPUCuda(ITKImage input_image,
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero,
-                                                  l);
+                                                  l, true);
 
         if(add_background_back && !mask.isNull())
         {
@@ -315,7 +315,7 @@ ITKImage TGVDeshadeProcessor::processTGV2L1GPUCuda2D(ITKImage input_image,
         auto r = deshade_poisson_cosine_transform_2d(u, v_x, v_y,
                                                   input_image.width, input_image.height,
                                                   mask, set_negative_values_to_zero,
-                                                  l);
+                                                  l, true);
 
         if(add_background_back && !mask.isNull())
         {
@@ -474,7 +474,7 @@ TGVDeshadeProcessor::processTGV2L1DeshadeCuda_convergenceTest(
         auto l = ITKImage();
         auto r = deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
-                                                  mask, set_negative_values_to_zero, l);
+                                                  mask, set_negative_values_to_zero, l, true);
         if(!l_before.isNull())
         {
             MetricValues metric_values;

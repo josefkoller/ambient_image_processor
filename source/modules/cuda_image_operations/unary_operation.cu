@@ -19,7 +19,7 @@ void unary_operation_part1(Pixel* image_host,
     grid_dimension = dim3((voxel_count + block_dimension.x - 1) / block_dimension.x);
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(image, size) )
+    cudaCheckError( cudaMalloc(image, size) )
     cudaCheckError( cudaMemcpy(*image, image_host, size, cudaMemcpyHostToDevice) )
     cudaCheckError( cudaDeviceSynchronize() );
 }

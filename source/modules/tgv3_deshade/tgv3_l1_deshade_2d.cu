@@ -272,15 +272,12 @@ Pixel* tgv3_l1_deshade_launch_2d(Pixel* f_host,
         cudaCheckError( cudaDeviceSynchronize() );
 
 
-        if(paint_iteration_interval > 0 &&
-                iteration_index % paint_iteration_interval == 0) {
-            printf("TGV3L1, iteration=%d / %d \n", iteration_index, iteration_count);
-            printf("TVL2, iteration=%d / %d \n", iteration_index, iteration_count);
-            bool stop = iteration_finished_callback(iteration_index, iteration_count, u,
-                                                    v_x, v_y);
-            if(stop)
-                break;
-        }
+        bool stop = tgv2_deshade_iteration_callback_2d(
+                    iteration_index, iteration_count, paint_iteration_interval,
+                    u, v_x, v_y,
+                    iteration_finished_callback, voxel_count);
+        if(stop)
+            break;
     }
 
     Pixel* destination = new Pixel[voxel_count];

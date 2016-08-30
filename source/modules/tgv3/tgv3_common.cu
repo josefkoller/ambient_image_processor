@@ -86,45 +86,45 @@ void tgv3_launch_part23(
         Pixel** r2_xy, Pixel** r2_xz, Pixel** r2_yz)
 {
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(w_x, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_x, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_x, size) )
+    cudaCheckError( cudaMalloc(w_x, size) )
+    cudaCheckError( cudaMalloc(w_bar_x, size) )
+    cudaCheckError( cudaMalloc(w_previous_x, size) )
 
-    cudaCheckError( cudaMallocManaged(w_y, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_y, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_y, size) )
+    cudaCheckError( cudaMalloc(w_y, size) )
+    cudaCheckError( cudaMalloc(w_bar_y, size) )
+    cudaCheckError( cudaMalloc(w_previous_y, size) )
 
-    cudaCheckError( cudaMallocManaged(w_xy, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_xy, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_xy, size) )
+    cudaCheckError( cudaMalloc(w_xy, size) )
+    cudaCheckError( cudaMalloc(w_bar_xy, size) )
+    cudaCheckError( cudaMalloc(w_previous_xy, size) )
 
-    cudaCheckError( cudaMallocManaged(r_x, size) )
-    cudaCheckError( cudaMallocManaged(r_y, size) )
-    cudaCheckError( cudaMallocManaged(r_xy, size) )
+    cudaCheckError( cudaMalloc(r_x, size) )
+    cudaCheckError( cudaMalloc(r_y, size) )
+    cudaCheckError( cudaMalloc(r_xy, size) )
 
-    cudaCheckError( cudaMallocManaged(r2_x, size) )
-    cudaCheckError( cudaMallocManaged(r2_y, size) )
-    cudaCheckError( cudaMallocManaged(r2_xy, size) )
+    cudaCheckError( cudaMalloc(r2_x, size) )
+    cudaCheckError( cudaMalloc(r2_y, size) )
+    cudaCheckError( cudaMalloc(r2_xy, size) )
 
-    cudaCheckError( cudaMallocManaged(w_z, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_z, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_z, size) )
+    cudaCheckError( cudaMalloc(w_z, size) )
+    cudaCheckError( cudaMalloc(w_bar_z, size) )
+    cudaCheckError( cudaMalloc(w_previous_z, size) )
 
-    cudaCheckError( cudaMallocManaged(w_xz, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_xz, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_xz, size) )
+    cudaCheckError( cudaMalloc(w_xz, size) )
+    cudaCheckError( cudaMalloc(w_bar_xz, size) )
+    cudaCheckError( cudaMalloc(w_previous_xz, size) )
 
-    cudaCheckError( cudaMallocManaged(w_yz, size) )
-    cudaCheckError( cudaMallocManaged(w_bar_yz, size) )
-    cudaCheckError( cudaMallocManaged(w_previous_yz, size) )
+    cudaCheckError( cudaMalloc(w_yz, size) )
+    cudaCheckError( cudaMalloc(w_bar_yz, size) )
+    cudaCheckError( cudaMalloc(w_previous_yz, size) )
 
-    cudaCheckError( cudaMallocManaged(r_z, size) )
-    cudaCheckError( cudaMallocManaged(r_xz, size) )
-    cudaCheckError( cudaMallocManaged(r_yz, size) )
+    cudaCheckError( cudaMalloc(r_z, size) )
+    cudaCheckError( cudaMalloc(r_xz, size) )
+    cudaCheckError( cudaMalloc(r_yz, size) )
 
-    cudaCheckError( cudaMallocManaged(r2_z, size) )
-    cudaCheckError( cudaMallocManaged(r2_xz, size) )
-    cudaCheckError( cudaMallocManaged(r2_yz, size) )
+    cudaCheckError( cudaMalloc(r2_z, size) )
+    cudaCheckError( cudaMalloc(r2_xz, size) )
+    cudaCheckError( cudaMalloc(r2_yz, size) )
 }
 
 

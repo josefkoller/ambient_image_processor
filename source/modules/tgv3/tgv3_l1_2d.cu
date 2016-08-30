@@ -265,13 +265,12 @@ Pixel* tgv3_l1_launch_2d(Pixel* f_host,
         cudaCheckError( cudaDeviceSynchronize() );
 
 
-        if(paint_iteration_interval > 0 &&
-                iteration_index % paint_iteration_interval == 0) {
-            printf("TGV3L1, iteration=%d / %d \n", iteration_index, iteration_count);
-            bool stop = iteration_finished_callback(iteration_index, iteration_count, u);
-            if(stop)
-                break;
-        }
+        bool stop = tgv2_iteration_callback(
+                    iteration_index, iteration_count, paint_iteration_interval,
+                    u,
+                    iteration_finished_callback, voxel_count);
+        if(stop)
+            break;
     }
 
     Pixel* destination = new Pixel[voxel_count];

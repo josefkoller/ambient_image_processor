@@ -64,7 +64,7 @@ void TGV3DeshadeProcessor::processTGV3L1Cuda(ITKImage input_image,
         auto r = TGVDeshadeProcessor::deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero,
-                                                  l);
+                                                  l, true);
 
         if(add_background_back && !mask.isNull())
         {
@@ -138,7 +138,7 @@ void TGV3DeshadeProcessor::processTGV3L1Cuda2D(ITKImage input_image,
         auto r = TGVDeshadeProcessor::deshade_poisson_cosine_transform_2d(u, v_x, v_y,
                                                   input_image.width, input_image.height,
                                                   mask, set_negative_values_to_zero,
-                                                  l);
+                                                  l, true);
 
         if(add_background_back && !mask.isNull())
         {

@@ -61,7 +61,7 @@ ITKImage TGVDeshadeMaskedProcessor::processTVGPUCuda(ITKImage input_image,
         auto r = TGVDeshadeProcessor::deshade_poisson_cosine_transform(u, v_x, v_y, v_z,
                                                   input_image.width, input_image.height, input_image.depth,
                                                   mask, set_negative_values_to_zero,
-                                                  l);
+                                                  l, true);
 
         if(add_background_back && !mask.isNull())
         {

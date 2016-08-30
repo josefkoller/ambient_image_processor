@@ -77,10 +77,10 @@ Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
     Pixel* image, *result;
 
     size_t size = sizeof(Pixel) * voxel_count;
-    cudaCheckError( cudaMallocManaged(&image, size) )
+    cudaCheckError( cudaMalloc(&image, size) )
     cudaCheckError( cudaMemcpy(image, image_host, size, cudaMemcpyHostToDevice) )
 
-    cudaCheckError( cudaMallocManaged(&result, size) )
+    cudaCheckError( cudaMalloc(&result, size) )
     cudaCheckError( cudaDeviceSynchronize() );
 
     if(depth == 1)
