@@ -170,8 +170,6 @@ void TGVDeshadeMaskedProcessor::buildMaskIndices(ITKImage mask,
                                                  IndexVector& front_edge_pixel_indices, IndexVector& not_front_edge_pixel_indices,
                                                  IndexVector& back_edge_pixel_indices, IndexVector& not_back_edge_pixel_indices)
 {
-    std::cout << "start building mask indices" << std::endl;
-
     mask.foreachPixel([&](uint x, uint y, uint z, ITKImage::PixelType mask_value) {
         if(mask_value < 1)
             return;
@@ -209,6 +207,4 @@ void TGVDeshadeMaskedProcessor::buildMaskIndices(ITKImage mask,
         else
             not_back_edge_pixel_indices.push_back(linear_index);
     });
-
-    std::cout << "finish building mask indices" << std::endl;
 }
