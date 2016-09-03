@@ -37,7 +37,7 @@ TGVDeshadeMaskedProcessor::TGVDeshadeMaskedProcessor()
 }
 
 ITKImage TGVDeshadeMaskedProcessor::processTVGPUCuda(ITKImage input_image,
-                                                     const ITKImage& mask,
+                                                     ITKImage& mask,
                                                      const bool set_negative_values_to_zero,
                                                      const bool add_background_back,
                                                      IterationFinishedThreeImages iteration_finished_callback,
@@ -46,6 +46,12 @@ ITKImage TGVDeshadeMaskedProcessor::processTVGPUCuda(ITKImage input_image,
                                                      TGVAlgorithm<Pixel> tgv_algorithm)
 {
     Pixel* f = input_image.cloneToPixelArray();
+
+    if(mask.isNull())
+    {
+        mask = input_image.cloneSameSizeWithZeros();
+        mask.setEachPixel([](uint,uint,uint) { return 1.0; });
+    }
 
     ITKImage background_mask;
     if(add_background_back && !mask.isNull())
@@ -106,7 +112,7 @@ ITKImage TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(ITKImage input_image,
                                                          const int cuda_block_dimension,
                                                          const uint paint_iteration_interval,
                                                          IterationFinishedThreeImages iteration_finished_callback,
-                                                         const ITKImage& mask,
+                                                         ITKImage mask,
                                                          const bool set_negative_values_to_zero,
                                                          const bool add_background_back,
                                                          ITKImage& denoised_image,

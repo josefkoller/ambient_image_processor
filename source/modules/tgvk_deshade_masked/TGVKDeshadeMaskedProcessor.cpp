@@ -62,7 +62,7 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
 
                              const uint iteration_count,
                              const int cuda_block_dimension,
-                             const ITKImage& mask,
+                             ITKImage mask,
                              const bool set_negative_values_to_zero,
                              const bool add_background_back,
 
@@ -75,6 +75,12 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& div_v_image)
 {
     Pixel* f = input_image.cloneToPixelArray();
+
+    if(mask.isNull())
+    {
+        mask = input_image.cloneSameSizeWithZeros();
+        mask.setEachPixel([](uint,uint,uint) { return 1.0; });
+    }
 
     ITKImage background_mask;
     if(add_background_back && !mask.isNull())

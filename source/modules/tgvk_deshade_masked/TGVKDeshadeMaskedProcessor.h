@@ -35,7 +35,7 @@ public:
 
                                  const uint iteration_count,
                                  const int cuda_block_dimension,
-                                 const ITKImage& mask_image,
+                                 ITKImage mask_image,
                                  const bool set_negative_values_to_zero,
                                  const bool add_background_back,
 

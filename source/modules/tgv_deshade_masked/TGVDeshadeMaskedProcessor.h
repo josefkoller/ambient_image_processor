@@ -28,7 +28,7 @@ private:
     Pixel** v_x, Pixel**v_y, Pixel**v_z)>;
 
     static ITKImage processTVGPUCuda(ITKImage input_image,
-                                     const ITKImage& mask,
+                                     ITKImage& mask,
                                      const bool set_negative_values_to_zero,
                                      const bool add_background_back,
                                      IterationFinishedThreeImages iteration_finished_callback,
@@ -46,7 +46,7 @@ public:
                                          const int cuda_block_dimension,
                                          const uint paint_iteration_interval,
                                          IterationFinishedThreeImages iteration_finished_callback,
-                                         const ITKImage& mask,
+                                         ITKImage mask,
                                          const bool set_negative_values_to_zero,
                                          const bool add_background_back,
                                          ITKImage& denoised_image,
