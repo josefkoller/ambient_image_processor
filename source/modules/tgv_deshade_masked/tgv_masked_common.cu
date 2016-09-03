@@ -3,6 +3,7 @@
 
 #include "cuda.h"
 #include <functional>
+#include <vector>
 
 #include "tgv_common.cu"
 #include "cuda_helper.cuh"
@@ -15,6 +16,35 @@ typedef const NotConstIndexCount IndexCount;
 
 typedef const uint Size; // width, height, depth
 typedef const dim3 GridDimension;
+
+typedef const std::vector<uint>& IndexVector;
+
+template<typename IndexType>
+void copyIndicesToDevice(const std::vector<IndexType>& host_indices,
+                         IndexType** indices, IndexType& indices_count)
+{
+    indices_count = host_indices.size();
+
+    if(indices_count == 0)
+    {
+        *indices = nullptr;
+        return;
+    }
+
+    size_t size = sizeof(IndexType) * indices_count;
+    cudaCheckError( cudaMalloc(indices, size) );
+
+    auto host_indices_array = new IndexType[indices_count];
+    for(uint i = 0; i < indices_count; i++)
+    {
+        host_indices_array[i] = host_indices[i];
+    }
+    cudaCheckError( cudaMemcpy(*indices, host_indices_array, size, cudaMemcpyHostToDevice) );
+}
+
+template<typename Pixel>
+using DeshadeIterationCallback = std::function<bool(uint iteration_index, uint iteration_count,
+    Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z)>;
 
 template<typename Pixel>
 __global__ void set_zero_masked(Pixel* p_x, Index* indices, IndexCount indices_count) {

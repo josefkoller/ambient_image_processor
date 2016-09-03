@@ -3,38 +3,6 @@
 #include "tgv2_masked_common.cu"
 #include "tgv2_common.cu"
 
-#include <functional>
-#include <vector>
-#include <iostream>
-
-typedef const std::vector<uint>& IndexVector;
-
-void copyIndicesToDevice(IndexVector host_indices,
-                         uint** indices, uint& indices_count)
-{
-    indices_count = host_indices.size();
-
-    if(indices_count == 0)
-    {
-        *indices = nullptr;
-        return;
-    }
-
-    size_t size = sizeof(Index) * indices_count;
-    cudaCheckError( cudaMalloc(indices, size) );
-
-    auto host_indices_array = new NotConstIndex[indices_count];
-    for(uint i = 0; i < indices_count; i++)
-    {
-        host_indices_array[i] = host_indices[i];
-    }
-    cudaCheckError( cudaMemcpy(*indices, host_indices_array, size, cudaMemcpyHostToDevice) );
-}
-
-template<typename Pixel>
-using DeshadeIterationCallback = std::function<bool(uint iteration_index, uint iteration_count,
-    Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z)>;
-
 template<typename Pixel>
 Pixel* tgv2_l1_deshade_masked_launch(Pixel* f_host,
   uint width, uint height, uint depth,
@@ -91,31 +59,31 @@ Pixel* tgv2_l1_deshade_masked_launch(Pixel* f_host,
         cuda_block_dimension);
 
     NotConstIndex* left_indices; NotConstIndexCount left_indices_count;
-    copyIndicesToDevice(left_edge_pixel_indices, &left_indices, left_indices_count);
     NotConstIndex* not_left_indices; NotConstIndexCount not_left_indices_count;
-    copyIndicesToDevice(not_left_edge_pixel_indices, &not_left_indices, not_left_indices_count);
     NotConstIndex* right_indices; NotConstIndexCount right_indices_count;
-    copyIndicesToDevice(right_edge_pixel_indices, &right_indices, right_indices_count);
     NotConstIndex* not_right_indices; NotConstIndexCount not_right_indices_count;
-    copyIndicesToDevice(not_right_edge_pixel_indices, &not_right_indices, not_right_indices_count);
     NotConstIndex* top_indices; NotConstIndexCount top_indices_count;
-    copyIndicesToDevice(top_edge_pixel_indices, &top_indices, top_indices_count);
     NotConstIndex* not_top_indices; NotConstIndexCount not_top_indices_count;
-    copyIndicesToDevice(not_top_edge_pixel_indices, &not_top_indices, not_top_indices_count);
     NotConstIndex* bottom_indices; NotConstIndexCount bottom_indices_count;
-    copyIndicesToDevice(bottom_edge_pixel_indices, &bottom_indices, bottom_indices_count);
     NotConstIndex* not_bottom_indices; NotConstIndexCount not_bottom_indices_count;
-    copyIndicesToDevice(not_bottom_edge_pixel_indices, &not_bottom_indices, not_bottom_indices_count);
     NotConstIndex* front_indices; NotConstIndexCount front_indices_count;
-    copyIndicesToDevice(front_edge_pixel_indices, &front_indices, front_indices_count);
     NotConstIndex* not_front_indices; NotConstIndexCount not_front_indices_count;
-    copyIndicesToDevice(not_front_edge_pixel_indices, &not_front_indices, not_front_indices_count);
     NotConstIndex* back_indices; NotConstIndexCount back_indices_count;
-    copyIndicesToDevice(back_edge_pixel_indices, &back_indices, back_indices_count);
     NotConstIndex* not_back_indices; NotConstIndexCount not_back_indices_count;
-    copyIndicesToDevice(not_back_edge_pixel_indices, &not_back_indices, not_back_indices_count);
-
     NotConstIndex* masked_indices; NotConstIndexCount masked_indices_count;
+
+    copyIndicesToDevice(left_edge_pixel_indices, &left_indices, left_indices_count);
+    copyIndicesToDevice(not_left_edge_pixel_indices, &not_left_indices, not_left_indices_count);
+    copyIndicesToDevice(right_edge_pixel_indices, &right_indices, right_indices_count);
+    copyIndicesToDevice(not_right_edge_pixel_indices, &not_right_indices, not_right_indices_count);
+    copyIndicesToDevice(top_edge_pixel_indices, &top_indices, top_indices_count);
+    copyIndicesToDevice(not_top_edge_pixel_indices, &not_top_indices, not_top_indices_count);
+    copyIndicesToDevice(bottom_edge_pixel_indices, &bottom_indices, bottom_indices_count);
+    copyIndicesToDevice(not_bottom_edge_pixel_indices, &not_bottom_indices, not_bottom_indices_count);
+    copyIndicesToDevice(front_edge_pixel_indices, &front_indices, front_indices_count);
+    copyIndicesToDevice(not_front_edge_pixel_indices, &not_front_indices, not_front_indices_count);
+    copyIndicesToDevice(back_edge_pixel_indices, &back_indices, back_indices_count);
+    copyIndicesToDevice(not_back_edge_pixel_indices, &not_back_indices, not_back_indices_count);
     copyIndicesToDevice(masked_pixel_indices, &masked_indices, masked_indices_count);
 
     Pixel* f, *u;

@@ -1,7 +1,7 @@
 #ifndef TGV_K_COMMON
 #define TGV_K_COMMON
 
-#include "tgv2_common.cu"
+#include "tgv3_common.cu"
 
 template<typename Pixel>
 __global__ void tgvk_kernel_part5(

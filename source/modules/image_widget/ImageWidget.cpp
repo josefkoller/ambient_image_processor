@@ -39,6 +39,7 @@
 #include "TGVKDeshadeDownsampledWidget.h"
 #include "OriginSpacingWidget.h"
 #include "TGVDeshadeMaskedWidget.h"
+#include "TGVKDeshadeMaskedWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
     QWidget(parent),
@@ -76,6 +77,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGVk Deshade", module_parent);
     auto tgvk_deshade_downsampled_widget = new TGVKDeshadeDownsampledWidget("TGVk Deshade Downsampled", module_parent);
     auto tgv_deshade_masked_widget = new TGVDeshadeMaskedWidget("TGV Deshade Masked", module_parent);
+    auto tgvk_deshade_masked_widget = new TGVKDeshadeMaskedWidget("TGVk Deshade Masked", module_parent);
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -117,6 +119,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgvk_deshade_widget);
     modules.push_back(tgvk_deshade_downsampled_widget);
     modules.push_back(tgv_deshade_masked_widget);
+    modules.push_back(tgvk_deshade_masked_widget);
 
     modules.push_back(new ConjugateGradientWidget("Conjugate Gradient", module_parent));
 
@@ -203,7 +206,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
            widget->getTitle() == "TGV Lambdas" ||
            widget->getTitle() == "Multiscale Retinex" ||
            widget->getTitle() == "Manual Multiplicative Deshade" ||
-           widget->getTitle() == "TGV Deshade Masked")
+           widget->getTitle() == "TGVk Deshade Masked")
             tools_menu->addSeparator();
 
         this->connect(module_action, &QAction::triggered, this, [this, widget]() {
@@ -237,6 +240,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     tgvk_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_downsampled_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_deshade_masked_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgvk_deshade_masked_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
 ImageWidget::~ImageWidget()
