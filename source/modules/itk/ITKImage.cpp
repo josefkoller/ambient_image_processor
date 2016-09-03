@@ -162,6 +162,7 @@ void ITKImage::write(std::string image_file_path)
         WriterType::Pointer writer = WriterType::New();
         writer->SetFileName(image_file_path);
         writer->SetInput(this->inner_image);
+        writer->UseCompressionOn();
         try
         {
             writer->Update();
