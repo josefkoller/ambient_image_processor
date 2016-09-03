@@ -546,6 +546,20 @@ Pixel* tgvk_l1_deshade_masked_launch(Pixel* f_host,
                     r2_xy[i], r2_xz[i], r2_yz[i]);
     }
 
+    freeIndices(left_indices,
+                 not_left_indices,
+                 right_indices,
+                 not_right_indices,
+                 top_indices,
+                 not_top_indices,
+                 bottom_indices,
+                 not_bottom_indices,
+                 front_indices,
+                 not_front_indices,
+                 back_indices,
+                 not_back_indices,
+                 masked_indices);
+
     return destination;
 }
 

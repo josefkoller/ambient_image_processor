@@ -42,6 +42,37 @@ void copyIndicesToDevice(const std::vector<IndexType>& host_indices,
     cudaCheckError( cudaMemcpy(*indices, host_indices_array, size, cudaMemcpyHostToDevice) );
 }
 
+template<typename IndexType>
+void freeIndices(IndexType* left_indices,
+                 IndexType* not_left_indices,
+                 IndexType* right_indices,
+                 IndexType* not_right_indices,
+                 IndexType* top_indices,
+                 IndexType* not_top_indices,
+                 IndexType* bottom_indices,
+                 IndexType* not_bottom_indices,
+                 IndexType* front_indices,
+                 IndexType* not_front_indices,
+                 IndexType* back_indices,
+                 IndexType* not_back_indices,
+                 IndexType* masked_indices
+                 )
+{
+    cudaFree(left_indices);
+    cudaFree(not_left_indices);
+    cudaFree(right_indices);
+    cudaFree(not_right_indices);
+    cudaFree(top_indices);
+    cudaFree(not_top_indices);
+    cudaFree(bottom_indices);
+    cudaFree(not_bottom_indices);
+    cudaFree(front_indices);
+    cudaFree(not_front_indices);
+    cudaFree(back_indices);
+    cudaFree(not_back_indices);
+    cudaFree(masked_indices);
+}
+
 template<typename Pixel>
 using DeshadeIterationCallback = std::function<bool(uint iteration_index, uint iteration_count,
     Pixel* u, Pixel* v_x, Pixel* v_y, Pixel* v_z)>;
