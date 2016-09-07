@@ -78,7 +78,7 @@ ITKImage TGVDeshadeMaskedProcessor::processTVGPUCuda(ITKImage input_image,
         return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
     };
 
-    Pixel* v_x, *v_y, *v_z;
+    Pixel* v_x, *v_y, *v_z = nullptr;
     Pixel* u = tgv_algorithm(f, iteration_callback, &v_x, &v_y, &v_z);
 
     delete[] f;
@@ -91,7 +91,7 @@ ITKImage TGVDeshadeMaskedProcessor::processTVGPUCuda(ITKImage input_image,
 
     delete[] v_x;
     delete[] v_y;
-    if(input_image.depth > 1)
+    if(v_z != nullptr)
         delete[] v_z;
 
     if(add_background_back && !mask.isNull())
