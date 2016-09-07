@@ -71,6 +71,12 @@ void BaseModuleWidget::processInWorkerThread()
                          exception.what() << std::endl;
             this->setStatusText("Error in " + this->getTitle() + ". see console output");
         }
+        catch(char const* text)
+        {
+            std::cerr << "error in " << text << std::endl;
+            this->setStatusText("Error in " + this->getTitle() + ". see console output");
+        }
+
         emit this->fireWorkerFinished();
     });
 }
