@@ -87,53 +87,28 @@ ITKImage TGVKDeshadeMaskedWidget::processImage(ITKImage image)
     ITKImage div_v_image = ITKImage();
 
     const int cuda_block_dimension = -1; // use the default value
-    if(image.depth > 1)
-    {
-       TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(
-              image,
-              lambda,
 
-              order,
-              alpha,
+    TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(
+           image,
+           lambda,
 
-              iteration_count,
-              cuda_block_dimension,
-              mask,
-              set_negative_values_to_zero,
-              add_background_back,
+           order,
+           alpha,
 
-              paint_iteration_interval,
-              this->iteration_finished_callback,
+           iteration_count,
+           cuda_block_dimension,
+           mask,
+           set_negative_values_to_zero,
+           add_background_back,
 
-              denoised_image,
-              shading_image,
-              deshaded_image,
-              div_v_image);
-    } else {
-      throw "not implemented yet";
-      /*
-        TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(
-               image,
-               lambda,
+           paint_iteration_interval,
+           this->iteration_finished_callback,
 
-               order,
-               alpha,
+           denoised_image,
+           shading_image,
+           deshaded_image,
+           div_v_image);
 
-               iteration_count,
-              cuda_block_dimension,
-               mask,
-               set_negative_values_to_zero,
-               add_background_back,
-
-               paint_iteration_interval,
-               this->iteration_finished_callback,
-
-               denoised_image,
-               shading_image,
-               deshaded_image,
-               div_v_image);
-               */
-    }
     delete[] alpha;
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);

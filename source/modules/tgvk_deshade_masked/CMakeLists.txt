@@ -18,6 +18,9 @@ list(APPEND CUDA_CPP_FILES
    ${CMAKE_CURRENT_LIST_DIR}/tgvk_l1_deshade_masked.cu
    ${CMAKE_CURRENT_LIST_DIR}/tgv3_masked_common.cu
    ${CMAKE_CURRENT_LIST_DIR}/tgvk_masked_common.cu
+   ${CMAKE_CURRENT_LIST_DIR}/tgv3_masked_common_2d.cu
+   ${CMAKE_CURRENT_LIST_DIR}/tgvk_masked_common_2d.cu
+   ${CMAKE_CURRENT_LIST_DIR}/tgvk_l1_deshade_masked_2d.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

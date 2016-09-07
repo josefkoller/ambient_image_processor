@@ -108,9 +108,9 @@ Pixel* tgv2_l1_deshade_masked_2d_launch(Pixel* f_host,
                                                     v_x, v_y,
                                                     v_bar_x, v_bar_y,
                                                     voxel_count);
-    zeroInit_2d<<<all_grid_dimension, block_dimension>>>(
+    zeroInit2_2d<<<all_grid_dimension, block_dimension>>>(
                                                     q_x, q_y,
-                                                    q_xy, q_y,
+                                                    q_xy,
                                                     voxel_count);
     clone2<<<all_grid_dimension, block_dimension>>>(f, u, u_bar, voxel_count);
 
