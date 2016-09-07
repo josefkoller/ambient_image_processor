@@ -2,12 +2,6 @@
 #include "tgv3_l1_2d.cu"
 #include "tgvk_common_2d.cu"
 
-#include <functional>
-
-template<typename Pixel>
-using DeshadeIterationCallback2D = std::function<bool(uint iteration_index, uint iteration_count,
-    Pixel* u, Pixel* v_x, Pixel* v_y)>;
-
 // k >= 3
 
 template<typename Pixel>

@@ -11,6 +11,10 @@
 
 
 template<typename Pixel>
+using DeshadeIterationCallback2D = std::function<bool(uint iteration_index, uint iteration_count,
+    Pixel* u, Pixel* v_x, Pixel* v_y)>;
+
+template<typename Pixel>
 __global__ void zeroInit_2d(
         Pixel* p_x, Pixel* p_y,
         Pixel* p_xx, Pixel* p_yy,

@@ -5,10 +5,6 @@
 #include <functional>
 
 template<typename Pixel>
-using DeshadeIterationCallback2D = std::function<bool(uint iteration_index, uint iteration_count,
-    Pixel* u, Pixel* v_x, Pixel* v_y)>;
-
-template<typename Pixel>
 Pixel* tgv2_l1_deshade_launch_2d(Pixel* f_host,
                   uint width, uint height,
                   Pixel lambda,
@@ -18,68 +14,6 @@ Pixel* tgv2_l1_deshade_launch_2d(Pixel* f_host,
                   Pixel alpha0,
                   Pixel alpha1, Pixel** v_x_host, Pixel**v_y_host)
 {
-    /* MATLAB Code
-     *
-        nabla_second = [nabla_x, zeros_sparse, zeros_sparse, nabla_y/2, nabla_z/2, zeros_sparse;...
-            zeros_sparse, nabla_y, zeros_sparse, nabla_x/2, zeros_sparse, nabla_z/2;...
-            zeros_sparse, zeros_sparse, nabla_z, zeros_sparse, nabla_x/2, nabla_y/2]';
-
-        nabla_second_t = [nabla_x, zeros_sparse, zeros_sparse, nabla_y, nabla_z, zeros_sparse;...
-            zeros_sparse, nabla_y, zeros_sparse, nabla_x, zeros_sparse, nabla_z;...
-            zeros_sparse, zeros_sparse, nabla_z, zeros_sparse, nabla_x, nabla_y];
-
-        % fixed parameters
-        L = sqrt(20);  % Lipschitz constant ? this is an approx. to normest()
-        tau    = 1/L;
-        sigma  = 1/L;
-
-        theta  = 1;
-
-        % initializations
-        p = zeros(3*N, 1);
-        v = zeros(3*N, 1);
-        q = zeros(6*N, 1);
-
-        u = f;
-        u_bar = u;  % overrelaxation u
-        v_bar = v;
-        nabla_t = nabla';
-        %nabla_second_t = nabla_second';
-
-        for currIter = 1:maxIter
-            u_old = u;
-            v_old = v;
-
-            % dual update p
-            p = p + sigma*(nabla*u_bar - v_bar);
-            norm_p  = sqrt(p(1:N).^2 + p(N+1:2*N).^2 +  p(2*N+1:3*N).^2);
-            p = p./max(1,[norm_p; norm_p; norm_p]/alpha1);
-
-            % dual update q
-            q = q + sigma*nabla_second*v_bar;
-            norm_q = sqrt(q(1:N).^2 + q(N+1:2*N).^2 + q(2*N+1:3*N).^2 + ... % main diagonal
-                2*q(3*N+1:4*N).^2 + 2*q(4*N+1:5*N).^2 + 2*q(5*N+1:6*N).^2); % off diagonal
-            q = q./max(1, repmat(norm_q, 6, 1)/alpha0);
-
-            % primal update u
-            u = u - tau * nabla_t * p;
-
-            % projection of u
-            index1 = (u - f) > tau*lambda;
-            index2 = (u - f) < -tau*lambda;
-            index3 = abs(u - f) <= tau*lambda;
-
-            u(index1) = u(index1) - tau*lambda;
-            u(index2) = u(index2) + tau*lambda;
-            u(index3) = f(index3);
-
-            % overrelaxation u
-            u_bar = u + theta*(u - u_old);
-
-            % primal update v
-            v = v - tau * (nabla_second_t * q - p);
-            v_bar = v + theta*(v - v_old);
-            */
     uint voxel_count;
     dim3 block_dimension;
     dim3 grid_dimension;

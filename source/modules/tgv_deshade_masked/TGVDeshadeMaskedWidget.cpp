@@ -77,27 +77,19 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
 
-    if(image.depth > 1)
-    {
-        deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(image, lambda,
-                                                  alpha0,
-                                                  alpha1,
-                                                  iteration_count,
-                                                  -1,
-                                                  paint_iteration_interval,
-                                                  this->iteration_finished_callback,
-                                                  mask,
-                                                  set_negative_values_to_zero,
-                                                  add_background_back,
-                                                  denoised_image,
-                                                  shading_image);
-    }
-    else
-    {
-        deshaded_image = ITKImage();
-        throw "Not implemented yet";
+    deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(image, lambda,
+                                              alpha0,
+                                              alpha1,
+                                              iteration_count,
+                                              -1,
+                                              paint_iteration_interval,
+                                              this->iteration_finished_callback,
+                                              mask,
+                                              set_negative_values_to_zero,
+                                              add_background_back,
+                                              denoised_image,
+                                              shading_image);
 
-    }
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
     return deshaded_image;
