@@ -235,6 +235,9 @@ ITKImage::PixelType* CudaImageOperationsProcessor::divergence(
         ITKImage::PixelType* dx, ITKImage::PixelType* dy, ITKImage::PixelType* dz,
         const uint width, const uint height, const uint depth, bool is_host_data)
 {
+    if(depth == 1)
+        return divergence_2d(dx, dy, width, height, is_host_data);
+
     return divergence_kernel_launch(dx, dy, dz, width, height, depth, is_host_data);
 }
 
