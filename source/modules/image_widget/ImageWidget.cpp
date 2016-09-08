@@ -20,25 +20,32 @@
 #include "ThresholdFilterWidget.h"
 #include "ExtractWidget.h"
 #include "BilateralFilterWidget.h"
-#include "TGVWidget.h"
 #include "ManualMultiplicativeDeshade.h"
-#include "TGVLambdasWidget.h"
 #include "BinaryOperationsWidget.h"
 #include "ConvolutionWidget.h"
 #include "RescaleIntensityWidget.h"
-#include "TGVDeshadeWidget.h"
 #include "UnaryOperationsWidget.h"
 #include "MorphologicalFilterWidget.h"
 #include "ImageViewControlWidget.h"
 #include "ConjugateGradientWidget.h"
+
+#include "TGVWidget.h"
+#include "TGVLambdasWidget.h"
 #include "TGV3Widget.h"
-#include "TGV3DeshadeWidget.h"
 #include "TGVKWidget.h"
-#include "TGVKDeshadeWidget.h"
+
 #include "ResizeWidget.h"
-#include "TGVKDeshadeDownsampledWidget.h"
 #include "OriginSpacingWidget.h"
+
+#include "TGVKDeshadeWidget.h"
+
+/*
+#include "TGVDeshadeWidget.h"
+#include "TGV3DeshadeWidget.h"
 #include "TGVDeshadeMaskedWidget.h"
+*/
+
+#include "TGVKDeshadeDownsampledWidget.h"
 #include "TGVKDeshadeMaskedWidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) :
@@ -70,14 +77,21 @@ ImageWidget::ImageWidget(QWidget *parent) :
     auto non_local_gradient_widget = new NonLocalGradientWidget("Non-local Gradient", module_parent);
     auto tgv_widget = new TGVWidget("TGV Filter", module_parent);
     auto tgv_lambdas_widget = new TGVLambdasWidget("TGV Lambdas", module_parent);
+
+    /*
     auto tgv_deshade_widget = new TGVDeshadeWidget("TGV2 Deshade", module_parent);
-    auto tgv3_widget = new TGV3Widget("TGV3 Filter", module_parent);
     auto tgv3_deshade_widget = new TGV3DeshadeWidget("TGV3 Deshade", module_parent);
-    auto tgvk_widget = new TGVKWidget("TGVk Filter", module_parent);
-    auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGVk Deshade", module_parent);
-    auto tgvk_deshade_downsampled_widget = new TGVKDeshadeDownsampledWidget("TGVk Deshade Downsampled", module_parent);
     auto tgv_deshade_masked_widget = new TGVDeshadeMaskedWidget("TGV Deshade Masked", module_parent);
-    auto tgvk_deshade_masked_widget = new TGVKDeshadeMaskedWidget("TGVk Deshade Masked", module_parent);
+    */
+
+
+    auto tgv3_widget = new TGV3Widget("TGV3 Filter", module_parent);
+    auto tgvk_widget = new TGVKWidget("TGVk Filter", module_parent);
+
+    auto tgvk_deshade_widget = new TGVKDeshadeWidget("TGV-DCT Deshade", module_parent);
+    auto tgvk_deshade_masked_widget = new TGVKDeshadeMaskedWidget("TGV-DCT Deshade Masked", module_parent);
+    auto tgvk_deshade_downsampled_widget = new TGVKDeshadeDownsampledWidget("TGV-DCT Deshade Downsampled", module_parent);
+
 
     this->image_view_widget = new ImageViewWidget("Image View", this->ui->image_frame);
     this->slice_control_widget = new SliceControlWidget("Slice Control", this->ui->slice_control_widget_frame);
@@ -114,12 +128,15 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
     modules.push_back(new ManualMultiplicativeDeshade("Manual Multiplicative Deshade", module_parent));
 
+    /*
     modules.push_back(tgv_deshade_widget);
     modules.push_back(tgv3_deshade_widget);
-    modules.push_back(tgvk_deshade_widget);
-    modules.push_back(tgvk_deshade_downsampled_widget);
     modules.push_back(tgv_deshade_masked_widget);
+    */
+
+    modules.push_back(tgvk_deshade_widget);
     modules.push_back(tgvk_deshade_masked_widget);
+    modules.push_back(tgvk_deshade_downsampled_widget);
 
     modules.push_back(new ConjugateGradientWidget("Conjugate Gradient", module_parent));
 
@@ -206,7 +223,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
            widget->getTitle() == "TGV Lambdas" ||
            widget->getTitle() == "Multiscale Retinex" ||
            widget->getTitle() == "Manual Multiplicative Deshade" ||
-           widget->getTitle() == "TGVk Deshade Masked")
+           widget->getTitle() == "TGV-DCT Deshade Downsampled")
             tools_menu->addSeparator();
 
         this->connect(module_action, &QAction::triggered, this, [this, widget]() {
@@ -233,13 +250,17 @@ ImageWidget::ImageWidget(QWidget *parent) :
     };
     tgv_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv_lambdas_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgv3_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv3_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_widget->setIterationFinishedCallback(iteration_finished_callback);
+
+    /*
+    tgv_deshade_masked_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
+    tgv3_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
+    */
+
     tgvk_deshade_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_downsampled_widget->setIterationFinishedCallback(iteration_finished_callback);
-    tgv_deshade_masked_widget->setIterationFinishedCallback(iteration_finished_callback);
     tgvk_deshade_masked_widget->setIterationFinishedCallback(iteration_finished_callback);
 }
 
