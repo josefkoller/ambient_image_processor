@@ -83,6 +83,8 @@ ITKImage TGVKDeshadeDownsampledWidget::processImage(ITKImage image)
 
     const ITKImage::PixelType downsampling_factor = this->ui->downsampling_factor_spinbox->value();
 
+    const bool calculate_div_v = this->ui->calculate_div_v_checkbox->isChecked();
+
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
@@ -106,7 +108,8 @@ ITKImage TGVKDeshadeDownsampledWidget::processImage(ITKImage image)
               denoised_image,
               shading_image,
               deshaded_image,
-              div_v_image);
+              div_v_image,
+              calculate_div_v);
     delete[] alpha;
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);

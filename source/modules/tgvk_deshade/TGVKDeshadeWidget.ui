@@ -293,6 +293,13 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
          <item>
+          <widget class="QCheckBox" name="calculate_div_v_checkbox">
+           <property name="text">
+            <string>calculate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="save_div_v_button">
            <property name="text">
             <string>Save</string>

@@ -41,7 +41,8 @@ public:
                                  ITKImage& denoised_image,
                                  ITKImage& shading_image,
                                  ITKImage& deshaded_image,
-                                 ITKImage& div_v_image);
+                                 ITKImage& div_v_image,
+                                 const bool calculate_div_v);
 
 
     static void processTGVKL1Cuda2D(ITKImage input_image,
@@ -61,7 +62,8 @@ public:
                                  ITKImage& denoised_image,
                                  ITKImage& shading_image,
                                  ITKImage& deshaded_image,
-                                 ITKImage& div_v_image);
+                                 ITKImage& div_v_image,
+                                 const bool calculate_div_v);
 };
 
 #endif // TGVKDESHADEPROCESSOR_H

@@ -71,12 +71,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& denoised_image,
                              ITKImage& shading_image,
                              ITKImage& deshaded_image,
-                             ITKImage& div_v_image)
+                             ITKImage& div_v_image,
+                             const bool calculate_div_v)
 {
     if(order == 2) {
         deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(input_image, lambda, alpha[1], alpha[0],
                 iteration_count, cuda_block_dimension, paint_iteration_interval, iteration_finished_callback,
-                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image, div_v_image);
+                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image,
+                div_v_image, calculate_div_v);
         return;
     }
 
@@ -84,7 +86,7 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
         processTGVKL1Cuda2D(input_image, lambda, order, alpha, iteration_count, cuda_block_dimension,
                           mask, set_negative_values_to_zero, add_background_back, paint_iteration_interval,
                           iteration_finished_callback, denoised_image, shading_image, deshaded_image,
-                          div_v_image);
+                          div_v_image, calculate_div_v);
         return;
     }
 
@@ -174,17 +176,18 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
 
-    // calculate div v
-    Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
-                                                                 input_image.width, input_image.height, input_image.depth,
-                                                                 true);
-    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
-    delete[] divergence;
+    if(calculate_div_v)
+    {
+        Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
+                                                                     input_image.width, input_image.height, input_image.depth,
+                                                                     true);
+        div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+        delete[] divergence;
+    }
 
     delete[] v_x;
     delete[] v_y;
-    if(input_image.depth > 1)
-        delete[] v_z;
+    delete[] v_z;
 
     if(add_background_back && !mask.isNull())
     {
@@ -212,12 +215,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
                              ITKImage& denoised_image,
                              ITKImage& shading_image,
                              ITKImage& deshaded_image,
-                             ITKImage& div_v_image)
+                             ITKImage& div_v_image,
+                             const bool calculate_div_v)
 {
     if(order == 2) {
         deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda2D(input_image, lambda, alpha[0], alpha[1],
                 iteration_count, cuda_block_dimension, paint_iteration_interval, iteration_finished_callback,
-                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image, div_v_image);
+                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image,
+                div_v_image, calculate_div_v);
         return;
     }
 
@@ -298,12 +303,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
 
-    // calculate div v
-    Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(v_x, v_y,
-                                                                 input_image.width, input_image.height,
-                                                                 true);
-    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
-    delete[] divergence;
+    if(calculate_div_v)
+    {
+        Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(v_x, v_y,
+                                                                     input_image.width, input_image.height,
+                                                                     true);
+        div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+        delete[] divergence;
+    }
 
     delete[] v_x;
     delete[] v_y;

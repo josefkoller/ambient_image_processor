@@ -86,6 +86,8 @@ ITKImage TGVKDeshadeMaskedWidget::processImage(ITKImage image)
     ITKImage deshaded_image = ITKImage();
     ITKImage div_v_image = ITKImage();
 
+    const bool calculate_div_v = this->ui->calculate_div_v->isChecked();
+
     const int cuda_block_dimension = -1; // use the default value
 
     TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(
@@ -107,7 +109,8 @@ ITKImage TGVKDeshadeMaskedWidget::processImage(ITKImage image)
            denoised_image,
            shading_image,
            deshaded_image,
-           div_v_image);
+           div_v_image,
+           calculate_div_v);
 
     delete[] alpha;
     this->denoised_output_view->setImage(denoised_image);

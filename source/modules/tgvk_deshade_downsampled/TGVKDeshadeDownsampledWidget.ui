@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>670</height>
+    <height>738</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -311,6 +311,13 @@
          <string>Output: div v</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
+         <item>
+          <widget class="QCheckBox" name="calculate_div_v_checkbox">
+           <property name="text">
+            <string>calculate</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QPushButton" name="save_div_v_button">
            <property name="text">

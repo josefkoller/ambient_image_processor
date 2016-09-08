@@ -69,8 +69,17 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& denoised_image,
                              ITKImage& shading_image,
                              ITKImage& deshaded_image,
-                             ITKImage& div_v_image)
+                             ITKImage& div_v_image,
+                             const bool calculate_div_v)
 {
+    if(input_image.depth == 1)
+    {
+        processTGVKL1Cuda2D(input_image, lambda, order, alpha, iteration_count, mask, set_negative_values_to_zero,
+                            add_background_back, paint_iteration_interval, iteration_finished_callback,
+                            denoised_image, shading_image, deshaded_image, div_v_image, calculate_div_v);
+        return;
+    }
+
     Pixel* f = input_image.cloneToPixelArray();
 
     ITKImage background_mask;
@@ -134,12 +143,14 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda(ITKImage input_image,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
 
-    // calculate div v
-    Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
-                                                                 input_image.width, input_image.height, input_image.depth,
-                                                                 true);
-    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
-    delete[] divergence;
+    if(calculate_div_v)
+    {
+        Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
+                                                                     input_image.width, input_image.height, input_image.depth,
+                                                                     true);
+        div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+        delete[] divergence;
+    }
 
     delete[] v_x;
     delete[] v_y;
@@ -171,7 +182,8 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda2D(ITKImage input_image,
                              ITKImage& denoised_image,
                              ITKImage& shading_image,
                              ITKImage& deshaded_image,
-                             ITKImage& div_v_image)
+                             ITKImage& div_v_image,
+                             const bool calculate_div_v)
 {
     Pixel* f = input_image.cloneToPixelArray();
 
@@ -203,7 +215,7 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda2D(ITKImage input_image,
             return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
     };
 
-    Pixel* v_x, *v_y, *v_z;
+    Pixel* v_x, *v_y;
     Pixel* u = nullptr;
 
     if(order == 2)
@@ -235,17 +247,17 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda2D(ITKImage input_image,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
 
-    // calculate div v
-    Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(v_x, v_y,
-                                                                 input_image.width, input_image.height,
-                                                                 true);
-    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
-    delete[] divergence;
+    if(calculate_div_v)
+    {
+        Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(v_x, v_y,
+                                                                     input_image.width, input_image.height,
+                                                                     true);
+        div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+        delete[] divergence;
+    }
 
     delete[] v_x;
     delete[] v_y;
-    if(input_image.depth > 1)
-        delete[] v_z;
 
     if(add_background_back && !mask.isNull())
     {

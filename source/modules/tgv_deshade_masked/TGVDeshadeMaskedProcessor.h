@@ -44,7 +44,8 @@ public:
                                          const bool add_background_back,
                                          ITKImage& denoised_image,
                                          ITKImage& shading_image,
-                                         ITKImage& div_v_image);
+                                         ITKImage& div_v_image,
+                                         const bool calculate_div_v);
 
     static ITKImage processTGV2L1GPUCuda2D(ITKImage input_image,
                                          const Pixel lambda,
@@ -59,7 +60,8 @@ public:
                                          const bool add_background_back,
                                          ITKImage& denoised_image,
                                          ITKImage& shading_image,
-                                         ITKImage& div_v_image);
+                                         ITKImage& div_v_image,
+                                         const bool calculate_div_v);
 
 
     static void buildMaskIndices(ITKImage mask,

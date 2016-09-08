@@ -72,6 +72,7 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
 
     const bool add_background_back = this->ui->add_background_back_checkbox->isChecked();
 
+    const bool calculate_div_v = this->ui->calculate_div_v->isChecked();
 
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
@@ -90,7 +91,8 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
                                               add_background_back,
                                               denoised_image,
                                               shading_image,
-                                              div_v_image);
+                                              div_v_image,
+                                              calculate_div_v);
 
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);

@@ -259,6 +259,13 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_11">
          <item>
+          <widget class="QCheckBox" name="calculate_div_v">
+           <property name="text">
+            <string>calculate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="save_denoised_button">
            <property name="text">
             <string>Save</string>
