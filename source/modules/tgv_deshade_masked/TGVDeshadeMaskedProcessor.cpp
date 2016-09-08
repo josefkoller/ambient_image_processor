@@ -65,13 +65,14 @@ ITKImage TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(ITKImage input_image,
                                                          const bool set_negative_values_to_zero,
                                                          const bool add_background_back,
                                                          ITKImage& denoised_image,
-                                                         ITKImage& shading_image)
+                                                         ITKImage& shading_image,
+                                                         ITKImage& div_v_image)
 {
     if(input_image.depth == 1)
         return processTGV2L1GPUCuda2D(input_image, lambda, alpha0, alpha1, iteration_count,
                                             cuda_block_dimension, paint_iteration_interval,
                                             iteration_finished_callback, mask, set_negative_values_to_zero,
-                                            add_background_back, denoised_image, shading_image);
+                                            add_background_back, denoised_image, shading_image, div_v_image);
 
     Pixel* f = input_image.cloneToPixelArray();
 
@@ -154,6 +155,12 @@ ITKImage TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(ITKImage input_image,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
 
+    // calculate div v
+    Pixel* divergence = CudaImageOperationsProcessor::divergence(v_x, v_y, v_z,
+                                                                 input_image.width, input_image.height, input_image.depth,
+                                                                 true);
+    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+
     delete[] v_x;
     delete[] v_y;
     if(v_z != nullptr)
@@ -181,7 +188,8 @@ ITKImage TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda2D(ITKImage input_image,
                                                          const bool set_negative_values_to_zero,
                                                          const bool add_background_back,
                                                          ITKImage& denoised_image,
-                                                         ITKImage& shading_image)
+                                                         ITKImage& shading_image,
+                                                         ITKImage& div_v_image)
 {
 
     Pixel* f = input_image.cloneToPixelArray();
@@ -256,6 +264,14 @@ ITKImage TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda2D(ITKImage input_image,
                                                            input_image.width, input_image.height,
                                                            mask, set_negative_values_to_zero,
                                                            shading_image, true);
+
+
+    // calculate div v
+    Pixel* divergence = CudaImageOperationsProcessor::divergence_2d(v_x, v_y,
+                                                                 input_image.width, input_image.height,
+                                                                 true);
+    div_v_image = ITKImage(input_image.width, input_image.height, input_image.depth, divergence);
+
 
     delete[] v_x;
     delete[] v_y;

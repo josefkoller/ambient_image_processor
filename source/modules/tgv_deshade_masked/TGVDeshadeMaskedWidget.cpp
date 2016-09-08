@@ -76,6 +76,7 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
     ITKImage denoised_image = ITKImage();
     ITKImage shading_image = ITKImage();
     ITKImage deshaded_image = ITKImage();
+    ITKImage div_v_image = ITKImage();
 
     deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(image, lambda,
                                               alpha0,
@@ -88,7 +89,8 @@ ITKImage TGVDeshadeMaskedWidget::processImage(ITKImage image)
                                               set_negative_values_to_zero,
                                               add_background_back,
                                               denoised_image,
-                                              shading_image);
+                                              shading_image,
+                                              div_v_image);
 
     this->denoised_output_view->setImage(denoised_image);
     this->shading_output_view->setImage(shading_image);
