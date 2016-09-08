@@ -96,6 +96,9 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
 
 ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor)
 {
+    if(image.isNull())
+        return ITKImage();
+
     if(image.depth > 1)
         return ResizeProcessor::process(image, size_factor, InterpolationMethod::Linear);
 
