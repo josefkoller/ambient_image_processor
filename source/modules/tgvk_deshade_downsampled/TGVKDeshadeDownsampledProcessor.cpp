@@ -1,7 +1,7 @@
 #include "TGVKDeshadeDownsampledProcessor.h"
 
 #include "ResizeProcessor.h"
-#include "TGVKDeshadeProcessor.h"
+#include "TGVKDeshadeMaskedProcessor.h"
 #include "CudaImageOperationsProcessor.h"
 
 TGVKDeshadeDownsampledProcessor::TGVKDeshadeDownsampledProcessor()
@@ -44,48 +44,27 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     ITKImage downsampled_deshaded_image;
     ITKImage downsampled_div_v_image;
 
-    if(input_image.depth > 1)
-    {
-       TGVKDeshadeProcessor::processTGVKL1Cuda(
-              downsampled_image,
-              lambda,
+    const int cuda_block_dimension = -1;
+    TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(
+          downsampled_image,
+          lambda,
 
-              order,
-              alpha,
+          order,
+          alpha,
 
-              iteration_count,
-              mask,
-              set_negative_values_to_zero,
-              add_background_back,
+          iteration_count,
+          cuda_block_dimension,
+          mask,
+          set_negative_values_to_zero,
+          add_background_back,
 
-              paint_iteration_interval,
-              iteration_finished_callback,
+          paint_iteration_interval,
+          iteration_finished_callback,
 
-              downsampled_denoised_image,
-              downsampled_shading_image,
-              downsampled_deshaded_image,
-              downsampled_div_v_image);
-    } else {
-        TGVKDeshadeProcessor::processTGVKL1Cuda2D(
-               downsampled_image,
-               lambda,
-
-               order,
-               alpha,
-
-               iteration_count,
-               mask,
-               set_negative_values_to_zero,
-               add_background_back,
-
-               paint_iteration_interval,
-               iteration_finished_callback,
-
-               downsampled_denoised_image,
-               downsampled_shading_image,
-               downsampled_deshaded_image,
-               downsampled_div_v_image);
-    }
+          downsampled_denoised_image,
+          downsampled_shading_image,
+          downsampled_deshaded_image,
+          downsampled_div_v_image);
 
     auto upsample = [=](ITKImage original_image) {
         return ResizeProcessor::process(original_image,
