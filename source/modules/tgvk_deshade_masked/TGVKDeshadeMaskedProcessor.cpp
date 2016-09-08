@@ -76,7 +76,7 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
     if(order == 2) {
         deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(input_image, lambda, alpha[1], alpha[0],
                 iteration_count, cuda_block_dimension, paint_iteration_interval, iteration_finished_callback,
-                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image);
+                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image, div_v_image);
         return;
     }
 
@@ -217,7 +217,7 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
     if(order == 2) {
         deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda2D(input_image, lambda, alpha[0], alpha[1],
                 iteration_count, cuda_block_dimension, paint_iteration_interval, iteration_finished_callback,
-                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image);
+                mask, set_negative_values_to_zero, add_background_back, denoised_image, shading_image, div_v_image);
         return;
     }
 
