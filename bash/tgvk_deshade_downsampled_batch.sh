@@ -1,5 +1,5 @@
 cd $(dirname "$0")/..
-data_root_dir=~/Documents/tu/master_thesis/test_data/MR/Manschette2/serie15
+data_root_dir=~/Documents/tu/master_thesis/documents/05_thesis/figures/mr_serie15
 output_data_root_dir="${data_root_dir}/tgvk"
 program=build/output/tgvk_deshade_downsampled_application
 input="${data_root_dir}/12_input.mha"
