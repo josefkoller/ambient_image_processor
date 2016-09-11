@@ -55,7 +55,7 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
 
           iteration_count,
           cuda_block_dimension,
-          mask,
+          downsampled_mask,
           set_negative_values_to_zero,
           add_background_back,
 
