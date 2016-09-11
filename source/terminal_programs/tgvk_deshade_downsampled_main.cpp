@@ -57,7 +57,7 @@ int process(
                 denoised_image,
                 shading_image,
                 deshaded_image,
-                div_v_image);
+                div_v_image, false);
 
     Timestamp end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;

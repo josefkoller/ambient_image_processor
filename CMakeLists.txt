@@ -104,19 +104,23 @@ SET(SOURCE_ALL_FILES
 
 message(STATUS "source files: ${SOURCE_ALL_FILES}")
 
+cuda_add_library(ambient_library STATIC
+  ${SOURCE_ALL_FILES}
+  ${CUDA_CPP_FILES}
+)
+target_link_libraries(ambient_library
+  Qt5::Core
+  Qt5::Widgets
+)
+
 SET(ITK_APPLICATIONS
   ambient_application
 )
 cuda_add_executable(ambient_application
   source/ambient_main.cpp
-  ${SOURCE_ALL_FILES}
-  ${CUDA_CPP_FILES}
 )
-
 target_link_libraries(ambient_application
-  Qt5::Core
-  Qt5::Widgets
- # -lfftw3
+  ambient_library
 )
 
 include(source/terminal_programs/CMakeLists.txt)

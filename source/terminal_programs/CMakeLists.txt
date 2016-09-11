@@ -2,13 +2,9 @@ cmake_minimum_required(VERSION 2.8.11)
 
 cuda_add_executable(tgv2_deshade_application
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_deshade_main.cpp
-  ${SOURCE_ALL_FILES}
-  ${CUDA_CPP_FILES}
 )
 target_link_libraries(tgv2_deshade_application
-  Qt5::Core
-  Qt5::Widgets
- # -lfftw3
+  ambient_library
 )
 list(APPEND ITK_APPLICATIONS
   tgv2_deshade_application
@@ -16,12 +12,9 @@ list(APPEND ITK_APPLICATIONS
 
 cuda_add_executable(tgvk_deshade_downsampled_application
   ${CMAKE_CURRENT_LIST_DIR}/tgvk_deshade_downsampled_main.cpp
-  ${SOURCE_ALL_FILES}
-  ${CUDA_CPP_FILES}
 )
 target_link_libraries(tgvk_deshade_downsampled_application
-  Qt5::Core
-  Qt5::Widgets
+  ambient_library
 )
 list(APPEND ITK_APPLICATIONS
   tgvk_deshade_downsampled_application
@@ -29,19 +22,14 @@ list(APPEND ITK_APPLICATIONS
 
 cuda_add_executable(tgv2_deshade_convergence_test_application
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_deshade_convergence_test_main.cpp
-  ${SOURCE_ALL_FILES}
-  ${CUDA_CPP_FILES}
 )
 target_link_libraries(tgv2_deshade_convergence_test_application
-  Qt5::Core
-  Qt5::Widgets
-  -lfftw3
+  ambient_library
 )
 list(APPEND ITK_APPLICATIONS
   tgv2_deshade_application
   tgv2_deshade_convergence_test_application
   )
-
 
 
 include(${CMAKE_CURRENT_LIST_DIR}/image_metrics/CMakeLists.txt)

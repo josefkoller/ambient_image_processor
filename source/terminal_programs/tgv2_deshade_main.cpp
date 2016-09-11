@@ -46,6 +46,9 @@ int process(
                     shading_image,
                     deshaded_image);
     } else {
+        ITKImage div_v_image;
+        const bool calculate_div_v = false;
+
         deshaded_image = TGVDeshadeMaskedProcessor::processTGV2L1GPUCuda(
                     input_image,
                      lambda,
@@ -59,7 +62,7 @@ int process(
                      true,
                      true,
                      denoised_image,
-                     shading_image);
+                     shading_image, div_v_image, calculate_div_v);
     }
 
     denoised_image.write(output_denoised_path);
