@@ -98,6 +98,10 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
         mask = input_image.cloneSameSizeWithZeros();
         mask.setEachPixel([](uint,uint,uint) { return 1.0; });
     }
+    else
+    {
+      input_image = CudaImageOperationsProcessor::multiply(input_image, mask);
+    }
 
     ITKImage background_mask;
     if(add_background_back && !mask.isNull())
@@ -118,10 +122,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
                                                       mask, set_negative_values_to_zero,
                                                       l, true);
 
-            if(add_background_back && !mask.isNull())
+            if(add_background_back)
             {
                 auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
                 r = CudaImageOperationsProcessor::add(r, background);
+            }
+            else
+            {
+                r = CudaImageOperationsProcessor::multiply(r, mask);
             }
 
             return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
@@ -189,10 +197,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda(ITKImage input_image,
     delete[] v_y;
     delete[] v_z;
 
-    if(add_background_back && !mask.isNull())
+    if(add_background_back)
     {
         auto background = CudaImageOperationsProcessor::multiply(denoised_image, background_mask);
         deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
+    }
+    else
+    {
+        deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask);
     }
 }
 
@@ -233,6 +245,10 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
         mask = input_image.cloneSameSizeWithZeros();
         mask.setEachPixel([](uint,uint,uint) { return 1.0; });
     }
+    else
+    {
+        input_image = CudaImageOperationsProcessor::multiply(input_image, mask);
+    }
 
     ITKImage background_mask;
     if(add_background_back && !mask.isNull())
@@ -253,10 +269,14 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
                                                       mask, set_negative_values_to_zero,
                                                       l, true);
 
-            if(add_background_back && !mask.isNull())
+            if(add_background_back)
             {
                 auto background = CudaImageOperationsProcessor::multiply(u, background_mask);
                 r = CudaImageOperationsProcessor::add(r, background);
+            }
+            else
+            {
+                r = CudaImageOperationsProcessor::multiply(r, mask);
             }
 
             return iteration_finished_callback(iteration_index, iteration_count, u, l, r);
@@ -315,9 +335,13 @@ void TGVKDeshadeMaskedProcessor::processTGVKL1Cuda2D(ITKImage input_image,
     delete[] v_x;
     delete[] v_y;
 
-    if(add_background_back && !mask.isNull())
+    if(add_background_back)
     {
         auto background = CudaImageOperationsProcessor::multiply(denoised_image, background_mask);
         deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
+    }
+    else
+    {
+        deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask);
     }
 }
