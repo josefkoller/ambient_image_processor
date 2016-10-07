@@ -18,6 +18,7 @@ public:
 private:
     Ui::UnaryOperationsWidget *ui;
 
+    ITKImage rescale(ITKImage image);
 protected:
     virtual ITKImage processImage(ITKImage image);
 private slots:
