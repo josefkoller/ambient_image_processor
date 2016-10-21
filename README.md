@@ -44,3 +44,26 @@ cmake ..
 make
 ```
 The generated binaries are located in the build/output directory.
+
+# Run
+```
+build/output/tgv2_deshade_application
+```
+outputs the list of parameters.
+Batch processing can be done by using the 
+- bash script bash/tgvk_deshade_downsampled_batch.sh
+- ruby scripts in the folder ruby
+- octave/matlab script octave/tgv2_deshade.m
+
+the gui in executed by running 
+```
+build/output/ambient_application
+```
+
+# TODO
+- update all dependencies to current version
+- easier disabling/enabling of modules
+- module template, creator script
+- image zoom module
+- add more imaging filters
+
