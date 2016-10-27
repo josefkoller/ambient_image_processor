@@ -122,39 +122,80 @@ ITKImage ITKImage::read(std::string image_file_path, bool rescale)
     return ITKImage(reader->GetOutput());
 }
 
+void ITKImage::write_png(std::string image_file_path)
+{
+    // writing 32bit png
+    unsigned short MAX_PIXEL_VALUE = 65535;
+    typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
+    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
+    rescale_filter->SetInput(this->inner_image);
+    rescale_filter->SetOutputMinimum(0);
+    rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
+    rescale_filter->Update();
+
+    typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> PNGImage;
+    typedef itk::CastImageFilter<InnerITKImage, PNGImage> CastFilter;
+    CastFilter::Pointer cast_filter = CastFilter::New();
+    cast_filter->SetInput(rescale_filter->GetOutput());
+    cast_filter->Update();
+
+    typedef itk::ImageFileWriter<PNGImage> WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName(image_file_path);
+    writer->SetInput(cast_filter->GetOutput());
+
+    try
+    {
+        writer->Update();
+
+    }
+    catch(itk::ExceptionObject exception)
+    {
+        std::cerr << exception << std::endl;
+    }
+}
+
+void ITKImage::write_dicom(std::string image_file_path)
+{
+    unsigned short MAX_PIXEL_VALUE = 4096;
+    typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
+    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
+    rescale_filter->SetInput(this->inner_image);
+    rescale_filter->SetOutputMinimum(0);
+    rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
+    rescale_filter->Update();
+
+    typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> DICOMImage;
+    typedef itk::CastImageFilter<InnerITKImage, DICOMImage> CastFilter;
+    CastFilter::Pointer cast_filter = CastFilter::New();
+    cast_filter->SetInput(rescale_filter->GetOutput());
+    cast_filter->Update();
+
+    typedef itk::ImageFileWriter<DICOMImage> WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName(image_file_path);
+    writer->SetInput(cast_filter->GetOutput());
+
+    try
+    {
+        writer->Update();
+
+    }
+    catch(itk::ExceptionObject exception)
+    {
+        std::cerr << exception << std::endl;
+    }
+}
+
 void ITKImage::write(std::string image_file_path)
 {
     if(QString::fromStdString(image_file_path).endsWith("png"))
     {
-        // writing 32bit png
-        unsigned short MAX_PIXEL_VALUE = 65535;
-        typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
-        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-        rescale_filter->SetInput(this->inner_image);
-        rescale_filter->SetOutputMinimum(0);
-        rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
-        rescale_filter->Update();
-
-        typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> PNGImage;
-        typedef itk::CastImageFilter<InnerITKImage, PNGImage> CastFilter;
-        CastFilter::Pointer cast_filter = CastFilter::New();
-        cast_filter->SetInput(rescale_filter->GetOutput());
-        cast_filter->Update();
-
-        typedef itk::ImageFileWriter<PNGImage> WriterType;
-        WriterType::Pointer writer = WriterType::New();
-        writer->SetFileName(image_file_path);
-        writer->SetInput(cast_filter->GetOutput());
-
-        try
-        {
-            writer->Update();
-
-        }
-        catch(itk::ExceptionObject exception)
-        {
-            std::cerr << exception << std::endl;
-        }
+        this->write_png(image_file_path);
+    }
+    else if(QString::fromStdString(image_file_path).endsWith("dcm"))
+    {
+        this->write_dicom(image_file_path);
     }
     else
     {
@@ -166,7 +207,6 @@ void ITKImage::write(std::string image_file_path)
         try
         {
             writer->Update();
-
         }
         catch(itk::ExceptionObject exception)
         {
