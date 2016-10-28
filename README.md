@@ -64,6 +64,9 @@ build/output/ambient_application
 - update all dependencies to current version
 - easier disabling/enabling of modules
 - module template, creator script
-- image zoom module
 - add more imaging filters
+- module ideas
+ - image zoom for view only
+ - load volume of multiple single files using the itk dicom reader, sustain meta info
+ - Draw mask, polygon
 
