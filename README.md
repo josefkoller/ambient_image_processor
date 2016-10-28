@@ -69,4 +69,5 @@ build/output/ambient_application
  - image zoom for view only
  - load volume of multiple single files using the itk dicom reader, sustain meta info
  - Draw mask, polygon
+ - load/scan all files of an directory, use dicom reader, group by date, serie, listview, load-button, do not load all data - only the file-paths for each volume, sustain meta info
 
