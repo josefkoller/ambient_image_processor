@@ -22,10 +22,10 @@ ITKImage ResizeProcessor::process(ITKImage image,
     uint height = std::ceil(image.height * size_factor);
     uint depth = image.depth == 1 ? 1 : std::ceil(image.depth * size_factor);
 
-    return process(image, size_factor, width, height, depth, interpolation_method);
+    return process(image, width, height, depth, interpolation_method);
 }
 
-ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor,
+ITKImage ResizeProcessor::process(ITKImage image,
                                   uint width, uint height, uint depth,
                                   ResizeProcessor::InterpolationMethod interpolation_method)
 {
@@ -42,11 +42,15 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
     origin.Fill(0);
     image.getPointer()->SetOrigin(origin); // setting input origin to zero for processing
 
+    ITKImage::PixelType size_factor_x = width / ((ITKImage::PixelType)image.width);
+    ITKImage::PixelType size_factor_y = height / ((ITKImage::PixelType)image.height);
+    ITKImage::PixelType size_factor_z = depth / ((ITKImage::PixelType)image.depth);
+
     Image::SpacingType image_spacing = image.getPointer()->GetSpacing();
     Image::SpacingType spacing;
-    spacing[0] = image_spacing[0] / size_factor;  // physical size keeps the same !!
-    spacing[1] = image_spacing[1] / size_factor;
-    spacing[2] = image_spacing[2] / size_factor;
+    spacing[0] = image_spacing[0] / size_factor_x;  // physical size keeps the same !!
+    spacing[1] = image_spacing[1] / size_factor_y;
+    spacing[2] = image_spacing[2] / size_factor_z;
 
     std::cout << "spacing from : " << image_spacing << std::endl;
     std::cout << "to : " << spacing << std::endl;
@@ -94,14 +98,17 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
     return ITKImage(resampled_image);
 }
 
-ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_factor)
+ITKImage ResizeProcessor::process(ITKImage image,
+                                  uint width, uint height, uint depth)
 {
     if(image.isNull())
         return ITKImage();
 
+    // 3D ...
     if(image.depth > 1)
-        return ResizeProcessor::process(image, size_factor, InterpolationMethod::Linear);
+        return ResizeProcessor::process(image, width, height, depth, InterpolationMethod::Linear);
 
+    // 2D ...
     typedef cv::Mat2d CVImage;
 
     CVImage cv_image(image.height, image.width);
@@ -109,11 +116,13 @@ ITKImage ResizeProcessor::process(ITKImage image, ITKImage::PixelType size_facto
         cv_image.at<double>(y,x) = pixel;
     });
 
+    ITKImage::PixelType size_factor = image.width / ((ITKImage::PixelType)width);
+
     int cv_interpolation_method = size_factor < 1 ? cv::INTER_AREA : cv::INTER_CUBIC;
 
     cv::Size cv_size;
-    cv_size.width = std::ceil(image.width * size_factor);
-    cv_size.height = std::ceil(image.height * size_factor);
+    cv_size.width = width;
+    cv_size.height = height;
     CVImage resized_cv_image(cv_size.height, cv_size.width);
     cv::resize(cv_image, resized_cv_image, resized_cv_image.size(),
                0, 0, cv_interpolation_method);

@@ -19,14 +19,13 @@ public:
 
     static ITKImage process(ITKImage image,
                             ITKImage::PixelType size_factor, InterpolationMethod interpolation_method);
+
     static ITKImage process(ITKImage image,
-                            ITKImage::PixelType size_factor,
                             uint width, uint height, uint depth,
                             InterpolationMethod interpolationMethod);
 
     static ITKImage process(ITKImage image,
-                            ITKImage::PixelType size_factor);
-
+                            uint width, uint height, uint depth);
 };
 
 #endif // RESIZEPROCESSOR_H
