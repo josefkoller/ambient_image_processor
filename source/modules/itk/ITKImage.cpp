@@ -94,15 +94,14 @@ ITKImage ITKImage::read(std::string image_file_path, bool rescale)
 {
     // if color file... load the v channel in HSV space
     auto image_file_path_lower = QString::fromStdString(image_file_path).toLower();
-    bool load_by_itk =
-            image_file_path_lower.endsWith("mha") ||
-            image_file_path_lower.endsWith("mhd") ||
-            image_file_path_lower.endsWith("nrrd") ||
-            image_file_path_lower.endsWith("nhdr") ||
-            image_file_path_lower.endsWith("vtk") ||
-            image_file_path_lower.endsWith("dcm");
 
-    if(!load_by_itk)
+    bool load_hsv =
+            image_file_path_lower.endsWith("png") ||
+            image_file_path_lower.endsWith("jpg") ||
+            image_file_path_lower.endsWith("jpeg") ||
+            image_file_path_lower.endsWith("bmp");
+
+    if(load_hsv)
         return read_hsv(image_file_path);
 
     typedef itk::ImageFileReader<InnerITKImage> FileReader;
