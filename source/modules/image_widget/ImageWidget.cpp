@@ -16,7 +16,6 @@
 #include "HistogramWidget.h"
 #include "ImageInformationWidget.h"
 #include "ShrinkWidget.h"
-#include "SplineInterpolationWidget.h"
 #include "ThresholdFilterWidget.h"
 #include "ExtractWidget.h"
 #include "BilateralFilterWidget.h"
@@ -116,7 +115,6 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new ResizeWidget("Resize", module_parent));
     modules.push_back(non_local_gradient_widget);
     modules.push_back(region_growing_segmentation_widget);
-    modules.push_back(new SplineInterpolationWidget("Spline Interpolation", module_parent));
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
     modules.push_back(tgv3_widget);
