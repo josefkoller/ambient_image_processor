@@ -93,6 +93,10 @@ void ImageViewWidget::doMultiplyChanged(bool do_multiply)
 void ImageViewWidget::useWindowChanged(bool use_window)
 {
     this->use_window = use_window;
+
+    QString border_style = use_window ? "border: 2px solid red" : "border: none";
+    this->ui->image_frame->setStyleSheet(border_style);
+
     this->repaintImage();
 }
 

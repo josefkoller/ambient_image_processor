@@ -83,10 +83,12 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
 
             ITKImage::PixelType non_rescaled_pixel_value = rescale_source.getPixel(x, y, 0);
 
+            // below window
             if(use_window && window_from != nullptr && non_rescaled_pixel_value < (*window_from))
             {
                 color = lower_window_color;
             }
+            // above window
             if(use_window && window_to != nullptr && non_rescaled_pixel_value > (*window_to))
             {
                 color = upper_window_color;
