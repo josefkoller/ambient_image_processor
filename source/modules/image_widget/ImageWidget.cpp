@@ -237,6 +237,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
             this->image_view_widget, &ImageViewWidget::doRescaleChanged);
     connect(image_view_control_widget, &ImageViewControlWidget::doMultiplyChanged,
             this->image_view_widget, &ImageViewWidget::doMultiplyChanged);
+    connect(image_view_control_widget, &ImageViewControlWidget::useWindowChanged,
+            this->image_view_widget, &ImageViewWidget::useWindowChanged);
 
     // iteration finished callback...
     auto iteration_finished_callback = [this](uint index, uint count, ITKImage u) {

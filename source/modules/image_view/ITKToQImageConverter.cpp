@@ -2,6 +2,7 @@
 
 #include "ExtractProcessor.h"
 #include "CudaImageOperationsProcessor.h"
+#include "ThresholdFilterProcessor.h"
 
 #include <itkRescaleIntensityImageFilter.h>
 #include <QColor>
@@ -9,9 +10,25 @@
 ITKImage::PixelType* ITKToQImageConverter::window_from = nullptr;
 ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
-QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index, bool do_rescale, bool do_multiply)
+
+const QColor ITKToQImageConverter::lower_window_color = QColor(0, 0, 0);
+const QColor ITKToQImageConverter::upper_window_color = QColor(0, 0, 0);
+
+QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
+                                      bool do_rescale, bool do_multiply, bool use_window)
 {
     ITKImage slice_image = ExtractProcessor::extract_slice(itk_image, slice_index);
+
+    ITKImage rescale_source;
+    if(use_window && window_from != nullptr && window_to != nullptr) {
+        ITKImage windowed_image = ThresholdFilterProcessor::process(slice_image,
+          *window_from, 1e7, *window_from);
+        windowed_image = ThresholdFilterProcessor::process(windowed_image,
+          -1e7, *window_to, *window_to);
+        rescale_source = windowed_image;
+    } else {
+        rescale_source = slice_image;
+    }
 
     ITKImage::InnerITKImage::Pointer image_to_show;
     if(do_rescale)
@@ -20,17 +37,17 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index, bool
         RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
         rescale_filter->SetOutputMinimum(0);
         rescale_filter->SetOutputMaximum(255);
-        rescale_filter->SetInput( slice_image.getPointer() );
+        rescale_filter->SetInput( rescale_source.getPointer() );
         rescale_filter->Update();
         image_to_show = rescale_filter->GetOutput();
         image_to_show->DisconnectPipeline();
     }
     else
     {
-        slice_image = CudaImageOperationsProcessor::addConstant(slice_image, slice_image.minimum());
+        rescale_source = CudaImageOperationsProcessor::addConstant(rescale_source, slice_image.minimum());
         if(do_multiply)
-            slice_image = CudaImageOperationsProcessor::multiplyConstant(slice_image, 255);
-        image_to_show = slice_image.getPointer();
+            rescale_source = CudaImageOperationsProcessor::multiplyConstant(rescale_source, 255);
+        image_to_show = rescale_source.getPointer();
     }
 
     QImage* q_image = new QImage( itk_image.width, itk_image.height, QImage::Format_ARGB32);
@@ -64,18 +81,16 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index, bool
 
             QColor color(value, value, value);
 
-            /*
-            ITKImage::PixelType non_rescaled_pixel_value = itk_image.getPixel(x, y, slice_index);
+            ITKImage::PixelType non_rescaled_pixel_value = rescale_source.getPixel(x, y, 0);
 
-            if(window_from != nullptr && non_rescaled_pixel_value < (*window_from))
+            if(use_window && window_from != nullptr && non_rescaled_pixel_value < (*window_from))
             {
-                color = QColor(0, 51, 253);
+                color = lower_window_color;
             }
-            if(window_to != nullptr && non_rescaled_pixel_value > (*window_to))
+            if(use_window && window_to != nullptr && non_rescaled_pixel_value > (*window_to))
             {
-                color = QColor(206, 0, 0);
+                color = upper_window_color;
             }
-            */
 
             q_image->setPixel(x, y, color.rgb());
         }

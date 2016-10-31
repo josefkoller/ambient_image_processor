@@ -41,6 +41,7 @@ private:
 
     bool do_rescale;
     bool do_multiply;
+    bool use_window;
 
     void paintImage(bool repaint = false);
 
@@ -69,6 +70,7 @@ public slots:
 
     void doRescaleChanged(bool do_rescale);
     void doMultiplyChanged(bool do_multiply);
+    void useWindowChanged(bool use_window);
 private slots:
     void handleImageChange(ITKImage image);
 };

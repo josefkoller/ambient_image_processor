@@ -14,7 +14,8 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     image(ITKImage::Null),
     slice_index(0),
     do_rescale(true),
-    do_multiply(false)
+    do_multiply(false),
+    use_window(false)
 {
     this->ui->setupUi(this);
 
@@ -89,6 +90,12 @@ void ImageViewWidget::doMultiplyChanged(bool do_multiply)
     this->repaintImage();
 }
 
+void ImageViewWidget::useWindowChanged(bool use_window)
+{
+    this->use_window = use_window;
+    this->repaintImage();
+}
+
 void ImageViewWidget::paintImage(bool repaint)
 {
     if(this->image.isNull())
@@ -111,7 +118,8 @@ void ImageViewWidget::paintImage(bool repaint)
     q_image = ITKToQImageConverter::convert(this->image,
                                             this->slice_index,
                                             this->do_rescale,
-                                            this->do_multiply);
+                                            this->do_multiply,
+                                            this->use_window);
 
     this->ui->image_frame->setUpdatesEnabled(false);
 

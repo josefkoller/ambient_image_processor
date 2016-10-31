@@ -24,3 +24,8 @@ void ImageViewControlWidget::on_do_multiply_checkbox_toggled(bool checked)
 {
     emit this->doMultiplyChanged(checked);
 }
+
+void ImageViewControlWidget::on_useWindowCheckbox_toggled(bool checked)
+{
+    emit this->useWindowChanged(checked);
+}

@@ -18,6 +18,7 @@ public:
 private slots:
     void on_do_rescale_checkbox_toggled(bool checked);
     void on_do_multiply_checkbox_toggled(bool checked);
+    void on_useWindowCheckbox_toggled(bool checked);
 
 private:
     Ui::ImageViewControlWidget *ui;
@@ -25,6 +26,7 @@ private:
 signals:
     void doRescaleChanged(bool do_rescale);
     void doMultiplyChanged(bool do_multiply);
+    void useWindowChanged(bool use_window);
 };
 
 #endif // IMAGEVIEWCONTROLWIDGET_H
