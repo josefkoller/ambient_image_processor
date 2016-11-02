@@ -32,9 +32,6 @@ __global__ void bilateral_filter_kernel(Pixel* source,
         {
             for(int kx = 0; kx < kernel_size; kx++)
             {
-                if(kx == kernel_center && ky == kernel_center && kz == kernel_center)
-                    continue;
-
                 const int dx = kx - kernel_center;
                 const int dy = ky - kernel_center;
                 const int dz = kz - kernel_center;
@@ -53,8 +50,8 @@ __global__ void bilateral_filter_kernel(Pixel* source,
                 const Pixel radius_square = dx*dx + dy*dy + dz*dz;
                 const Pixel intensity_distance = source[index] - source[kia];
                 const Pixel kernel_value =
-                      expf(-radius_square / sigma_spatial_distance
-                           -intensity_distance*intensity_distance / sigma_intensity_distance);
+                      expf(-radius_square / sigma_spatial_distance ) *
+                      expf(-intensity_distance*intensity_distance / sigma_intensity_distance);
 
                 kernel_sum += kernel_value;
 

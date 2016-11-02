@@ -35,7 +35,7 @@
          <item>
           <widget class="QSpinBox" name="kernelSizeSpinbox">
            <property name="value">
-            <number>3</number>
+            <number>16</number>
            </property>
           </widget>
          </item>
@@ -51,16 +51,16 @@
          <item row="0" column="0">
           <widget class="QDoubleSpinBox" name="sigmaSpatialDistanceSpinbox">
            <property name="decimals">
-            <number>3</number>
+            <number>8</number>
            </property>
            <property name="maximum">
-            <double>99999.000000000000000</double>
+            <double>999999999999.000000000000000</double>
            </property>
            <property name="singleStep">
             <double>0.001000000000000</double>
            </property>
            <property name="value">
-            <double>0.010000000000000</double>
+            <double>100.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -76,16 +76,16 @@
          <item>
           <widget class="QDoubleSpinBox" name="sigmaIntensityDistanceSpinbox">
            <property name="decimals">
-            <number>3</number>
+            <number>8</number>
            </property>
            <property name="maximum">
-            <double>99999.000000000000000</double>
+            <double>10000000000000000000.000000000000000</double>
            </property>
            <property name="singleStep">
             <double>0.100000000000000</double>
            </property>
            <property name="value">
-            <double>50.000000000000000</double>
+            <double>0.050000000000000</double>
            </property>
           </widget>
          </item>
