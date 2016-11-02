@@ -52,8 +52,12 @@ void BSplineInterpolationWidget::on_clear_mask_button_clicked()
 ITKImage BSplineInterpolationWidget::processImage(ITKImage image) {
     uint spline_order = this->ui->splineOrderSpinbox->value();
     uint number_of_fitting_levels = this->ui->numberOfFittingLevelsSpinbox->value();
+    uint number_of_nodes = this->ui->numberOfNodesSpinbox->value();
+
+    if(number_of_nodes <= spline_order)
+        throw std::runtime_error("Number of nodes must be greater than the spline order");
 
     return BSplineInterpolationProcessor::process(image,
       this->mask_view->getImage(),
-      spline_order, number_of_fitting_levels);
+      spline_order, number_of_nodes, number_of_fitting_levels);
 }

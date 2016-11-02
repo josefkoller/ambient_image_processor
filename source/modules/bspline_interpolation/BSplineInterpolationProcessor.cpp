@@ -11,18 +11,18 @@ BSplineInterpolationProcessor::BSplineInterpolationProcessor()
 
 ITKImage BSplineInterpolationProcessor::process(
         ITKImage image, ITKImage mask,
-        uint spline_order, uint number_of_fitting_levels)
+        uint spline_order, uint number_of_nodes, uint number_of_fitting_levels)
 {
     return image.depth == 1 ?
-                processDimensions<2>(image, mask, spline_order, number_of_fitting_levels) :
-                processDimensions<3>(image, mask, spline_order, number_of_fitting_levels);
+                processDimensions<2>(image, mask, spline_order, number_of_nodes, number_of_fitting_levels) :
+                processDimensions<3>(image, mask, spline_order, number_of_nodes, number_of_fitting_levels);
 
 }
 
 template<unsigned int NDimension>
 ITKImage BSplineInterpolationProcessor::processDimensions(
         ITKImage image, ITKImage mask,
-        uint spline_order, uint number_of_fitting_levels) {
+        uint spline_order, uint number_of_nodes, uint number_of_fitting_levels) {
 
     typedef itk::Vector<ITKImage::PixelType, 1> ScalarType;
     typedef itk::PointSet<ScalarType, NDimension> PointSet;
@@ -71,7 +71,8 @@ ITKImage BSplineInterpolationProcessor::processDimensions(
     typename BSplineFilter::Pointer bspliner = BSplineFilter::New();
     typename BSplineFilter::ArrayType numberOfControlPointsArray;
     typename BSplineFilter::ArrayType numberOfFittingLevelsArray;
-    numberOfControlPointsArray.Fill(spline_order + 1);
+
+    numberOfControlPointsArray.Fill(number_of_nodes);
     numberOfFittingLevelsArray.Fill(number_of_fitting_levels);
 
     auto image_origin = itk_image->GetOrigin();
