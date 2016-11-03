@@ -82,10 +82,19 @@ void ManualDrawMask::mouseMoveOnImage(Qt::MouseButtons buttons, ITKImage::Index 
 
 ITKImage ManualDrawMask::processImage(ITKImage image)
 {
-    QPolygon polygon = createPolygon();
+    if(this->polygon_points.size() == 0)
+      image.cloneSameSizeWithZeros();
 
+    // get the slice index from the first point
+    uint slice_index = this->polygon_points[0][2];
+
+    QPolygon polygon = createPolygon();
     ITKImage mask = image.clone();
-    mask.setEachPixel([&polygon, this](uint x, uint y, uint) {
+    mask.setEachPixel([&polygon, this, slice_index]
+        (uint x, uint y, uint z) {
+        if(z != slice_index)
+          return false;
+
         QPoint point(x, y);
         return polygon.containsPoint(point, this->polygon_fill_rule);
     });
