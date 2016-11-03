@@ -39,6 +39,7 @@
 #include "TGVKDeshadeWidget.h"
 
 #include "BSplineInterpolationWidget.h"
+#include "ManualDrawMask.h"
 
 /*
 #include "TGVDeshadeWidget.h"
@@ -118,6 +119,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new BSplineInterpolationWidget("BSpline Interpolation", module_parent));
     modules.push_back(non_local_gradient_widget);
     modules.push_back(region_growing_segmentation_widget);
+    modules.push_back(new ManualDrawMask("Manual Draw Mask", module_parent));
     modules.push_back(new BilateralFilterWidget("Bilateral Filter", module_parent));
     modules.push_back(tgv_widget);
     modules.push_back(tgv3_widget);
