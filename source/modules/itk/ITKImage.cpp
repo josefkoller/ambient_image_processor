@@ -488,3 +488,10 @@ void ITKImage::setOriginAndSpacingOf(const ITKImage& source_image)
     this->getPointer()->SetSpacing(spacing);
     this->getPointer()->SetOrigin(origin);
 }
+
+bool ITKImage::hasSameSize(const ITKImage& other_image)
+{
+    return this->width == other_image.width &&
+            this->height == other_image.height &&
+            this->depth == other_image.depth;
+}

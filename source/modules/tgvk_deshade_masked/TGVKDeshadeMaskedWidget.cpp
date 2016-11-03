@@ -79,6 +79,12 @@ ITKImage TGVKDeshadeMaskedWidget::processImage(ITKImage image)
     const bool set_negative_values_to_zero = this->ui->set_negative_values_to_zero_checkbox->isChecked();
     auto mask = this->mask_view->getImage();
 
+    if(!mask.isNull() &&
+            (!mask.hasSameSize(image)))
+    {
+        throw std::runtime_error("the given mask has different size than the input image");
+    }
+
     const bool add_background_back = this->ui->add_background_back_checkbox->isChecked();
 
     ITKImage denoised_image = ITKImage();

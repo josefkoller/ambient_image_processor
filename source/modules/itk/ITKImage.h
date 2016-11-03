@@ -102,7 +102,7 @@ public:
     static void setPixel(PixelType* image_data, Size size, ITKImage::InnerITKImage::IndexType index, PixelType value);
 
     void setOriginAndSpacingOf(const ITKImage& source_image);
-
+    bool hasSameSize(const ITKImage& other_image);
 private:
     void write_png(std::string image_file_path);
     void write_dicom(std::string image_file_path);
