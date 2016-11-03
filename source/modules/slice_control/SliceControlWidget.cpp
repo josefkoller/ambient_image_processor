@@ -56,18 +56,8 @@ uint SliceControlWidget::userSliceIndex() const
 
 void SliceControlWidget::setSliceIndex(uint slice_index)
 {
-    if(this->image.isNull())
-        return;
-
     if(this->visible_slice_index == slice_index)
         return;
-
-    if(slice_index < 0 || slice_index >= this->image.depth)
-    {
-        std::cerr << "invalid slice_index (" << slice_index << ") for image with " <<
-                     this->image.depth << " slices " << std::endl << std::flush;
-        return;
-    }
 
     this->visible_slice_index = slice_index;
 
