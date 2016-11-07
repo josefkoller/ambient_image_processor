@@ -3,6 +3,8 @@
 
 #include <QFileDialog>
 
+#include "TGVKDeshadeProcessor.h"
+
 TGVKDeshadeDownsampledWidget::TGVKDeshadeDownsampledWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::TGVKDeshadeDownsampledWidget)
@@ -191,10 +193,10 @@ void TGVKDeshadeDownsampledWidget::updateAlpha()
     this->alpha_spinboxes.clear();
 
     const int order = this->ui->order_spinbox->value();
-    for(int k = 0; k < order; k++)
-    {
-        this->addAlpha(k);
-    }
+
+    TGVKDeshadeProcessor::updateAlpha(order, [this](uint alpha_element){
+        this->addAlpha(alpha_element);
+    });
 }
 
 void TGVKDeshadeDownsampledWidget::addAlpha(uint index)
@@ -209,11 +211,11 @@ void TGVKDeshadeDownsampledWidget::addAlpha(uint index)
     spinbox->setMinimum(1e-8);
     spinbox->setMaximum(1e5);
     spinbox->setDecimals(12);
-    double value = (index + 1);
+    double value = (index);
     spinbox->setValue(value);
     spinbox->setSingleStep(0.01);
     alpha_groupbox->layout()->addWidget(spinbox);
-    alpha_groupbox->setTitle("Alpha" + QString::number(index));
+    alpha_groupbox->setTitle("Alpha" + QString::number(this->alpha_spinboxes.size() - 1));
 }
 
 void TGVKDeshadeDownsampledWidget::on_save_div_v_button_clicked()

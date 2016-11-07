@@ -265,3 +265,14 @@ void TGVKDeshadeProcessor::processTGVKL1Cuda2D(ITKImage input_image,
         deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
     }
 }
+
+void TGVKDeshadeProcessor::updateAlpha(uint order,
+                                              std::function<void(uint alpha_element)> updateElement)
+{
+    const uint increment = 3; // alpha: 1, 4, 7...
+
+    for(int i = 0; i < order; i++)
+    {
+        updateElement(1 + i * increment);
+    }
+}

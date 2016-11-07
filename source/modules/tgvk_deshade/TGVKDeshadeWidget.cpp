@@ -189,10 +189,10 @@ void TGVKDeshadeWidget::updateAlpha()
     this->alpha_spinboxes.clear();
 
     const int order = this->ui->order_spinbox->value();
-    for(int k = 0; k < order; k++)
-    {
-        this->addAlpha(k);
-    }
+
+    TGVKDeshadeProcessor::updateAlpha(order, [this](uint alpha_element){
+        this->addAlpha(alpha_element);
+    });
 }
 
 void TGVKDeshadeWidget::addAlpha(uint index)

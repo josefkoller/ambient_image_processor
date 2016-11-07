@@ -1,6 +1,8 @@
 #include "TGVKDeshadeMaskedWidget.h"
 #include "ui_TGVKDeshadeMaskedWidget.h"
 
+#include "TGVKDeshadeProcessor.h"
+
 #include <QFileDialog>
 
 TGVKDeshadeMaskedWidget::TGVKDeshadeMaskedWidget(QString title, QWidget *parent) :
@@ -193,10 +195,9 @@ void TGVKDeshadeMaskedWidget::updateAlpha()
     this->alpha_spinboxes.clear();
 
     const int order = this->ui->order_spinbox->value();
-    for(int k = 0; k < order; k++)
-    {
-        this->addAlpha(k);
-    }
+    TGVKDeshadeProcessor::updateAlpha(order, [this](uint alpha_element){
+        this->addAlpha(alpha_element);
+    });
 }
 
 void TGVKDeshadeMaskedWidget::addAlpha(uint index)

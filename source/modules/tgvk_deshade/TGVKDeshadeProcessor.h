@@ -64,6 +64,8 @@ public:
                                  ITKImage& deshaded_image,
                                  ITKImage& div_v_image,
                                  const bool calculate_div_v);
+
+    static void updateAlpha(uint order, std::function<void(uint alpha_element)> updateElement);
 };
 
 #endif // TGVKDESHADEPROCESSOR_H
