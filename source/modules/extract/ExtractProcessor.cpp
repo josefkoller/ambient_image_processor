@@ -26,6 +26,16 @@ ITKImage ExtractProcessor::process(
     extract_region.SetIndex(start);
     extract_region.SetUpperIndex(end);
 
+    ITKImage::InnerITKImage::SizeType size = image.getPointer()->GetLargestPossibleRegion().GetSize();
+    std::ostringstream message;
+    message << "extracting from image size " << size <<  ": " << start << " - " << end;
+    // std::cout << message.str() << std::endl;
+
+    if(from_x > size[0] - 1  || from_x < 0 ||
+            from_y > size[1] - 1 || from_y < 0 ||
+            from_z > size[2] - 1 || from_z < 0)
+        throw std::runtime_error("invalid extraction parameters: " + message.str());
+
     return process(image, extract_region);
 }
 
