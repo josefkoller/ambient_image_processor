@@ -22,6 +22,8 @@ void BaseModule::registerModule(ImageWidget* image_widget)
 
 void BaseModule::setStatusText(QString text)
 {
-    if(this->status_text_processor != nullptr)
+    if(this->status_text_processor != nullptr) {
+        std::cout << text.toStdString() << std::endl;
         this->status_text_processor(text);
+    }
 }

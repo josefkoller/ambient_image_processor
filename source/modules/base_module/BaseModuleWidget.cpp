@@ -49,32 +49,25 @@ void BaseModuleWidget::processInWorkerThread()
                 this->result_processor(result_image);
 
             int duration = this->start_timestamp.msecsTo(QTime::currentTime());
-            QString text = this->getTitle() + " finished after " + QString::number(duration) + "ms";
-            this->setStatusText(text);
-            std::cout << text.toStdString() << std::endl;
-        }
-        catch(std::runtime_error exception)
-        {
-            std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
-                         exception.what() << std::endl;
-            this->setStatusText("Error in " + this->getTitle() + ": " +  QString(exception.what()));
+            this->setStatusText(this->getTitle() + " finished after " + QString::number(duration) + "ms");
         }
         catch(itk::ExceptionObject exception)
         {
-            std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
-                         exception.what() << std::endl;
+            std::ostringstream stream;
+            exception.Print(stream);
+            this->setStatusText("error in " + this->getTitle() + ": " +  QString::fromStdString(stream.str()));
+        }
+        catch(std::runtime_error exception)
+        {
             this->setStatusText("Error in " + this->getTitle() + ": " +  QString(exception.what()));
         }
         catch(std::exception exception)
         {
-            std::cerr << "error in " << this->getTitle().toStdString() << ": " <<
-                         exception.what() << std::endl;
-            this->setStatusText("Error in " + this->getTitle() + ". see console output");
+            this->setStatusText("Error in " + this->getTitle() + ": " +  QString(exception.what()));
         }
         catch(char const* text)
         {
-            std::cerr << "error in " << text << std::endl;
-            this->setStatusText("Error in " + this->getTitle() + ". see console output");
+            this->setStatusText("Error in " + this->getTitle() + ": " + QString(text));
         }
 
         emit this->fireWorkerFinished();
