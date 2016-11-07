@@ -1,7 +1,8 @@
 #include "ResizeProcessor.h"
 
-#include <itkResampleImageFilter.h>
+#include "ExtractProcessor.h"
 
+#include <itkResampleImageFilter.h>
 #include <itkNearestNeighborInterpolateImageFunction.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkWindowedSincInterpolateImageFunction.h>
@@ -20,7 +21,11 @@ ITKImage ResizeProcessor::process(ITKImage image,
 {
     uint width = std::ceil(image.width * size_factor);
     uint height = std::ceil(image.height * size_factor);
-    uint depth = image.depth == 1 ? 1 : std::ceil(image.depth * size_factor);
+    uint depth = std::ceil(image.depth * size_factor);
+
+    width = std::max(1u, width);
+    height = std::max(1u, height);
+    depth = std::max(1u, depth);
 
     return process(image, width, height, depth, interpolation_method);
 }
@@ -29,6 +34,18 @@ ITKImage ResizeProcessor::process(ITKImage image,
                                   uint width, uint height, uint depth,
                                   ResizeProcessor::InterpolationMethod interpolation_method)
 {
+    // FIX itk bug: if upsampling make the image one pixel bigger and extract afterwards
+    // otherwise the last pixel row in reach dimension would contain some bright pixels
+    const uint additional_size = 2;
+
+    const bool is_upsampling = width > image.width || height > image.height || depth > image.depth;
+    if(is_upsampling) {
+        width+= additional_size;
+        height+= additional_size;
+        depth+= additional_size;
+        std::cout << "upsampling" << std::endl;
+    }
+
     typedef ITKImage::InnerITKImage Image;
     typedef itk::ResampleImageFilter<Image, Image> ResampleFilter;
 
@@ -87,7 +104,14 @@ ITKImage ResizeProcessor::process(ITKImage image,
     resample_filter->SetOutputDirection(direction);
     resample_filter->SetSize(size);
     resample_filter->SetInput(image.getPointer());
-    resample_filter->Update();
+
+    try {
+        resample_filter->Update();
+
+    } catch(itk::ExceptionObject exception) {
+        std::cerr << "ResizeProcessor failed: " << exception.GetDescription() << std::endl;
+        throw exception;
+    }
 
     Image::Pointer resampled_image = resample_filter->GetOutput();
     resampled_image->DisconnectPipeline();
@@ -95,7 +119,16 @@ ITKImage ResizeProcessor::process(ITKImage image,
     image.getPointer()->SetOrigin(original_origin);
     resampled_image->SetOrigin(original_origin);
 
-    return ITKImage(resampled_image);
+    auto resized_image = ITKImage(resampled_image);
+
+    if(is_upsampling) {
+        resized_image = ExtractProcessor::process(resized_image,
+                                                  0, width - 1 - additional_size,
+                                                  0, height - 1 - additional_size,
+                                                  0, depth - 1 - additional_size);
+    }
+
+    return resized_image;
 }
 
 ITKImage ResizeProcessor::process(ITKImage image,
