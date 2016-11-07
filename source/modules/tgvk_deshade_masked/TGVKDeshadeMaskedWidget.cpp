@@ -200,7 +200,7 @@ void TGVKDeshadeMaskedWidget::updateAlpha()
     });
 }
 
-void TGVKDeshadeMaskedWidget::addAlpha(uint index)
+void TGVKDeshadeMaskedWidget::addAlpha(uint alpha_element)
 {
     auto alpha_groupbox = new QGroupBox(this->ui->alpha_groupbox);
     this->ui->alpha_groupbox->layout()->addWidget(alpha_groupbox);
@@ -212,11 +212,10 @@ void TGVKDeshadeMaskedWidget::addAlpha(uint index)
     spinbox->setMinimum(1e-8);
     spinbox->setMaximum(1e5);
     spinbox->setDecimals(12);
-    double value = (index + 1);
-    spinbox->setValue(value);
+    spinbox->setValue(alpha_element);
     spinbox->setSingleStep(0.01);
     alpha_groupbox->layout()->addWidget(spinbox);
-    alpha_groupbox->setTitle("Alpha" + QString::number(index));
+    alpha_groupbox->setTitle("Alpha" + QString::number(this->alpha_spinboxes.size() - 1));
 }
 
 void TGVKDeshadeMaskedWidget::on_save_div_v_button_clicked()
