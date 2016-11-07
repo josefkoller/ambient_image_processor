@@ -141,7 +141,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(tgvk_deshade_masked_widget);
     modules.push_back(tgvk_deshade_downsampled_widget);
 
-    modules.push_back(new ConjugateGradientWidget("Conjugate Gradient", module_parent));
+    modules.push_back(new ConjugateGradientWidget("Poisson Solvers", module_parent));
 
     // register modules and add widget modules
     module_parent->hide();
