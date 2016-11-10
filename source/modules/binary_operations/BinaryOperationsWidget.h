@@ -28,6 +28,8 @@ private slots:
 
     void on_image2_factor_spinbox_valueChanged(double arg1);
 
+    void on_clearButton_clicked();
+
 private:
     Ui::BinaryOperationsWidget *ui;
     ImageViewWidget* second_image_widget;

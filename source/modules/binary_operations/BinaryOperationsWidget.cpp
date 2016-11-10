@@ -88,3 +88,8 @@ void BinaryOperationsWidget::on_image2_factor_spinbox_valueChanged(double arg1)
 {
     this->processInWorkerThread();
 }
+
+void BinaryOperationsWidget::on_clearButton_clicked()
+{
+    this->second_image_widget->setImage(ITKImage());
+}

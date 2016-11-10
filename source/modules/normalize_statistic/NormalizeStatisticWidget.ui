@@ -27,9 +27,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="mean_add_constant_checkbox">
+       <widget class="QRadioButton" name="mean_factor_checkbox">
         <property name="text">
-         <string>Mean by additive constant</string>
+         <string>Mean by factor</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -37,9 +37,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="mean_factor_checkbox">
+       <widget class="QRadioButton" name="mean_add_constant_checkbox">
         <property name="text">
-         <string>Mean by factor</string>
+         <string>Mean by additive constant</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
