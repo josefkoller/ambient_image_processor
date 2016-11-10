@@ -40,6 +40,7 @@
 
 #include "BSplineInterpolationWidget.h"
 #include "ManualDrawMask.h"
+#include "NormalizeStatisticWidget.h"
 
 /*
 #include "TGVDeshadeWidget.h"
@@ -113,6 +114,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(new MorphologicalFilterWidget("Morphological Filter", module_parent));
     modules.push_back(new ConvolutionWidget("3x3x3 Convolution", module_parent));
     modules.push_back(new RescaleIntensityWidget("Rescale Intensity", module_parent));
+    modules.push_back(new NormalizeStatisticWidget("Normalize Statistic", module_parent));
     modules.push_back(new ShrinkWidget("Shrink", module_parent));
     modules.push_back(new ExtractWidget("Extract", module_parent));
     modules.push_back(new ResizeWidget("Resize", module_parent));
@@ -220,7 +222,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
         QAction* module_action = tools_menu->addAction(module->getTitle());
 
         if(widget->getTitle() == "Histogram" ||
-           widget->getTitle() == "Rescale Intensity" ||
+           widget->getTitle() == "Normalize Statistic" ||
            widget->getTitle() == "BSpline Interpolation" ||
            widget->getTitle() == "Bilateral Filter" ||
            widget->getTitle() == "TGV Lambdas" ||
