@@ -69,15 +69,17 @@ Pixel* binarize_kernel_launch(Pixel* image,
 
 
 template<typename Pixel>
-double tv_kernel_launch(Pixel* image,
-                        uint width, uint height, uint depth);
+double tv_kernel_launch(Pixel* image, uint width, uint height, uint depth);
 
 template<typename Pixel>
-Pixel* log_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+Pixel* log_kernel_launch(Pixel* image, uint width, uint height, uint depth);
 template<typename Pixel>
-Pixel* exp_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+Pixel* exp_kernel_launch(Pixel* image, uint width, uint height, uint depth);
+
+template<typename Pixel>
+Pixel* div_grad_kernel_launch(Pixel* image, uint width, uint height, uint depth);
+template<typename Pixel>
+Pixel* div_grad_2d_kernel_launch(Pixel* image, uint width, uint height);
 
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
@@ -182,6 +184,15 @@ ITKImage CudaImageOperationsProcessor::convolution3x3x3(ITKImage image, ITKImage
     return perform(image, [&image, kernel, correct_center](Pixels image_pixels) {
         return convolution3x3x3_kernel_launch(image_pixels,
                                      image.width, image.height, image.depth, kernel, correct_center);
+    });
+}
+
+ITKImage CudaImageOperationsProcessor::divGrad(ITKImage image) {
+    return perform(image, [&image](Pixels image_pixels) {
+        if(image.depth == 1)
+            return div_grad_2d_kernel_launch(image_pixels, image.width, image.height);
+
+        return div_grad_kernel_launch(image_pixels, image.width, image.height, image.depth);
     });
 }
 

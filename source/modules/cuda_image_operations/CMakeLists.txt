@@ -34,6 +34,8 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/binarize.cu
   ${CMAKE_CURRENT_LIST_DIR}/log.cu
   ${CMAKE_CURRENT_LIST_DIR}/exp.cu
+  ${CMAKE_CURRENT_LIST_DIR}/div_grad.cu
+  ${CMAKE_CURRENT_LIST_DIR}/div_grad_2d.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

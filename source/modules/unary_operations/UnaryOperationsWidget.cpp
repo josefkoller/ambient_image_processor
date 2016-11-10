@@ -42,6 +42,11 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
         image = this->rescale(image);
         return CudaImageOperationsProcessor::log(image);
     }
+
+    if(this->ui->div_grad_checkbox->isChecked())
+    {
+        return CudaImageOperationsProcessor::divGrad(image);
+    }
 }
 
 ITKImage UnaryOperationsWidget::rescale(ITKImage image)

@@ -50,6 +50,7 @@ public:
     static double tv(ITKImage image);
 
     static ITKImage binarize(ITKImage image);
+    static ITKImage divGrad(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H
