@@ -309,7 +309,14 @@ void ImageWidget::on_load_button_clicked()
     if(file_name == QString::null || !QFile(file_name).exists())
         return;
 
-    this->setImage(ITKImage::read(file_name.toStdString()));
+    auto name = QFileInfo(file_name).fileName();
+    auto image = ITKImage::read(file_name.toStdString());
+    if(!image.isNull()) {
+        this->setImage(image);
+        this->handleStatusTextChange("loaded image: " + name);
+    }
+    else
+        this->handleStatusTextChange("could not load image: " + name);
 }
 
 void ImageWidget::on_save_button_clicked()
