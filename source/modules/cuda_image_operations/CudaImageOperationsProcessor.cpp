@@ -7,37 +7,37 @@ Pixel* multiply_kernel_launch(Pixel* image1, Pixel* image2,
                               uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* divide_kernel_launch(Pixel* image1, Pixel* image2,
-                              uint width, uint height, uint depth);
+                            uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* add_kernel_launch(Pixel* image1, Pixel* image2,
-                              uint width, uint height, uint depth);
+                         uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* subtract_kernel_launch(Pixel* image1, Pixel* image2,
                               uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* convolution3x3_kernel_launch(Pixel* image1,
-                              uint width, uint height, uint depth,
-                                    Pixel* kernel);
+                                    uint width, uint height,
+                                    Pixel* kernel, bool calculate_center_as_sum_of_others);
 template<typename Pixel>
 Pixel* convolution3x3x3_kernel_launch(Pixel* image1,
-                              uint width, uint height, uint depth,
-                                    Pixel* kernel, bool correct_center);
+                                      uint width, uint height, uint depth,
+                                      Pixel* kernel, bool calculate_center_as_sum_of_others);
 
 template<typename Pixel>
 Pixel* add_constant_kernel_launch(Pixel* image1,
-                              uint width, uint height, uint depth,
-                              Pixel constant);
+                                  uint width, uint height, uint depth,
+                                  Pixel constant);
 template<typename Pixel>
 Pixel* multiply_constant_kernel_launch(Pixel* image1,
-                              uint width, uint height, uint depth,
-                              Pixel constant);
+                                       uint width, uint height, uint depth,
+                                       Pixel constant);
 
 template<typename Pixel>
 Pixel* cosine_transform_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+                                      uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* inverse_cosine_transform_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+                                              uint width, uint height, uint depth);
 
 template<typename Pixel>
 Pixel* divergence_kernel_launch(
@@ -51,18 +51,18 @@ Pixel* divergence_2d_kernel_launch(
 
 template<typename Pixel>
 Pixel* solve_poisson_in_cosine_domain_kernel_launch(Pixel* image_host,
-                              uint width, uint height, uint depth);
+                                                    uint width, uint height, uint depth);
 
 template<typename Pixel>
 Pixel* invert_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+                            uint width, uint height, uint depth);
 template<typename Pixel>
 Pixel* binary_dilate_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth);
+                                   uint width, uint height, uint depth);
 
 template<typename Pixel>
 Pixel* clamp_negative_values_kernel_launch(Pixel* image,
-                              uint width, uint height, uint depth, Pixel value);
+                                           uint width, uint height, uint depth, Pixel value);
 template<typename Pixel>
 Pixel* binarize_kernel_launch(Pixel* image,
                               uint width, uint height, uint depth);
@@ -99,9 +99,9 @@ ITKImage CudaImageOperationsProcessor::divide(ITKImage image1, ITKImage image2)
 {
     return perform(image1, image2, [&image1](Pixels pixels1, Pixels pixels2) {
         return divide_kernel_launch(pixels1, pixels2,
-                                      image1.width,
-                                      image1.height,
-                                      image1.depth);
+                                    image1.width,
+                                    image1.height,
+                                    image1.depth);
     });
 }
 
@@ -109,9 +109,9 @@ ITKImage CudaImageOperationsProcessor::add(ITKImage image1, ITKImage image2)
 {
     return perform(image1, image2, [&image1](Pixels pixels1, Pixels pixels2) {
         return add_kernel_launch(pixels1, pixels2,
-                                      image1.width,
-                                      image1.height,
-                                      image1.depth);
+                                 image1.width,
+                                 image1.height,
+                                 image1.depth);
     });
 }
 
@@ -158,7 +158,7 @@ ITKImage CudaImageOperationsProcessor::addConstant(ITKImage image, ITKImage::Pix
 {
     return perform(image, [&image, constant](Pixels image_pixels) {
         return add_constant_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth, constant);
+                                          image.width, image.height, image.depth, constant);
     });
 }
 
@@ -166,24 +166,27 @@ ITKImage CudaImageOperationsProcessor::multiplyConstant(ITKImage image, ITKImage
 {
     return perform(image, [&image, constant](Pixels image_pixels) {
         return multiply_constant_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth, constant);
+                                               image.width, image.height, image.depth, constant);
     });
 }
 
-ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel)
+ITKImage CudaImageOperationsProcessor::convolution3x3(ITKImage image, ITKImage::PixelType* kernel,
+                                                      bool calculate_center_as_sum_of_others)
 {
-    return perform(image, [&image, kernel](Pixels image_pixels) {
+    return perform(image, [&image, kernel, calculate_center_as_sum_of_others](Pixels image_pixels) {
         return convolution3x3_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth, kernel);
+                                            image.width, image.height, kernel, calculate_center_as_sum_of_others);
     });
 }
 
 ITKImage CudaImageOperationsProcessor::convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel,
-                                                        bool correct_center)
+                                                        bool calculate_center_as_sum_of_others)
 {
-    return perform(image, [&image, kernel, correct_center](Pixels image_pixels) {
+    return perform(image, [&image, kernel, calculate_center_as_sum_of_others](
+                   Pixels image_pixels) {
         return convolution3x3x3_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth, kernel, correct_center);
+                                              image.width, image.height, image.depth, kernel,
+                                              calculate_center_as_sum_of_others);
     });
 }
 
@@ -263,15 +266,15 @@ ITKImage CudaImageOperationsProcessor::solvePoissonInCosineDomain(ITKImage image
 {
     return perform(image, [&image](Pixels image_pixels) {
         return solve_poisson_in_cosine_domain_kernel_launch(image_pixels,
-                                     image.width, image.height, image.depth);
+                                                            image.width, image.height, image.depth);
     });
 }
 
 ITKImage CudaImageOperationsProcessor::invert(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
-            return invert_kernel_launch(image_pixels,
-                                        image.width, image.height, image.depth);
+        return invert_kernel_launch(image_pixels,
+                                    image.width, image.height, image.depth);
     });
 }
 
@@ -280,14 +283,14 @@ ITKImage CudaImageOperationsProcessor::log(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
         return log_kernel_launch(image_pixels,
-                                    image.width, image.height, image.depth);
+                                 image.width, image.height, image.depth);
     });
 }
 ITKImage CudaImageOperationsProcessor::exp(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {
         return exp_kernel_launch(image_pixels,
-                                    image.width, image.height, image.depth);
+                                 image.width, image.height, image.depth);
     });
 }
 
@@ -310,16 +313,16 @@ ITKImage CudaImageOperationsProcessor::binary_dilate(ITKImage image)
     return result;
     */
     return perform(image, [&image](Pixels image_pixels) {
-            return binary_dilate_kernel_launch(image_pixels,
-                                        image.width, image.height, image.depth);
+        return binary_dilate_kernel_launch(image_pixels,
+                                           image.width, image.height, image.depth);
     });
 }
 
 ITKImage CudaImageOperationsProcessor::clamp_negative_values(ITKImage image, ITKImage::PixelType value)
 {
     return perform(image, [&image, value](Pixels image_pixels) {
-            return clamp_negative_values_kernel_launch(image_pixels,
-                                        image.width, image.height, image.depth, value);
+        return clamp_negative_values_kernel_launch(image_pixels,
+                                                   image.width, image.height, image.depth, value);
     });
 }
 

@@ -26,9 +26,12 @@ private slots:
 
     void on_load_mean_setting_button_clicked();
 
+    void on_calculate_center_as_sum_of_others_checkbox_clicked(bool checked);
+
 private:
     Ui::ConvolutionWidget *ui;
 
+    ITKImage processImage2D(ITKImage image);
 protected:
     ITKImage processImage(ITKImage image);
 };

@@ -109,6 +109,9 @@
       </item>
       <item row="2" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
        <widget class="QDoubleSpinBox" name="k22">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimum">
          <double>-999.000000000000000</double>
         </property>
@@ -161,12 +164,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="correct_center_checkbox">
+       <widget class="QCheckBox" name="calculate_center_as_sum_of_others_checkbox">
         <property name="whatsThis">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the center kernel element will be adjusted in the first and last layer by summing up the used kernel values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Correct center element in inner layers</string>
+         <string>Calculate Center As Sum Of Others</string>
         </property>
         <property name="checked">
          <bool>true</bool>

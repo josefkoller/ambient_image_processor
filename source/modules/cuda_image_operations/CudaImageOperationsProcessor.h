@@ -25,8 +25,8 @@ public:
     static ITKImage addConstant(ITKImage image, ITKImage::PixelType constant);
     static ITKImage multiplyConstant(ITKImage image, ITKImage::PixelType constant);
 
-    static ITKImage convolution3x3(ITKImage image, ITKImage::PixelType* kernel);
-    static ITKImage convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel, bool correct_center);
+    static ITKImage convolution3x3(ITKImage image, ITKImage::PixelType* kernel, bool calculate_center_as_sum_of_others);
+    static ITKImage convolution3x3x3(ITKImage image, ITKImage::PixelType* kernel, bool calculate_center_as_sum_of_others);
 
     static ITKImage cosineTransform(ITKImage image);
     static ITKImage inverseCosineTransform(ITKImage image);
