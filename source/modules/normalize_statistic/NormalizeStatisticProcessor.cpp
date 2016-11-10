@@ -11,7 +11,7 @@ NormalizeStatisticProcessor::NormalizeStatisticProcessor()
 {
 }
 
-ITKImage NormalizeStatisticProcessor::equalizeMean(ITKImage image, ITKImage reference_image)
+ITKImage NormalizeStatisticProcessor::equalizeMeanAddConstant(ITKImage image, ITKImage reference_image)
 {
     StatisticsCalculator::Pointer statistics_calculator = StatisticsCalculator::New();
     statistics_calculator->SetInput(image.getPointer());
@@ -25,6 +25,22 @@ ITKImage NormalizeStatisticProcessor::equalizeMean(ITKImage image, ITKImage refe
     auto difference = reference_image_mean - image_mean;
 
     return CudaImageOperationsProcessor::addConstant(image, difference);
+}
+
+ITKImage NormalizeStatisticProcessor::equalizeMeanScale(ITKImage image, ITKImage reference_image)
+{
+    StatisticsCalculator::Pointer statistics_calculator = StatisticsCalculator::New();
+    statistics_calculator->SetInput(image.getPointer());
+    statistics_calculator->Update();
+
+    ITKImage::PixelType image_mean = statistics_calculator->GetMean();
+    statistics_calculator->SetInput(reference_image.getPointer());
+    statistics_calculator->Update();
+    ITKImage::PixelType reference_image_mean = statistics_calculator->GetMean();
+
+    auto ratio = reference_image_mean / image_mean;
+
+    return CudaImageOperationsProcessor::multiplyConstant(image, ratio);
 }
 
 ITKImage NormalizeStatisticProcessor::equalizeStandardDeviation(ITKImage image, ITKImage reference_image)

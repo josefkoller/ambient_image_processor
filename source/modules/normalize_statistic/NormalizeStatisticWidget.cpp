@@ -45,8 +45,10 @@ ITKImage NormalizeStatisticWidget::processImage(ITKImage image)
     if(reference_image.isNull())
         throw std::runtime_error("No reference image given");
 
-    if(this->ui->mean_checkbox->isChecked())
-        return NormalizeStatisticProcessor::equalizeMean(image, reference_image);
+    if(this->ui->mean_add_constant_checkbox->isChecked())
+        return NormalizeStatisticProcessor::equalizeMeanAddConstant(image, reference_image);
+    else if(this->ui->mean_factor_checkbox->isChecked())
+        return NormalizeStatisticProcessor::equalizeMeanScale(image, reference_image);
     else if(this->ui->maxmin_checkbox->isChecked())
             return NormalizeStatisticProcessor::equalizeMaxMin(image, reference_image);
 

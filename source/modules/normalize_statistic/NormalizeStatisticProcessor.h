@@ -9,7 +9,8 @@ private:
     NormalizeStatisticProcessor();
 
 public:
-    static ITKImage equalizeMean(ITKImage image, ITKImage reference_image);
+    static ITKImage equalizeMeanAddConstant(ITKImage image, ITKImage reference_image);
+    static ITKImage equalizeMeanScale(ITKImage image, ITKImage reference_image);
     static ITKImage equalizeStandardDeviation(ITKImage image, ITKImage reference_image);
     static ITKImage equalizeMaxMin(ITKImage image, ITKImage reference_image);
 };
