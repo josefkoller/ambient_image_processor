@@ -199,6 +199,13 @@ ITKImage CudaImageOperationsProcessor::divGrad(ITKImage image) {
     });
 }
 
+ITKImage CudaImageOperationsProcessor::remove_zero_frequency(ITKImage image)
+{
+    auto dct_image = cosineTransform(image);
+    dct_image.setPixel(0,0,0, 0);
+    return inverseCosineTransform(dct_image);
+}
+
 ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
 {
     return perform(image, [&image](Pixels image_pixels) {

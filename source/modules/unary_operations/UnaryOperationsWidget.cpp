@@ -50,6 +50,9 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
     {
         return CudaImageOperationsProcessor::divGrad(image);
     }
+
+    if(this->ui->remove_zero_frequency_checkbox->isChecked())
+        return CudaImageOperationsProcessor::remove_zero_frequency(image);
 }
 
 void UnaryOperationsWidget::on_perform_button_clicked()

@@ -51,6 +51,7 @@ public:
 
     static ITKImage binarize(ITKImage image);
     static ITKImage divGrad(ITKImage image);
+    static ITKImage remove_zero_frequency(ITKImage image);
 };
 
 #endif // CUDAIMAGEOPERATIONSPROCESSOR_H

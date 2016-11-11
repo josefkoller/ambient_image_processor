@@ -58,6 +58,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QRadioButton" name="remove_zero_frequency_checkbox">
+        <property name="text">
+         <string>Remove Zero-Frequency</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="log_checkbox">
         <property name="text">
          <string>log</string>
