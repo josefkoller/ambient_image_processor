@@ -41,6 +41,7 @@
 #include "BSplineInterpolationWidget.h"
 #include "ManualDrawMask.h"
 #include "NormalizeStatisticWidget.h"
+#include "MaskWidget.h"
 
 /*
 #include "TGVDeshadeWidget.h"
@@ -108,6 +109,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     modules.push_back(image_view_control_widget);
     modules.push_back(new LineProfileWidget("Line Profile", module_parent));
     modules.push_back(new HistogramWidget("Histogram", module_parent));
+    modules.push_back(new MaskWidget("Mask", module_parent));
     modules.push_back(new BinaryOperationsWidget("Binary Operations", module_parent));
     modules.push_back(new UnaryOperationsWidget("Unary Operations", module_parent));
     modules.push_back(new ThresholdFilterWidget("Threshold", module_parent));
@@ -221,7 +223,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
 
         QAction* module_action = tools_menu->addAction(module->getTitle());
 
-        if(widget->getTitle() == "Histogram" ||
+        if(widget->getTitle() == "Mask" ||
            widget->getTitle() == "Normalize Statistic" ||
            widget->getTitle() == "BSpline Interpolation" ||
            widget->getTitle() == "Bilateral Filter" ||

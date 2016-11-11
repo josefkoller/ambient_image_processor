@@ -43,6 +43,7 @@ public:
     ImageWidget* getOutputWidget() const;
     void setPage(unsigned char page_index);
 
+    BaseModule* getModuleByName(QString module_title) const;
 private:
     Ui::ImageWidget *ui;
     QList<BaseModule*> modules;
@@ -55,7 +56,6 @@ private:
 
     void paintImage(bool repaint = false);
     void setMinimumSizeToImage();
-    BaseModule* getModuleByName(QString module_title) const;
 
     ImageViewWidget* image_view_widget;
     SliceControlWidget* slice_control_widget;

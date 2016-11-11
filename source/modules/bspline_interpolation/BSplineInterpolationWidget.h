@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "BaseModuleWidget.h"
 #include "ImageViewWidget.h"
+#include "MaskWidget.h"
 
 namespace Ui {
 class BSplineInterpolationWidget;
@@ -21,14 +22,12 @@ public:
 private:
     Ui::BSplineInterpolationWidget *ui;
 
-    ImageViewWidget* mask_view;
+    MaskWidget::MaskFetcher mask_fetcher;
 
 protected:
     virtual ITKImage processImage(ITKImage image);
 private slots:
     void on_performButton_clicked();
-    void on_load_mask_button_clicked();
-    void on_clear_mask_button_clicked();
 };
 
 #endif // BSPLINEINTERPOLATIONWIDGET_H

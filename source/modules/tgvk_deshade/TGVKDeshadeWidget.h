@@ -4,6 +4,7 @@
 #include "BaseModuleWidget.h"
 #include "TGVKDeshadeProcessor.h"
 #include "ImageViewWidget.h"
+#include "MaskWidget.h"
 
 #include <QVector>
 #include <QDoubleSpinBox>
@@ -24,10 +25,7 @@ private slots:
     void on_perform_button_clicked();
     void on_stop_button_clicked();
     void on_save_second_output_button_clicked();
-    void on_load_mask_button_clicked();
     void on_save_denoised_button_clicked();
-
-    void on_clear_mask_button_clicked();
 
     void on_order_spinbox_editingFinished();
 
@@ -39,8 +37,8 @@ private:
 protected:
     ImageViewWidget* shading_output_view;
     ImageViewWidget* denoised_output_view;
-    ImageViewWidget* mask_view;
     ImageViewWidget* div_v_view;
+    MaskWidget::MaskFetcher mask_fetcher;
 
     TGVKDeshadeProcessor::IterationFinishedThreeImages iteration_finished_callback;
     bool stop_after_next_iteration;

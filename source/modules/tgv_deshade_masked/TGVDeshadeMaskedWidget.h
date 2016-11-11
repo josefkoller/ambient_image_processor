@@ -3,6 +3,7 @@
 
 #include "BaseModuleWidget.h"
 #include "ImageViewWidget.h"
+#include "MaskWidget.h"
 
 namespace Ui {
 class TGVDeshadeMaskedWidget;
@@ -23,7 +24,7 @@ protected:
 
     ImageViewWidget* shading_output_view;
     ImageViewWidget* denoised_output_view;
-    ImageViewWidget* mask_view;
+    MaskWidget::MaskFetcher mask_fetcher;
 
     TGVDeshadeMaskedProcessor::IterationFinishedThreeImages iteration_finished_callback;
     bool stop_after_next_iteration;
@@ -37,7 +38,6 @@ private slots:
     void on_perform_button_clicked();
     void on_stop_button_clicked();
     void on_save_second_output_button_clicked();
-    void on_load_mask_button_clicked();
     void on_save_denoised_button_clicked();
 };
 

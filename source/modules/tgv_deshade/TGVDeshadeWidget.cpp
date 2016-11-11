@@ -16,17 +16,12 @@ TGVDeshadeWidget::TGVDeshadeWidget(QString title, QWidget* parent) :
 
     this->denoised_output_view = new ImageViewWidget("Denoised", this->ui->denoised_frame);
     this->ui->denoised_frame->layout()->addWidget(this->denoised_output_view);
-
-    this->mask_view = new ImageViewWidget("Mask", this->ui->mask_frame);
-    this->ui->mask_frame->layout()->addWidget(this->mask_view);
 }
 
 TGVDeshadeWidget::~TGVDeshadeWidget()
 {
     delete ui;
 }
-
-
 
 void TGVDeshadeWidget::registerModule(ImageWidget *image_widget)
 {
@@ -43,6 +38,8 @@ void TGVDeshadeWidget::registerModule(ImageWidget *image_widget)
     this->denoised_output_view->registerCrosshairSubmodule(image_widget);
     connect(image_widget, &ImageWidget::sliceIndexChanged,
             this->denoised_output_view, &ImageViewWidget::sliceIndexChanged);
+
+    this->mask_fetcher = MaskWidget::createMaskFetcher(image_widget);
 }
 
 void TGVDeshadeWidget::setIterationFinishedCallback(TGVDeshadeProcessor::IterationFinished iteration_finished_callback)
@@ -68,7 +65,9 @@ ITKImage TGVDeshadeWidget::processImage(ITKImage image)
     const uint paint_iteration_interval = this->ui->paint_iteration_interval_spinbox->value();
 
     const bool set_negative_values_to_zero = this->ui->set_negative_values_to_zero_checkbox->isChecked();
-    auto mask = this->mask_view->getImage();
+
+    ITKImage mask = this->ui->use_mask_module_checkbox->isChecked() ?
+        mask_fetcher() : ITKImage();
 
     const bool add_background_back = this->ui->add_background_back_checkbox->isChecked();
 
@@ -135,15 +134,6 @@ void TGVDeshadeWidget::on_save_second_output_button_clicked()
         return;
 
     image.write(file_name.toStdString());
-}
-
-void TGVDeshadeWidget::on_load_mask_button_clicked()
-{
-    QString file_name = QFileDialog::getOpenFileName(this, "open volume file");
-    if(file_name == QString::null || !QFile(file_name).exists())
-        return;
-
-    this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
 }
 
 void TGVDeshadeWidget::on_save_denoised_button_clicked()
