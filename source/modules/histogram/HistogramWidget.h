@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "BaseModuleWidget.h"
+#include "MaskWidget.h"
 
 Q_DECLARE_METATYPE(std::vector<double>)
 
@@ -22,6 +23,8 @@ private:
     Ui::HistogramWidget *ui;
 
     ITKImage image;
+
+    MaskWidget::MaskFetcher mask_fetcher;
 private slots:
     void histogram_mouse_move(QMouseEvent* event);
     void handleImageChanged(ITKImage image);

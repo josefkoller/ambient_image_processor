@@ -14,7 +14,7 @@ enum KernelType {
 
 template<typename Pixel>
 __global__ void kernel_density_estimation_kernel_uniform(
-  Pixel* image, uint voxel_count,
+  Pixel* image, Pixel* mask, uint voxel_count,
   Pixel window_from, Pixel window_to,
   Pixel* spectrum, uint spectrum_bandwidth,
   Pixel kernel_bandwidth)
@@ -30,6 +30,9 @@ __global__ void kernel_density_estimation_kernel_uniform(
     spectrum[spectrum_index] = 0;
     for(uint pixel_index = 0; pixel_index < voxel_count; pixel_index++)
     {
+        if(mask != nullptr && mask[pixel_index] == 0)
+            continue;
+
         Pixel pixel_value = image[pixel_index];
         Pixel u = (spectrum_value - pixel_value) / kernel_bandwidth;
         if(fabs(u) >= 1)
@@ -41,7 +44,7 @@ __global__ void kernel_density_estimation_kernel_uniform(
 
 template<typename Pixel>
 __global__ void kernel_density_estimation_kernel_gaussian(
-  Pixel* image, uint voxel_count,
+  Pixel* image, Pixel* mask, uint voxel_count,
   Pixel window_from, Pixel window_to,
   Pixel* spectrum, uint spectrum_bandwidth,
   Pixel kernel_bandwidth)
@@ -57,6 +60,9 @@ __global__ void kernel_density_estimation_kernel_gaussian(
     spectrum[spectrum_index] = 0;
     for(uint pixel_index = 0; pixel_index < voxel_count; pixel_index++)
     {
+        if(mask != nullptr && mask[pixel_index] == 0)
+            continue;
+
         Pixel pixel_value = image[pixel_index];
         Pixel u = (spectrum_value - pixel_value) / kernel_bandwidth;
         if(fabs(u) >= 1)
@@ -68,7 +74,7 @@ __global__ void kernel_density_estimation_kernel_gaussian(
 
 template<typename Pixel>
 __global__ void kernel_density_estimation_kernel_cosine(
-  Pixel* image, uint voxel_count,
+  Pixel* image, Pixel* mask, uint voxel_count,
   Pixel window_from, Pixel window_to,
   Pixel* spectrum, uint spectrum_bandwidth,
   Pixel kernel_bandwidth)
@@ -84,6 +90,9 @@ __global__ void kernel_density_estimation_kernel_cosine(
     spectrum[spectrum_index] = 0;
     for(uint pixel_index = 0; pixel_index < voxel_count; pixel_index++)
     {
+        if(mask != nullptr && mask[pixel_index] == 0)
+            continue;
+
         Pixel pixel_value = image[pixel_index];
         Pixel u = (spectrum_value - pixel_value) / kernel_bandwidth;
         if(fabs(u) >= 1)
@@ -95,7 +104,7 @@ __global__ void kernel_density_estimation_kernel_cosine(
 
 template<typename Pixel>
 __global__ void kernel_density_estimation_kernel_epanechnik(
-  Pixel* image, uint voxel_count,
+  Pixel* image, Pixel* mask, uint voxel_count,
   Pixel window_from, Pixel window_to,
   Pixel* spectrum, uint spectrum_bandwidth,
   Pixel kernel_bandwidth)
@@ -111,6 +120,9 @@ __global__ void kernel_density_estimation_kernel_epanechnik(
     spectrum[spectrum_index] = 0;
     for(uint pixel_index = 0; pixel_index < voxel_count; pixel_index++)
     {
+        if(mask != nullptr && mask[pixel_index] == 0)
+            continue;
+
         Pixel pixel_value = image[pixel_index];
         Pixel u = (spectrum_value - pixel_value) / kernel_bandwidth;
         if(fabs(u) >= 1)
@@ -121,7 +133,7 @@ __global__ void kernel_density_estimation_kernel_epanechnik(
 }
 
 template<typename Pixel>
-Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
+Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host, Pixel* mask_host,
                                               uint voxel_count,
                                               uint spectrum_bandwidth,
                                               Pixel kernel_bandwidth,
@@ -139,11 +151,14 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
  //   printf("block dimensions: %d \n", block_dimension.x);
  //   printf("grid dimensions: %d \n", grid_dimension.x);
 
-    Pixel* image;
+    Pixel* image, *mask;
     size_t image_size = sizeof(Pixel) * voxel_count;
 
     cudaCheckError( cudaMalloc(&image, image_size) );
     cudaCheckError( cudaMemcpy(image, image_host, image_size, cudaMemcpyHostToDevice) );
+
+    cudaCheckError( cudaMalloc(&mask, image_size) );
+    cudaCheckError( cudaMemcpy(mask, mask_host, image_size, cudaMemcpyHostToDevice) );
 
     Pixel* spectrum;
     size_t spectrum_size = sizeof(Pixel) * spectrum_bandwidth;
@@ -151,25 +166,25 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
 
     if(kernel_type == Uniform)
         kernel_density_estimation_kernel_uniform<<<grid_dimension, block_dimension>>>(
-          image, voxel_count,
+          image, mask, voxel_count,
           window_from, window_to,
           spectrum, spectrum_bandwidth,
           kernel_bandwidth);
     else if(kernel_type == Gaussian)
         kernel_density_estimation_kernel_gaussian<<<grid_dimension, block_dimension>>>(
-          image, voxel_count,
+          image, mask, voxel_count,
           window_from, window_to,
           spectrum, spectrum_bandwidth,
           kernel_bandwidth);
     else if(kernel_type == Cosine)
         kernel_density_estimation_kernel_cosine<<<grid_dimension, block_dimension>>>(
-          image, voxel_count,
+          image, mask, voxel_count,
           window_from, window_to,
           spectrum, spectrum_bandwidth,
           kernel_bandwidth);
     else if(kernel_type == Epanechnik)
         kernel_density_estimation_kernel_epanechnik<<<grid_dimension, block_dimension>>>(
-          image, voxel_count,
+          image, mask, voxel_count,
           window_from, window_to,
           spectrum, spectrum_bandwidth,
           kernel_bandwidth);
@@ -185,13 +200,14 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host,
     cudaCheckError( cudaMemcpy(spectrum_host, spectrum, spectrum_size, cudaMemcpyDeviceToHost) );
     cudaCheckError( cudaDeviceSynchronize() );
 
+    cudaFree(mask);
     cudaFree(image);
     cudaFree(spectrum);
 
     return spectrum_host;
 }
 
-template double* kernel_density_estimation_kernel_launch(double* image_pixels,
+template double* kernel_density_estimation_kernel_launch(double* image_pixels, double* mask_pixels,
 uint voxel_count,
 uint spectrum_bandwidth,
 double kernel_bandwidth,
@@ -199,7 +215,7 @@ uint kernel_type,
 double window_from,
 double window_to);
 
-template float* kernel_density_estimation_kernel_launch(float* image_pixels,
+template float* kernel_density_estimation_kernel_launch(float* image_pixels, float* mask_pixels,
 uint voxel_count,
 uint spectrum_bandwidth,
 float kernel_bandwidth,

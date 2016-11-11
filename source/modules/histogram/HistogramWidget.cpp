@@ -69,6 +69,8 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
             this, &HistogramWidget::handleImageChanged);
     connect(this, &HistogramWidget::fireImageRepaint,
             image_widget, &ImageWidget::repaintImage);
+
+    this->mask_fetcher = MaskWidget::createMaskFetcher(image_widget);
 }
 
 bool HistogramWidget::calculatesResultImage() const
@@ -100,9 +102,13 @@ ITKImage HistogramWidget::processImage(ITKImage image)
     ITKImage::PixelType window_from = this->ui->window_from_spinbox->value();
     ITKImage::PixelType window_to = this->ui->window_to_spinbox->value();
 
+    ITKImage mask = this->ui->use_mask_module_checkbox->isChecked() ?
+        mask_fetcher() : ITKImage();
+
     std::vector<double> intensities;
     std::vector<double> probabilities;
     HistogramProcessor::calculate(this->image,
+                                  mask,
                                   spectrum_bandwidth,
                                   kernel_bandwidth,
                                   kernel_type,
@@ -237,4 +243,9 @@ void HistogramWidget::on_save_button_clicked()
         saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
 
     this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
+}
+
+void HistogramWidget::on_use_mask_module_checkbox_clicked()
+{
+    this->calculateHistogram();
 }

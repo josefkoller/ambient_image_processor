@@ -19,6 +19,7 @@ public:
     };
 
     static void calculate(ITKImage image,
+                          ITKImage mask,
                           uint spectrum_bandwidth,
                           ITKImage::PixelType kernel_bandwidth,
                           KernelType kernel_type,
@@ -28,6 +29,7 @@ public:
                           std::vector<double>& probabilities);
 
     static void calculateFast(ITKImage image,
+                              ITKImage mask,
                           uint spectrum_bandwidth,
                           ITKImage::PixelType window_from,
                           ITKImage::PixelType window_to,
@@ -35,8 +37,8 @@ public:
                           std::vector<double>& probabilities);
 
     static double calculateEntropy(const std::vector<double>& probabilities);
-    static double calculateEntropy(const ITKImage& image, const ITKImage::PixelType kde_bandwidth);
-    static double calculateEntropy(const ITKImage& image, const ITKImage::PixelType kde_bandwidth,
+    static double calculateEntropy(const ITKImage& image, const ITKImage& mask, const ITKImage::PixelType kde_bandwidth);
+    static double calculateEntropy(const ITKImage& image, const ITKImage& mask, const ITKImage::PixelType kde_bandwidth,
                                    const ITKImage::PixelType window_from, const ITKImage::PixelType window_to);
 };
 

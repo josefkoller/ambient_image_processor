@@ -118,9 +118,11 @@ RunMetrics calculate_metrics(RunParameter parameter, const double kde_bandwidth,
   metrics.deshaded_mean_total_variation = CudaImageOperationsProcessor::tv(deshaded_image) / deshaded_image.voxel_count;
   metrics.deshaded_coefficient_of_variation = ImageInformationProcessor::coefficient_of_variation(deshaded_image);
 
+  ITKImage mask;
+
   metrics.deshaded_entropy = window_from == window_to ?
-              HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth) :
-              HistogramProcessor::calculateEntropy(deshaded_image, kde_bandwidth,
+              HistogramProcessor::calculateEntropy(deshaded_image, mask, kde_bandwidth) :
+              HistogramProcessor::calculateEntropy(deshaded_image, mask, kde_bandwidth,
                                                    window_from, window_to);
 
   return metrics;

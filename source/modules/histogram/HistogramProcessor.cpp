@@ -2,6 +2,7 @@
 
 template<typename Pixel>
 Pixel* kernel_density_estimation_kernel_launch(Pixel* image_pixels,
+                                               Pixel* mask_pixels,
                                               uint voxel_count,
                                               uint spectrum_bandwidth,
                                               Pixel kernel_bandwidth,
@@ -15,6 +16,7 @@ HistogramProcessor::HistogramProcessor()
 
 
 void HistogramProcessor::calculate(ITKImage image,
+                                   ITKImage mask,
                                    uint spectrum_bandwidth,
                                    ITKImage::PixelType kernel_bandwidth,
                                    KernelType kernel_type,
@@ -26,7 +28,7 @@ void HistogramProcessor::calculate(ITKImage image,
     if(image.voxel_count > 6e5)
     {
         std::cout << "voxel count too high for KDE algorithm (would take too long)" << std::endl;
-        calculateFast(image,
+        calculateFast(image, mask,
                        spectrum_bandwidth,
                        window_from,
                        window_to,
@@ -36,7 +38,9 @@ void HistogramProcessor::calculate(ITKImage image,
     }
 
     auto image_pixels = image.cloneToPixelArray();
+    auto mask_pixels = mask.cloneToPixelArray();
     ITKImage::PixelType* spectrum = kernel_density_estimation_kernel_launch(image_pixels,
+                                                                            mask_pixels,
                                                              image.voxel_count,
                                                              spectrum_bandwidth,
                                                              kernel_bandwidth,
@@ -78,16 +82,17 @@ double HistogramProcessor::calculateEntropy(const std::vector<double>& probabili
 }
 
 
-double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::PixelType kde_bandwidth)
+double HistogramProcessor::calculateEntropy(const ITKImage& image,const ITKImage& mask, ITKImage::PixelType kde_bandwidth)
 {
     typedef ITKImage::PixelType Pixel;
     Pixel min, max;
     image.minimumAndMaximum(min, max);
 
-    return calculateEntropy(image, kde_bandwidth, min, max);
+    return calculateEntropy(image, mask, kde_bandwidth, min, max);
 }
 
-double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::PixelType kde_bandwidth,
+double HistogramProcessor::calculateEntropy(const ITKImage& image, const ITKImage& mask,
+                                            ITKImage::PixelType kde_bandwidth,
                                             const ITKImage::PixelType min, const ITKImage::PixelType max)
 {
     typedef ITKImage::PixelType Pixel;
@@ -97,8 +102,9 @@ double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::Pix
         kde_bandwidth = (max - min) / spectrum_bandwidth;
 
     Pixel* image_pixels = image.cloneToPixelArray();
+    Pixel* mask_pixels = mask.cloneToPixelArray();
     Pixel* spectrum = kernel_density_estimation_kernel_launch(
-       image_pixels, image.voxel_count, spectrum_bandwidth, kde_bandwidth,
+       image_pixels, mask_pixels, image.voxel_count, spectrum_bandwidth, kde_bandwidth,
        3, // kernel type = Epanechnik
        min, max);
     delete[] image_pixels;
@@ -123,6 +129,7 @@ double HistogramProcessor::calculateEntropy(const ITKImage& image, ITKImage::Pix
 }
 
 void HistogramProcessor::calculateFast(ITKImage image,
+                                       ITKImage mask,
                uint spectrum_bandwidth,
                ITKImage::PixelType window_from,
                ITKImage::PixelType window_to,
@@ -137,8 +144,11 @@ void HistogramProcessor::calculateFast(ITKImage image,
         probabilities.push_back(0);
     }
 
-    image.foreachPixel([&probabilities, window_from, delta_spectrum]
-                       (uint, uint, uint, ITKImage::PixelType pixel) {
+    image.foreachPixel([&probabilities, window_from, delta_spectrum, &mask]
+                       (uint x, uint y, uint z, ITKImage::PixelType pixel) {
+        if(!mask.isNull() && mask.getPixel(x,y,z) == 0)
+            return;
+
         int spectrum_index = (pixel - window_from) / delta_spectrum;
         if(spectrum_index < 0 || spectrum_index >= probabilities.size())
             return;
