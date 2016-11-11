@@ -2,10 +2,11 @@
 
 #include <itkImageDuplicator.h>
 #include <itkImageFileReader.h>
-#include <itkRescaleIntensityImageFilter.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkCastImageFilter.h>
+
+#include "RescaleIntensityProcessor.h"
 
 #include <iostream>
 
@@ -125,17 +126,13 @@ void ITKImage::write_png(std::string image_file_path)
 {
     // writing 32bit png
     unsigned short MAX_PIXEL_VALUE = 65535;
-    typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(this->inner_image);
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
-    rescale_filter->Update();
+
+    auto rescaled_image = RescaleIntensityProcessor::process(*this, 0, MAX_PIXEL_VALUE);
 
     typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> PNGImage;
     typedef itk::CastImageFilter<InnerITKImage, PNGImage> CastFilter;
     CastFilter::Pointer cast_filter = CastFilter::New();
-    cast_filter->SetInput(rescale_filter->GetOutput());
+    cast_filter->SetInput(rescaled_image.getPointer());
     cast_filter->Update();
 
     typedef itk::ImageFileWriter<PNGImage> WriterType;
@@ -157,17 +154,13 @@ void ITKImage::write_png(std::string image_file_path)
 void ITKImage::write_dicom(std::string image_file_path)
 {
     unsigned short MAX_PIXEL_VALUE = 4096;
-    typedef itk::RescaleIntensityImageFilter<InnerITKImage, InnerITKImage> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(this->inner_image);
-    rescale_filter->SetOutputMinimum(0);
-    rescale_filter->SetOutputMaximum(MAX_PIXEL_VALUE);
-    rescale_filter->Update();
+
+    auto rescaled_image = RescaleIntensityProcessor::process(*this, 0, MAX_PIXEL_VALUE);
 
     typedef itk::Image<unsigned short, InnerITKImage::ImageDimension> DICOMImage;
     typedef itk::CastImageFilter<InnerITKImage, DICOMImage> CastFilter;
     CastFilter::Pointer cast_filter = CastFilter::New();
-    cast_filter->SetInput(rescale_filter->GetOutput());
+    cast_filter->SetInput(rescaled_image.getPointer());
     cast_filter->Update();
 
     typedef itk::ImageFileWriter<DICOMImage> WriterType;

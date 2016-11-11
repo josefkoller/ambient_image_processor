@@ -2,7 +2,7 @@
 #include "ui_UnaryOperationsWidget.h"
 
 #include "CudaImageOperationsProcessor.h"
-#include <itkRescaleIntensityImageFilter.h>
+#include "RescaleIntensityProcessor.h"
 
 UnaryOperationsWidget::UnaryOperationsWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -39,7 +39,7 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
 
     if(this->ui->log_checkbox->isChecked())
     {
-        image = this->rescale(image);
+        image = RescaleIntensityProcessor::process(image, 1, 2);
         return CudaImageOperationsProcessor::log(image);
     }
 
@@ -47,22 +47,6 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
     {
         return CudaImageOperationsProcessor::divGrad(image);
     }
-}
-
-ITKImage UnaryOperationsWidget::rescale(ITKImage image)
-{
-    typedef ITKImage::InnerITKImage Image;
-    typedef itk::RescaleIntensityImageFilter<Image, Image> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(image.getPointer());
-    rescale_filter->SetOutputMinimum(1);
-    rescale_filter->SetOutputMaximum(2);
-    rescale_filter->Update();
-
-    Image::Pointer result = rescale_filter->GetOutput();
-    result->DisconnectPipeline();
-
-    return ITKImage(result);
 }
 
 void UnaryOperationsWidget::on_perform_button_clicked()
