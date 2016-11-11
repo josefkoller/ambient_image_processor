@@ -62,7 +62,10 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform(ITKImage u, Pixel
     auto r = CudaImageOperationsProcessor::subtract(u, l);
 
     if(!mask.isNull())
+    {
+        l = CudaImageOperationsProcessor::multiply(l, mask);
         r = CudaImageOperationsProcessor::multiply(r, mask);
+    }
 
     if(set_negative_values_to_zero)
         r = CudaImageOperationsProcessor::clamp_negative_values(r, 0);
@@ -84,7 +87,10 @@ ITKImage TGVDeshadeProcessor::deshade_poisson_cosine_transform_2d(ITKImage u, Pi
     auto r = CudaImageOperationsProcessor::subtract(u, l);
 
     if(!mask.isNull())
+    {
+        l = CudaImageOperationsProcessor::multiply(l, mask);
         r = CudaImageOperationsProcessor::multiply(r, mask);
+    }
 
     if(set_negative_values_to_zero)
         r = CudaImageOperationsProcessor::clamp_negative_values(r, 0);
