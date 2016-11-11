@@ -248,6 +248,8 @@ ImageWidget::ImageWidget(QWidget *parent) :
             this->image_view_widget, &ImageViewWidget::doMultiplyChanged);
     connect(image_view_control_widget, &ImageViewControlWidget::useWindowChanged,
             this->image_view_widget, &ImageViewWidget::useWindowChanged);
+    connect(image_view_control_widget, &ImageViewControlWidget::useMaskModule,
+            this->image_view_widget, &ImageViewWidget::useMaskModule);
 
     // iteration finished callback...
     auto iteration_finished_callback = [this](uint index, uint count, ITKImage u) {

@@ -2,10 +2,11 @@
 #include "ui_ImageViewWidget.h"
 
 #include "ITKToQImageConverter.h"
+#include "CrosshairModule.h"
+#include "MaskWidget.h"
+
 #include <QVBoxLayout>
 #include <QFileDialog>
-
-#include "CrosshairModule.h"
 
 ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -65,6 +66,23 @@ void ImageViewWidget::registerModule(ImageWidget* image_widget)
             this, &ImageViewWidget::repaintImageOverlays);
 
     this->registerCrosshairSubmodule(image_widget);
+
+
+    this->mask_fetcher = MaskWidget::createMaskFetcher(image_widget);
+
+    // connect to mask changing...
+    auto module = image_widget->getModuleByName("Mask");
+    auto mask_module = dynamic_cast<MaskWidget*>(module);
+    if(mask_module == nullptr)
+        throw std::runtime_error("did not find mask module");
+    connect(mask_module, &MaskWidget::maskChanged,
+            this, [this](ITKImage) {
+        if(!this->use_mask_module)
+            return;
+
+        this->repaintImage();
+        emit this->imageChanged(image);
+    });
 }
 
 void ImageViewWidget::registerCrosshairSubmodule(ImageWidget* image_widget)
@@ -94,9 +112,26 @@ void ImageViewWidget::useWindowChanged(bool use_window)
 {
     this->use_window = use_window;
 
-    QString border_style = use_window ? "border: 2px solid red" : "border: none";
-    this->ui->image_frame->setStyleSheet(border_style);
+    this->setBorder(use_window, ITKToQImageConverter::upper_window_color);
+    this->repaintImage();
+}
 
+void ImageViewWidget::setBorder(bool enabled, QColor color)
+{
+    QString color_text = QString("rgb(%1, %2, %3)").arg(
+                QString::number(color.red()),
+                QString::number(color.green()),
+                QString::number(color.blue()));
+
+    QString border_style = enabled ? "border: 2px solid " + color_text : "border: none";
+    this->ui->image_frame->setStyleSheet(border_style);
+}
+
+void ImageViewWidget::useMaskModule(bool use_mask_module)
+{
+    this->use_mask_module = use_mask_module;
+
+    this->setBorder(use_mask_module, ITKToQImageConverter::outside_mask_color);
     this->repaintImage();
 }
 
@@ -119,7 +154,12 @@ void ImageViewWidget::paintImage(bool repaint)
     if(this->slice_index > this->image.depth - 1)
         this->slice_index = this->image.depth - 1;
 
+    ITKImage mask;
+    if(this->use_mask_module)
+        mask = this->mask_fetcher();
+
     q_image = ITKToQImageConverter::convert(this->image,
+                                            mask,
                                             this->slice_index,
                                             this->do_rescale,
                                             this->do_multiply,

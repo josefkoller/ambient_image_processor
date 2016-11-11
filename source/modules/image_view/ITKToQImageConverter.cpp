@@ -3,21 +3,27 @@
 #include "ExtractProcessor.h"
 #include "CudaImageOperationsProcessor.h"
 #include "ThresholdFilterProcessor.h"
+#include "RescaleIntensityProcessor.h"
 
-#include <itkRescaleIntensityImageFilter.h>
 #include <QColor>
 
 ITKImage::PixelType* ITKToQImageConverter::window_from = nullptr;
 ITKImage::PixelType* ITKToQImageConverter::window_to = nullptr;
 
 
-const QColor ITKToQImageConverter::lower_window_color = QColor(0, 0, 0);
-const QColor ITKToQImageConverter::upper_window_color = QColor(0, 0, 0);
+const QColor ITKToQImageConverter::lower_window_color = QColor(121, 152, 118);
+const QColor ITKToQImageConverter::upper_window_color = QColor(156, 59, 78);
+const QColor ITKToQImageConverter::outside_mask_color = QColor(148, 101, 83);
 
-QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
+QImage* ITKToQImageConverter::convert(ITKImage itk_image,
+                                      ITKImage mask,
+                                      uint slice_index,
                                       bool do_rescale, bool do_multiply, bool use_window)
 {
     ITKImage slice_image = ExtractProcessor::extract_slice(itk_image, slice_index);
+
+    if(!mask.isNull())
+        mask = ExtractProcessor::extract_slice(mask, slice_index);
 
     ITKImage rescale_source;
     if(use_window && window_from != nullptr && window_to != nullptr) {
@@ -33,14 +39,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
     ITKImage::InnerITKImage::Pointer image_to_show;
     if(do_rescale)
     {
-        typedef itk::RescaleIntensityImageFilter<ITKImage::InnerITKImage> RescaleFilter;
-        RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-        rescale_filter->SetOutputMinimum(0);
-        rescale_filter->SetOutputMaximum(255);
-        rescale_filter->SetInput( rescale_source.getPointer() );
-        rescale_filter->Update();
-        image_to_show = rescale_filter->GetOutput();
-        image_to_show->DisconnectPipeline();
+        image_to_show = RescaleIntensityProcessor::process(rescale_source, 0, 255, mask).getPointer();
     }
     else
     {
@@ -81,7 +80,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
 
             QColor color(value, value, value);
 
-            ITKImage::PixelType non_rescaled_pixel_value = rescale_source.getPixel(x, y, 0);
+            ITKImage::PixelType non_rescaled_pixel_value = slice_image.getPixel(x, y, 0);
 
             // below window
             if(use_window && window_from != nullptr && non_rescaled_pixel_value < (*window_from))
@@ -92,6 +91,11 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image, uint slice_index,
             if(use_window && window_to != nullptr && non_rescaled_pixel_value > (*window_to))
             {
                 color = upper_window_color;
+            }
+
+            // mask
+            if(!mask.isNull() && mask.getPixel(x,y, slice_index) == 0) {
+                color = outside_mask_color;
             }
 
             q_image->setPixel(x, y, color.rgb());

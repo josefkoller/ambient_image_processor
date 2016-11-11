@@ -29,3 +29,8 @@ void ImageViewControlWidget::on_useWindowCheckbox_toggled(bool checked)
 {
     emit this->useWindowChanged(checked);
 }
+
+void ImageViewControlWidget::on_use_mask_module_checkbox_clicked(bool checked)
+{
+    emit this->useMaskModule(checked);
+}

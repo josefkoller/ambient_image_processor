@@ -1,7 +1,7 @@
 #include "RescaleIntensityWidget.h"
 #include "ui_RescaleIntensityWidget.h"
 
-#include <itkRescaleIntensityImageFilter.h>
+#include "RescaleIntensityProcessor.h"
 
 RescaleIntensityWidget::RescaleIntensityWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -22,16 +22,7 @@ void RescaleIntensityWidget::on_perform_button_clicked()
 
 ITKImage RescaleIntensityWidget::processImage(ITKImage image)
 {
-    typedef ITKImage::InnerITKImage Image;
-    typedef itk::RescaleIntensityImageFilter<Image, Image> RescaleFilter;
-    RescaleFilter::Pointer rescale_filter = RescaleFilter::New();
-    rescale_filter->SetInput(image.getPointer());
-    rescale_filter->SetOutputMinimum(this->ui->minimum_spinbox->value());
-    rescale_filter->SetOutputMaximum(this->ui->maximum_spinbox->value());
-    rescale_filter->Update();
-
-    Image::Pointer result = rescale_filter->GetOutput();
-    result->DisconnectPipeline();
-
-    return ITKImage(result);
+    return RescaleIntensityProcessor::process(image,
+                                              this->ui->minimum_spinbox->value(),
+                                              this->ui->maximum_spinbox->value());
 }

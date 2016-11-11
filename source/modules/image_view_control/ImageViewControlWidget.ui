@@ -71,6 +71,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="use_mask_module_checkbox">
+        <property name="text">
+         <string>use Mask Module</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

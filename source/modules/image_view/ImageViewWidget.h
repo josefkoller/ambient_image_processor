@@ -11,6 +11,8 @@ namespace Ui {
 class ImageViewWidget;
 }
 
+typedef std::function<ITKImage()> MaskFetcher;
+
 class CrosshairModule;
 
 class ImageViewWidget : public BaseModuleWidget
@@ -42,6 +44,9 @@ private:
     bool do_rescale;
     bool do_multiply;
     bool use_window;
+    bool use_mask_module;
+
+    MaskFetcher mask_fetcher;
 
     void paintImage(bool repaint = false);
 
@@ -53,6 +58,7 @@ protected:
 
     bool eventFilter(QObject *watched, QEvent *event);
 
+    void setBorder(bool enabled, QColor color);
 signals:
     void pixmapPainted(QPixmap* q_image);
 
@@ -71,6 +77,7 @@ public slots:
     void doRescaleChanged(bool do_rescale);
     void doMultiplyChanged(bool do_multiply);
     void useWindowChanged(bool use_window);
+    void useMaskModule(bool use_mask_module);
 private slots:
     void handleImageChange(ITKImage image);
 };
