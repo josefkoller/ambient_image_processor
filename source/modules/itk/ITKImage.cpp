@@ -91,7 +91,7 @@ ITKImage ITKImage::clone() const
 }
 
 
-ITKImage ITKImage::read(std::string image_file_path, bool rescale)
+ITKImage ITKImage::read(std::string image_file_path)
 {
     // if color file... load the v channel in HSV space
     auto image_file_path_lower = QString::fromStdString(image_file_path).toLower();
