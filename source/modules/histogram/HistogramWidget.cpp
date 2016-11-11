@@ -72,6 +72,17 @@ void HistogramWidget::registerModule(ImageWidget* image_widget)
     connect(this, &HistogramWidget::fireImageRepaint,
             image_widget, &ImageWidget::repaintImage);
 
+    // connect to mask changing...
+    auto module = image_widget->getModuleByName("Mask");
+    auto mask_module = dynamic_cast<MaskWidget*>(module);
+    if(mask_module == nullptr)
+        throw std::runtime_error("did not find mask module, change the registration order?");
+    connect(mask_module, &MaskWidget::maskChanged,
+            this, [this](ITKImage) {
+        if(this->ui->use_mask_module_checkbox->isChecked())
+            this->calculateHistogram();
+    });
+
     this->mask_fetcher = MaskWidget::createMaskFetcher(image_widget);
 }
 

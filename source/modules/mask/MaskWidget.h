@@ -24,12 +24,16 @@ public:
     static MaskFetcher createMaskFetcher(ImageWidget* image_widget);
 private slots:
     void on_load_mask_button_clicked();
+    void on_enabled_checkbox_clicked();
 
 private:
     Ui::MaskWidget *ui;
     ImageViewWidget* mask_view;
 
     ITKImage getMask() const;
+
+signals:
+    void maskChanged(ITKImage mask);
 };
 
 #endif // MASKWIDGET_H

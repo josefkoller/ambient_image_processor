@@ -11,6 +11,9 @@ MaskWidget::MaskWidget(QString title, QWidget *parent) :
 
     this->mask_view = new ImageViewWidget("Mask", this->ui->mask_frame);
     this->ui->mask_frame->layout()->addWidget(this->mask_view);
+
+    connect(this->mask_view, &ImageViewWidget::imageChanged,
+            this, &MaskWidget::maskChanged);
 }
 
 MaskWidget::~MaskWidget()
@@ -24,8 +27,8 @@ void MaskWidget::on_load_mask_button_clicked()
     if(file_name == QString::null || !QFile(file_name).exists())
         return;
 
-    this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
     this->ui->enabled_checkbox->setChecked(true);
+    this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
 }
 
 ITKImage MaskWidget::getMask() const {
@@ -53,4 +56,9 @@ MaskWidget::MaskFetcher MaskWidget::createMaskFetcher(ImageWidget *image_widget)
             throw std::runtime_error("did not find mask module");
         return mask_module->getMask();
     };
+}
+
+void MaskWidget::on_enabled_checkbox_clicked()
+{
+    emit this->maskChanged(this->getMask());
 }
