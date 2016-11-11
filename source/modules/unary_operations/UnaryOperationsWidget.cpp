@@ -31,15 +31,18 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
 
     if(this->ui->exp_checkbox->isChecked())
     {
-        image = CudaImageOperationsProcessor::exp(image);
+        return CudaImageOperationsProcessor::exp(image);
+
+        /*
         auto one = image.clone();
         one.setEachPixel([] (uint,uint,uint) { return 1.0; });
-        return CudaImageOperationsProcessor::subtract(image, one);
+        return CudaImageOperationsProcessor::subtract(image, one); addConstant(image, -1);
+        */
     }
 
     if(this->ui->log_checkbox->isChecked())
     {
-        image = RescaleIntensityProcessor::process(image, 1, 2);
+        // image = RescaleIntensityProcessor::process(image, 1, 2);
         return CudaImageOperationsProcessor::log(image);
     }
 

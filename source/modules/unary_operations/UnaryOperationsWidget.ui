@@ -60,14 +60,14 @@
       <item>
        <widget class="QRadioButton" name="log_checkbox">
         <property name="text">
-         <string>rescale to 1-2 and log</string>
+         <string>log</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="exp_checkbox">
         <property name="text">
-         <string>exp and -1</string>
+         <string>exp</string>
         </property>
        </widget>
       </item>
