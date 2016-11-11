@@ -45,6 +45,14 @@ void MaskWidget::registerModule(ImageWidget *image_widget)
     this->mask_view->registerCrosshairSubmodule(image_widget);
     connect(image_widget, &ImageWidget::sliceIndexChanged,
             this->mask_view, &ImageViewWidget::sliceIndexChanged);
+
+    // disable mask, if it has the wrong dimensions...
+    connect(image_widget, &ImageWidget::imageChanged,
+            this, [this](ITKImage image) {
+        auto mask = this->getMask();
+        if(!mask.hasSameSize(image))
+            this->ui->enabled_checkbox->setChecked(false);
+    });
 }
 
 MaskWidget::MaskFetcher MaskWidget::createMaskFetcher(ImageWidget *image_widget)
