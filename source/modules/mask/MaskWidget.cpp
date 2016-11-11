@@ -50,7 +50,7 @@ MaskWidget::MaskFetcher MaskWidget::createMaskFetcher(ImageWidget *image_widget)
         auto module = image_widget->getModuleByName("Mask");
         auto mask_module = dynamic_cast<MaskWidget*>(module);
         if(mask_module == nullptr)
-            throw std::runtime_error("did not find mask module, change registration order?");
+            throw std::runtime_error("did not find mask module");
         return mask_module->getMask();
     };
 }

@@ -356,6 +356,27 @@ void ITKImage::minimumAndMaximum(PixelType& minimum, PixelType& maximum) const
     });
 }
 
+void ITKImage::minimumAndMaximumInsideMask(PixelType& minimum, PixelType& maximum,
+                                           const ITKImage& mask) const
+{
+    minimum = 1e7;
+    maximum = -1e7;
+
+    if(this->isNull())
+        return;
+
+    this->foreachPixel([&minimum, &maximum, mask](uint x, uint y, uint z, PixelType value) {
+        if(mask.getPixel(x,y,z) == 0)
+            return;
+
+        if(value > maximum)
+            maximum = value;
+        if(value < minimum)
+            minimum = value;
+    });
+}
+
+
 ITKImage::Index ITKImage::indexFromPoint(QPoint point, uint slice_index)
 {
     ITKImage::Index index;

@@ -157,8 +157,12 @@ Pixel* kernel_density_estimation_kernel_launch(Pixel* image_host, Pixel* mask_ho
     cudaCheckError( cudaMalloc(&image, image_size) );
     cudaCheckError( cudaMemcpy(image, image_host, image_size, cudaMemcpyHostToDevice) );
 
-    cudaCheckError( cudaMalloc(&mask, image_size) );
-    cudaCheckError( cudaMemcpy(mask, mask_host, image_size, cudaMemcpyHostToDevice) );
+    if(mask_host == nullptr)
+        mask = nullptr;
+    else {
+        cudaCheckError( cudaMalloc(&mask, image_size) );
+        cudaCheckError( cudaMemcpy(mask, mask_host, image_size, cudaMemcpyHostToDevice) );
+    }
 
     Pixel* spectrum;
     size_t spectrum_size = sizeof(Pixel) * spectrum_bandwidth;

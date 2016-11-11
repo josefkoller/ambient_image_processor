@@ -2,8 +2,8 @@
 #include "ui_HistogramWidget.h"
 
 #include "HistogramProcessor.h"
-
 #include "ITKToQImageConverter.h"
+#include "CudaImageOperationsProcessor.h"
 
 #include <QClipboard>
 #include <QFileDialog>
@@ -36,6 +36,8 @@ HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
             this, &HistogramWidget::handleHistogramChanged);
     connect(this, &HistogramWidget::fireEntropyLabelTextChange,
             this, &HistogramWidget::handleEntropyLabelTextChange);
+    connect(this, &HistogramWidget::fireKernelBandwidthAndWindowChange,
+            this, &HistogramWidget::handleKernelBandwidthAndWindowChange);
 }
 
 HistogramWidget::~HistogramWidget()
@@ -91,19 +93,22 @@ ITKImage HistogramWidget::processImage(ITKImage image)
     if(this->image.isNull())
         return ITKImage();
 
-    uint spectrum_bandwidth = this->ui->spectrum_bandwidth_spinbox->value();
+    ITKImage mask = this->ui->use_mask_module_checkbox->isChecked() ?
+        mask_fetcher() : ITKImage();
+
     ITKImage::PixelType kernel_bandwidth = this->ui->kernel_bandwidth->value();
+    ITKImage::PixelType window_from = this->ui->window_from_spinbox->value();
+    ITKImage::PixelType window_to = this->ui->window_to_spinbox->value();
+
+    if(this->ui->estimate_bandwidth_and_window_checkbox->isChecked())
+        this->estimateBandwidthAndWindow(image, mask, window_from, window_to, kernel_bandwidth);
+
+    uint spectrum_bandwidth = this->ui->spectrum_bandwidth_spinbox->value();
     HistogramProcessor::KernelType kernel_type =
             (this->ui->uniform_kernel_checkbox->isChecked() ? HistogramProcessor::Uniform :
             (this->ui->gaussian_kernel_checkbox->isChecked() ? HistogramProcessor::Gaussian :
             (this->ui->cosine_kernel_checkbox->isChecked() ? HistogramProcessor::Cosine :
              HistogramProcessor::Epanechnik)));
-
-    ITKImage::PixelType window_from = this->ui->window_from_spinbox->value();
-    ITKImage::PixelType window_to = this->ui->window_to_spinbox->value();
-
-    ITKImage mask = this->ui->use_mask_module_checkbox->isChecked() ?
-        mask_fetcher() : ITKImage();
 
     std::vector<double> intensities;
     std::vector<double> probabilities;
@@ -248,4 +253,42 @@ void HistogramWidget::on_save_button_clicked()
 void HistogramWidget::on_use_mask_module_checkbox_clicked()
 {
     this->calculateHistogram();
+}
+
+void HistogramWidget::on_estimate_bandwidth_and_window_checkbox_toggled(bool estimate_bandwidth_and_window)
+{
+    this->ui->kernel_bandwidth->setEnabled(!estimate_bandwidth_and_window);
+    this->ui->window_from_spinbox->setEnabled(!estimate_bandwidth_and_window);
+    this->ui->window_to_spinbox->setEnabled(!estimate_bandwidth_and_window);
+    this->ui->fromMinimumButton->setEnabled(!estimate_bandwidth_and_window);
+    this->ui->toMaximumButton->setEnabled(!estimate_bandwidth_and_window);
+
+    this->calculateHistogram();
+}
+
+void HistogramWidget::handleKernelBandwidthAndWindowChange(double kernel_bandwidth,
+                                                           double window_from,
+                                                           double window_to)
+{
+    this->ui->kernel_bandwidth->setValue(kernel_bandwidth);
+    this->ui->window_from_spinbox->setValue(window_from);
+    this->ui->window_to_spinbox->setValue(window_to);
+}
+
+void HistogramWidget::estimateBandwidthAndWindow(const ITKImage& image, const ITKImage& mask,
+                                                 ITKImage::PixelType& window_from,
+                                                 ITKImage::PixelType& window_to,
+                                                 ITKImage::PixelType& kernel_bandwidth)
+{
+    const ITKImage::PixelType KDE_BANDWIDTH_FACTOR = 0.03;
+
+    if(mask.isNull())
+        image.minimumAndMaximum(window_from, window_to);
+    else
+        image.minimumAndMaximumInsideMask(window_from, window_to, mask);
+
+    ITKImage::PixelType spectrum_range = window_to - window_from;
+    kernel_bandwidth = spectrum_range * KDE_BANDWIDTH_FACTOR;
+
+    emit this->fireKernelBandwidthAndWindowChange(kernel_bandwidth, window_from, window_to);
 }

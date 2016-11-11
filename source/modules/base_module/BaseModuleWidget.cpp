@@ -34,7 +34,6 @@ void BaseModuleWidget::processInWorkerThread()
         this->setStatusText(text);
         std::cout << text.toStdString() << std::endl;
         return;
-
     }
 
     this->setStatusText(this->getTitle() + " started");

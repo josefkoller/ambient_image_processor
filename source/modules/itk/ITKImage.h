@@ -103,6 +103,7 @@ public:
 
     void setOriginAndSpacingOf(const ITKImage& source_image);
     bool hasSameSize(const ITKImage& other_image);
+    void minimumAndMaximumInsideMask(PixelType &minimum, PixelType &maximum, const ITKImage &mask) const;
 private:
     void write_png(std::string image_file_path);
     void write_dicom(std::string image_file_path);

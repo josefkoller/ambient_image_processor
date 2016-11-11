@@ -53,6 +53,10 @@ private:
     ITKImage processImage(ITKImage image);
     void calculateEntropy(const std::vector<double>& probabilities);
     void calculateHistogram();
+    void estimateBandwidthAndWindow(const ITKImage& image, const ITKImage& mask,
+                                    ITKImage::PixelType& window_from,
+                                    ITKImage::PixelType& window_to,
+                                    ITKImage::PixelType& kernel_bandwidth);
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
@@ -61,6 +65,9 @@ signals:
     void fireHistogramChanged(std::vector<double> intensities,
                               std::vector<double> probabilities);
     void fireEntropyLabelTextChange(QString text);
+    void fireKernelBandwidthAndWindowChange(double kernel_bandwidth,
+                                            double window_from,
+                                            double window_to);
 protected:
     bool calculatesResultImage() const;
 
@@ -71,6 +78,12 @@ private slots:
     void handleEntropyLabelTextChange(QString text);
     void on_copy_to_clipboard_button_clicked();
     void on_save_button_clicked();
+    void on_use_mask_module_checkbox_clicked();
+    void on_estimate_bandwidth_and_window_checkbox_toggled(bool checked);
+
+    void handleKernelBandwidthAndWindowChange(double kernel_bandwidth,
+                                            double window_from,
+                                            double window_to);
 };
 
 #endif // HISTOGRAMWIDGET_H
