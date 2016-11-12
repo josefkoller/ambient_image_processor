@@ -67,6 +67,8 @@ void LineProfileWidget::paintSelectedProfileLine()
         return;
     }
 
+    //  std::cout << "paintSelectedProfileLine" << std::endl;
+
     std::vector<double> intensities;
     std::vector<double> distances;
     LineProfileProcessor::intensity_profile(image,
@@ -333,12 +335,14 @@ void LineProfileWidget::on_connected_to_parent_checkbox_clicked()
     emit this->profileLinesChanged();
 }
 
-void LineProfileWidget::save_to_file()
+void LineProfileWidget::save_to_file(QString file_name)
 {
     if(this->image.isNull())
         return;
 
-    QString file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+    if(file_name == "")
+      file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+
     if(file_name.isNull())
         return;
 
@@ -349,4 +353,22 @@ void LineProfileWidget::save_to_file()
         saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
 
     this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
+}
+
+void LineProfileWidget::addLineProfile(LineProfile line)
+{
+    this->profile_lines.push_back(line);
+
+    QListWidgetItem* item = new QListWidgetItem(line.text());
+    this->ui->line_profile_list_widget->addItem(item);
+    item->setSelected(true);
+
+    emit this->profileLinesChanged();
+}
+
+void LineProfileWidget::clearLineProfiles()
+{
+    this->profile_lines.clear();
+    this->ui->line_profile_list_widget->clear();
+    emit this->profileLinesChanged();
 }

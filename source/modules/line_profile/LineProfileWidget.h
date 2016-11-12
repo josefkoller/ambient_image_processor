@@ -61,6 +61,8 @@ public:
     virtual void registerModule(ImageWidget* image_widget);
     virtual void connectTo(BaseModule* other);
 
+    void addLineProfile(LineProfile line);
+    void clearLineProfiles();
 private:
     static const QColor line_color;
     static const QColor line_with_parent_color;
@@ -69,7 +71,7 @@ private:
     static const QColor end_point_color;
 
 public:
-    void save_to_file();
+    void save_to_file(QString file_name = "");
 };
 
 #endif // LINEPROFILEWIDGET_H

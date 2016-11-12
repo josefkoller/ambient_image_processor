@@ -159,7 +159,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
                 widget != image_view_widget)
             module_parent->insertTab(index++, widget, module->getTitle());
 
-        std::cout << "registering module: " << module->getTitle().toStdString() << std::endl;
+        // std::cout << "registering module: " << module->getTitle().toStdString() << std::endl;
         module->registerModule(this);
     }
 
@@ -207,7 +207,7 @@ ImageWidget::ImageWidget(QWidget *parent) :
     image_menu->addSeparator();
     QAction* load_color_to_view_only = image_menu->addAction("Load Color File to View only");
     this->connect(load_color_to_view_only, &QAction::triggered, this, [this]() {
-        this->image_view_widget->load_color_to_view_only_clicked();
+        this->image_view_widget->load_color_to_view_only();
     });
 
     menu_bar->addMenu(image_menu);

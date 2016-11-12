@@ -264,12 +264,14 @@ ITKImage ImageViewWidget::getImage() const
     return this->image;
 }
 
-void ImageViewWidget::save_file_with_overlays()
+void ImageViewWidget::save_file_with_overlays(QString file_name)
 {
     if(this->ui->image_frame->pixmap() == nullptr)
         return;
 
-    QString file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+    if(file_name == "")
+        file_name = QFileDialog::getSaveFileName(this, "save image file with overlays");
+
     if(file_name.isNull())
         return;
 
@@ -279,9 +281,11 @@ void ImageViewWidget::save_file_with_overlays()
     this->setStatusText( (saved ? "saved " : "error while saving ") + file_name);
 }
 
-void ImageViewWidget::load_color_to_view_only_clicked()
+void ImageViewWidget::load_color_to_view_only(QString file_name)
 {
-    QString file_name = QFileDialog::getOpenFileName(this, "open color file");
+    if(file_name == "")
+        file_name = QFileDialog::getOpenFileName(this, "open color file");
+
     if(file_name == QString::null || !QFile(file_name).exists())
         return;
 

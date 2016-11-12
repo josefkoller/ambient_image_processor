@@ -52,14 +52,18 @@ private slots:
 private:
     ITKImage processImage(ITKImage image);
     void calculateEntropy(const std::vector<double>& probabilities);
-    void calculateHistogram();
     void estimateBandwidthAndWindow(const ITKImage& image, const ITKImage& mask,
                                     ITKImage::PixelType& window_from,
                                     ITKImage::PixelType& window_to,
                                     ITKImage::PixelType& kernel_bandwidth);
+
+    void calculateHistogram();
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
+    void write(QString filename);
+    ITKImage::PixelType getEntropy();
+    void calculateHistogramSync();
 signals:
     void fireImageRepaint();
     void fireHistogramChanged(std::vector<double> intensities,

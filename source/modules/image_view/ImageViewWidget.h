@@ -29,8 +29,8 @@ public:
     void setImage(ITKImage image);
     ITKImage getImage() const;
 
-    void save_file_with_overlays();
-    void load_color_to_view_only_clicked();
+    void save_file_with_overlays(QString file_name = "");
+    void load_color_to_view_only(QString file_name = "");
 private:
     Ui::ImageViewWidget *ui;
 

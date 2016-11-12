@@ -107,7 +107,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image,
         std::cout << "there are pixels < 0 or > 255" << std::endl;
     }
 
-    std::cout << "converted image slice " << slice_index << std::endl;
+    // std::cout << "converted image slice " << slice_index << std::endl;
 
     return q_image;
 }

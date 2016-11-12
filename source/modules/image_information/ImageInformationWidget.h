@@ -23,6 +23,7 @@ private:
 public:
     virtual void registerModule(ImageWidget* image_widget);
 
+    void getCVAndTV(ITKImage::PixelType& cv, ITKImage::PixelType& tv);
 private slots:
     void collectInformation(ITKImage image);
     void on_copy_to_clipboard_button_clicked();

@@ -22,6 +22,8 @@ public:
 
     typedef std::function<ITKImage()> MaskFetcher;
     static MaskFetcher createMaskFetcher(ImageWidget* image_widget);
+
+    void setMaskImage(ITKImage mask);
 private slots:
     void on_load_mask_button_clicked();
     void on_enabled_checkbox_clicked();

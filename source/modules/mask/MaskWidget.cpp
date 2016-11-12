@@ -66,6 +66,12 @@ MaskWidget::MaskFetcher MaskWidget::createMaskFetcher(ImageWidget *image_widget)
     };
 }
 
+void MaskWidget::setMaskImage(ITKImage mask)
+{
+    this->ui->enabled_checkbox->setChecked(true);
+    this->mask_view->setImage(mask);
+}
+
 void MaskWidget::on_enabled_checkbox_clicked()
 {
     emit this->maskChanged(this->getMask());

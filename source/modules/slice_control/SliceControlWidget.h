@@ -21,13 +21,13 @@ public:
     void connectTo(BaseModule *other);
 
     uint getVisibleSliceIndex() const { return this->visible_slice_index; };
+    void setSliceIndex(uint slice_index);
 private:
     Ui::SliceControlWidget *ui;
 
     ITKImage image;
     uint visible_slice_index;
 
-    void setSliceIndex(uint slice_index);
     uint userSliceIndex() const;
     void setInputRanges();
 

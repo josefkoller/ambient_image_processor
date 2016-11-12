@@ -99,7 +99,7 @@ void HistogramWidget::handleImageChanged(ITKImage image)
         this->calculateHistogram();
 }
 
-ITKImage HistogramWidget::processImage(ITKImage image)
+ITKImage HistogramWidget::processImage(ITKImage)
 {
     if(this->image.isNull())
         return ITKImage();
@@ -174,8 +174,16 @@ void HistogramWidget::calculateHistogram()
         this->processInWorkerThread();
 }
 
+void HistogramWidget::calculateHistogramSync()
+{
+    processImage(this->image);
+}
+
 void HistogramWidget::on_window_from_spinbox_valueChanged(double value)
 {
+    if(!this->ui->window_from_spinbox->isEnabled())
+        return;
+
     this->calculateHistogram();
     ITKToQImageConverter::setWindowFrom(value);
     emit fireImageRepaint();
@@ -183,6 +191,9 @@ void HistogramWidget::on_window_from_spinbox_valueChanged(double value)
 
 void HistogramWidget::on_window_to_spinbox_valueChanged(double value)
 {
+    if(!this->ui->window_to_spinbox->isEnabled())
+        return;
+
     this->calculateHistogram();
     ITKToQImageConverter::setWindowTo(value);
     emit fireImageRepaint();
@@ -202,6 +213,9 @@ void HistogramWidget::on_toMaximumButton_clicked()
 
 void HistogramWidget::on_kernel_bandwidth_valueChanged(double arg1)
 {
+    if(!this->ui->kernel_bandwidth->isEnabled())
+        return;
+
     this->calculateHistogram();
 }
 
@@ -211,7 +225,7 @@ void HistogramWidget::on_uniform_kernel_checkbox_toggled(bool checked)
         this->calculateHistogram();
 }
 
-void HistogramWidget::on_spectrum_bandwidth_spinbox_valueChanged(int arg1)
+void HistogramWidget::on_spectrum_bandwidth_spinbox_valueChanged(int)
 {
     this->calculateHistogram();
 }
@@ -252,6 +266,11 @@ void HistogramWidget::on_save_button_clicked()
     if(file_name.isNull())
         return;
 
+    this->write(file_name);
+}
+
+void HistogramWidget::write(QString file_name)
+{
     bool saved = false;
     if(file_name.endsWith("pdf"))
         saved = this->ui->custom_plot_widget->savePdf(file_name);
@@ -281,9 +300,14 @@ void HistogramWidget::handleKernelBandwidthAndWindowChange(double kernel_bandwid
                                                            double window_from,
                                                            double window_to)
 {
-    this->ui->kernel_bandwidth->setValue(kernel_bandwidth);
-    this->ui->window_from_spinbox->setValue(window_from);
-    this->ui->window_to_spinbox->setValue(window_to);
+    if(kernel_bandwidth != this->ui->kernel_bandwidth->value())
+        this->ui->kernel_bandwidth->setValue(kernel_bandwidth);
+
+    if(window_from != this->ui->window_from_spinbox->value())
+        this->ui->window_from_spinbox->setValue(window_from);
+
+    if(window_to != this->ui->window_to_spinbox->value())
+        this->ui->window_to_spinbox->setValue(window_to);
 }
 
 void HistogramWidget::estimateBandwidthAndWindow(const ITKImage& image, const ITKImage& mask,
@@ -302,4 +326,9 @@ void HistogramWidget::estimateBandwidthAndWindow(const ITKImage& image, const IT
     kernel_bandwidth = spectrum_range * KDE_BANDWIDTH_FACTOR;
 
     emit this->fireKernelBandwidthAndWindowChange(kernel_bandwidth, window_from, window_to);
+}
+
+ITKImage::PixelType HistogramWidget::getEntropy()
+{
+    return this->ui->entropy_label->text().toDouble();
 }

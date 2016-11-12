@@ -7,6 +7,7 @@
 #include <itkCastImageFilter.h>
 
 #include "RescaleIntensityProcessor.h"
+#include "ThresholdFilterProcessor.h"
 
 #include <iostream>
 
@@ -114,15 +115,17 @@ ITKImage ITKImage::read(std::string image_file_path)
     }
     catch (itk::ExceptionObject &exception)
     {
+        /*
         std::cerr << "Exception thrown while reading the image file: " <<
                      image_file_path << std::endl;
         std::cerr << exception << std::endl;
+        */
         return ITKImage(nullptr);
     }
     return ITKImage(reader->GetOutput());
 }
 
-void ITKImage::write_png(std::string image_file_path)
+void ITKImage::write_png(std::string image_file_path) const
 {
     // writing 32bit png
     unsigned short MAX_PIXEL_VALUE = 65535;
@@ -151,7 +154,7 @@ void ITKImage::write_png(std::string image_file_path)
     }
 }
 
-void ITKImage::write_dicom(std::string image_file_path)
+void ITKImage::write_dicom(std::string image_file_path) const
 {
     unsigned short MAX_PIXEL_VALUE = 4096;
 
@@ -179,7 +182,7 @@ void ITKImage::write_dicom(std::string image_file_path)
     }
 }
 
-void ITKImage::write(std::string image_file_path)
+void ITKImage::write(std::string image_file_path) const
 {
     if(QString::fromStdString(image_file_path).endsWith("png"))
     {
@@ -214,12 +217,13 @@ ITKImage ITKImage::read_hsv(std::string image_file_path)
 
 void ITKImage::write_hsv(std::string image_file_path) const
 {
-    OpenCVFile::write_into_hsv_channel(*this, image_file_path);
+    auto thresholded_image = ThresholdFilterProcessor::clamp(*this, 0, 255);
+    OpenCVFile::write_into_hsv_channel(thresholded_image, image_file_path);
 }
 
 bool ITKImage::isNull() const
 {
-    return this->inner_image.IsNull();
+    return this->inner_image.IsNull() || this->inner_image->GetDataReleased();
 }
 
 void ITKImage::foreachPixel(std::function<void(uint x, uint y, uint z, PixelType pixel)> callback) const

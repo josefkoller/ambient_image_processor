@@ -16,6 +16,10 @@ public:
                             ImageType::PixelType upper_threshold_value,
                             ImageType::PixelType outside_pixel_value);
 
+    static ITKImage clamp(ITKImage image,
+                          ImageType::PixelType lower_threshold_value,
+                          ImageType::PixelType upper_threshold_value);
+
 };
 
 #endif // THRESHOLDFILTERPROCESSOR_H

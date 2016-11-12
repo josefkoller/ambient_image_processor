@@ -56,7 +56,7 @@ public:
     static ITKImage read_hsv(std::string image_file_path);
     void write_hsv(std::string image_file_path) const;
 
-    void write(std::string image_file_path);
+    void write(std::string image_file_path) const;
 
     bool isNull() const;
 
@@ -105,8 +105,8 @@ public:
     bool hasSameSize(const ITKImage& other_image);
     void minimumAndMaximumInsideMask(PixelType &minimum, PixelType &maximum, const ITKImage &mask) const;
 private:
-    void write_png(std::string image_file_path);
-    void write_dicom(std::string image_file_path);
+    void write_png(std::string image_file_path) const;
+    void write_dicom(std::string image_file_path) const;
 };
 
 #endif // ITKIMAGE_H

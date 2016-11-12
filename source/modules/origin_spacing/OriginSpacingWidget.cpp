@@ -19,6 +19,9 @@ void OriginSpacingWidget::registerModule(ImageWidget* image_widget)
 
     connect(image_widget, &ImageWidget::imageChanged,
             [this](ITKImage image) {
+        if(image.isNull())
+            return;
+
         this->ui->originXSpinbox->setValue(image.getPointer()->GetOrigin()[0]);
         this->ui->originYSpinbox->setValue(image.getPointer()->GetOrigin()[1]);
         this->ui->spacingXSpinbox->setValue(image.getPointer()->GetSpacing()[0]);

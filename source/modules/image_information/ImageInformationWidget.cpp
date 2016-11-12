@@ -50,6 +50,12 @@ void ImageInformationWidget::registerModule(ImageWidget* image_widget)
             this, &ImageInformationWidget::collectInformation);
 }
 
+void ImageInformationWidget::getCVAndTV(ITKImage::PixelType& cv, ITKImage::PixelType& tv)
+{
+    cv = this->ui->coefficient_of_variation->text().toDouble();
+    tv = this->ui->tv_per_voxel_label->text().toDouble();
+}
+
 void ImageInformationWidget::on_copy_to_clipboard_button_clicked()
 {
     auto text =

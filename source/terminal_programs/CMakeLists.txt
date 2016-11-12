@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
+# tgv2_deshade_application
+
 cuda_add_executable(tgv2_deshade_application
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_deshade_main.cpp
 )
@@ -10,6 +12,7 @@ list(APPEND ITK_APPLICATIONS
   tgv2_deshade_application
   )
 
+# tgvk_deshade_downsampled_application
 cuda_add_executable(tgvk_deshade_downsampled_application
   ${CMAKE_CURRENT_LIST_DIR}/tgvk_deshade_downsampled_main.cpp
 )
@@ -20,6 +23,18 @@ list(APPEND ITK_APPLICATIONS
   tgvk_deshade_downsampled_application
   )
 
+# tgvk_deshade_downsampled_evaluator_application
+cuda_add_executable(tgvk_deshade_downsampled_evaluator_application
+  ${CMAKE_CURRENT_LIST_DIR}/tgvk_deshade_downsampled_evaluator_main.cpp
+)
+target_link_libraries(tgvk_deshade_downsampled_evaluator_application
+  ambient_library
+)
+list(APPEND ITK_APPLICATIONS
+  tgvk_deshade_downsampled_evaluator_application
+  )
+
+# tgv2_deshade_convergence_test_application
 cuda_add_executable(tgv2_deshade_convergence_test_application
   ${CMAKE_CURRENT_LIST_DIR}/tgv2_deshade_convergence_test_main.cpp
 )
