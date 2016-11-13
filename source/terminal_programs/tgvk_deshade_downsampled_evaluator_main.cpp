@@ -436,9 +436,9 @@ int main(int argc, char *argv[])
 
     const std::string mode_text = argv[4];
 
-    // std::cout << "mode: " << mode_text << std::endl;
-    DeshadingMode mode = mode_text.find("SubtractFromInput") > -1 ?
-                SubtractFromInput : SubtractFromDenoised;
+    std::cout << "mode: " << mode_text << std::endl;
+    DeshadingMode mode = mode_text.find("SubtractFromInput") != std::string::npos ?
+        SubtractFromInput : SubtractFromDenoised;
     if(mode_text.find("Color") != std::string::npos)  {
         mode = mode | Color;
     }
