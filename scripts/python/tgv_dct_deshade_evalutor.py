@@ -1,9 +1,11 @@
 import sys
+import os
 from subprocess import call, Popen, PIPE
 
 print 'TGV DCT Deshade algorithm, evaluator script'
 
-application_path = '../../build/output/tgvk_deshade_downsampled_evaluator_application'
+script_path = os.path.dirname(__file__)
+application_path = script_path + '/../../build/output/tgvk_deshade_downsampled_evaluator_application'
 data_root_path = '/home/joe/Documents/tu/master_thesis/documents/05_thesis/figures/'
 
 print 'application: ' + application_path
