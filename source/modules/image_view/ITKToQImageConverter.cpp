@@ -94,7 +94,7 @@ QImage* ITKToQImageConverter::convert(ITKImage itk_image,
             }
 
             // mask
-            if(!mask.isNull() && mask.getPixel(x,y, slice_index) == 0) {
+            if(!mask.isNull() && mask.getPixel(x,y, 0) == 0) {
                 color = outside_mask_color;
             }
 
