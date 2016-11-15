@@ -16,7 +16,8 @@ ImageViewWidget::ImageViewWidget(QString title, QWidget *parent) :
     slice_index(0),
     do_rescale(true),
     do_multiply(false),
-    use_window(false)
+    use_window(false),
+    use_mask_module(false)
 {
     this->ui->setupUi(this);
 
