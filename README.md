@@ -30,7 +30,7 @@ A tool to perform several **imaging** tasks.
 
 # Dependencies
 - Qt 5.5.0, installed from source, [qt.io](https://www.qt.io/)
-- Cuda 7.0, package cuda-7-0
+- Cuda 8.0, package cuda-8-0
 - ITK 4.8.1, installed from source, [itk.org](https://itk.org/)
 - OpenCV 3.1.0, installed from source, [opencv.org](http://opencv.org/)
 - FFTW 3, package fftw3-dev
