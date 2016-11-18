@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>675</width>
+    <width>719</width>
     <height>679</height>
    </rect>
   </property>
@@ -23,24 +23,8 @@
       </sizepolicy>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
-      <item alignment="Qt::AlignTop">
-       <widget class="QCustomPlot" name="custom_plot_widget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>300</width>
-          <height>300</height>
-         </size>
-        </property>
-        <property name="cursor">
-         <cursorShape>UpArrowCursor</cursorShape>
-        </property>
-       </widget>
+      <item>
+       <widget class="ChartWidget" name="chart_widget" native="true"/>
       </item>
       <item alignment="Qt::AlignTop">
        <widget class="QPushButton" name="save_button">
@@ -322,9 +306,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>ChartWidget</class>
    <extends>QWidget</extends>
-   <header location="global">qcustomplot/qcustomplot.h</header>
+   <header location="global">ChartWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

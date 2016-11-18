@@ -15,20 +15,9 @@ HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->ui->custom_plot_widget->setMouseTracking(true);
-    connect(this->ui->custom_plot_widget, &QCustomPlot::mouseMove,
+    connect(this->ui->chart_widget, &ChartWidget::chart_mouse_move,
             this, &HistogramWidget::histogram_mouse_move);
-
-    this->ui->custom_plot_widget->xAxis->setLabel("intensity");
-    this->ui->custom_plot_widget->xAxis->setNumberPrecision(8);
-    this->ui->custom_plot_widget->xAxis->setOffset(0);
-    this->ui->custom_plot_widget->xAxis->setPadding(0);
-    this->ui->custom_plot_widget->xAxis->setAntialiased(true);
-
-    this->ui->custom_plot_widget->yAxis->setLabel("probability");
-    this->ui->custom_plot_widget->yAxis->setOffset(0);
-    this->ui->custom_plot_widget->yAxis->setPadding(0);
-    this->ui->custom_plot_widget->yAxis->setAntialiased(true);
+    this->ui->chart_widget->setAxisTitles("intensity", "probability");
 
     qRegisterMetaType<std::vector<double>>("std::vector<double>");
 
@@ -51,7 +40,7 @@ void HistogramWidget::histogram_mouse_move(QMouseEvent* event)
         return;
 
     QPoint position = event->pos();
-    double pixel_value = this->ui->custom_plot_widget->xAxis->pixelToCoord(position.x());
+    double pixel_value = this->ui->chart_widget->getXAxisValue(position.x());
 
     QString text = QString("pixel value at ") +
             QString::number(position.x()) +
@@ -140,19 +129,9 @@ void HistogramWidget::handleHistogramChanged(
         std::vector<double> intensities,
         std::vector<double> probabilities)
 {
-    this->ui->custom_plot_widget->clearGraphs();
-    QCPGraph* graph = this->ui->custom_plot_widget->addGraph();
-    graph->setPen(QPen(QColor(116,205,122)));
-    graph->setLineStyle(QCPGraph::lsStepCenter);
-    graph->setErrorType(QCPGraph::etValue);
-
     auto intensitiesQ = QVector<double>::fromStdVector(intensities);
     auto probabilitiesQ = QVector<double>::fromStdVector(probabilities);
-
-    graph->setData(intensitiesQ, probabilitiesQ);
-
-    this->ui->custom_plot_widget->rescaleAxes();
-    this->ui->custom_plot_widget->replot();
+    this->ui->chart_widget->setData(intensitiesQ, probabilitiesQ);
 
     calculateEntropy(probabilities);
 }
@@ -271,12 +250,7 @@ void HistogramWidget::on_save_button_clicked()
 
 void HistogramWidget::write(QString file_name)
 {
-    bool saved = false;
-    if(file_name.endsWith("pdf"))
-        saved = this->ui->custom_plot_widget->savePdf(file_name);
-    if(file_name.endsWith("png"))
-        saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
-
+    bool saved = this->ui->chart_widget->save(file_name);
     this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
 }
 
