@@ -29,6 +29,10 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& div_v_image,
                              const bool calculate_div_v)
 {
+
+    if(!mask.isNull())
+        input_image = CudaImageOperationsProcessor::multiply(input_image, mask);
+
     ResizeProcessor::InterpolationMethod interpolation_method = ResizeProcessor::InterpolationMethod::BSpline3;
     auto downsample = [=](ITKImage original_image) {
         if(downsampling_factor == 1)
@@ -82,8 +86,10 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     shading_image = upsample(downsampled_shading_image);
 
     deshaded_image = CudaImageOperationsProcessor::subtract(input_image, shading_image);
-    if(!mask.isNull())
+    if(!mask.isNull()) {
+        shading_image = CudaImageOperationsProcessor::multiply(shading_image, mask);
         deshaded_image = CudaImageOperationsProcessor::multiply(deshaded_image, mask);
+    }
 
     if(add_background_back && !mask.isNull())
     {
