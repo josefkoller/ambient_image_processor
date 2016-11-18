@@ -18,6 +18,7 @@ set(CMAKE_AUTOMOC ON)
 
 SET( CUDA_PROPAGATE_HOST_FLAGS OFF )
 set(CUDA_NVCC_FLAGS "--std=c++11;-D_MWAITXINTRIN_H_INCLUDED ")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-gpu-targets")
 #set(CUDA_NVCC_FLAGS "--std=c++11;--gpu-architecture=compute_50;--gpu-code=sm_50")
 #set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_50,code=sm_50")
 set(CUDA_SEPARABLE_COMPILATION ON)
