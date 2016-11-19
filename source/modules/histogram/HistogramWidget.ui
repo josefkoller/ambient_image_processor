@@ -31,6 +31,9 @@
           <height>320</height>
          </size>
         </property>
+        <property name="cursor">
+         <cursorShape>UpArrowCursor</cursorShape>
+        </property>
        </widget>
       </item>
       <item alignment="Qt::AlignTop">
