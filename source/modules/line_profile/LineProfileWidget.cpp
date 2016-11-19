@@ -11,11 +11,11 @@
 const QColor LineProfileWidget::start_point_color = QColor(255, 99, 49);
 const QColor LineProfileWidget::end_point_color = QColor(0, 102, 101);
 
-const QColor LineProfileWidget::line_with_parent_color = QColor(202, 0, 50);
+const QColor LineProfileWidget::line_with_parent_color = QColor(0, 154, 66);
 const QColor LineProfileWidget::line_color = QColor(0, 51, 153);
 
 const QColor LineProfileWidget::cursor_color = QColor(255, 173, 4);
-const QColor LineProfileWidget::line_with_parent_cursor_color = QColor(0, 154, 66);
+const QColor LineProfileWidget::line_with_parent_cursor_color = QColor(202, 0, 50);
 
 
 LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
