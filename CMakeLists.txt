@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 #set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
@@ -34,6 +34,9 @@ find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
+find_package(Qt5Charts REQUIRED)
+include_directories(${Qt5Charts_INCLUDE_DIRS})
+message("charts include: ${Qt5Charts_INCLUDE_DIRS}")
 # Add compiler flags for building executables (-fPIE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
@@ -116,6 +119,7 @@ cuda_add_library(ambient_library STATIC
 target_link_libraries(ambient_library
   Qt5::Core
   Qt5::Widgets
+  Qt5::Charts
 )
 
 SET(ITK_APPLICATIONS

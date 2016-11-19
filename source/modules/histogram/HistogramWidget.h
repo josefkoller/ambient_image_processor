@@ -26,7 +26,7 @@ private:
 
     MaskWidget::MaskFetcher mask_fetcher;
 private slots:
-    void histogram_mouse_move(QMouseEvent* event);
+    void histogram_mouse_move(QMouseEvent* position);
     void handleImageChanged(ITKImage image);
 
     void on_window_from_spinbox_valueChanged(double arg1);

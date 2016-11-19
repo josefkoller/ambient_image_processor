@@ -69,6 +69,7 @@ private:
     static const QColor cursor_color;
     static const QColor start_point_color;
     static const QColor end_point_color;
+    static const QColor line_with_parent_cursor_color;
 
 public:
     void save_to_file(QString file_name = "");

@@ -131,7 +131,9 @@ void HistogramWidget::handleHistogramChanged(
 {
     auto intensitiesQ = QVector<double>::fromStdVector(intensities);
     auto probabilitiesQ = QVector<double>::fromStdVector(probabilities);
-    this->ui->chart_widget->setData(intensitiesQ, probabilitiesQ);
+    this->ui->chart_widget->clearData();
+    this->ui->chart_widget->addData(intensitiesQ, probabilitiesQ, "Histogram Series", QColor(116,205,122));
+    this->ui->chart_widget->createDefaultAxes();
 
     calculateEntropy(probabilities);
 }

@@ -2,14 +2,21 @@
 #include "ui_LineProfileWidget.h"
 
 #include "LineProfileProcessor.h"
+#include "ChartWidget.h"
 
 #include <QFileDialog>
 
-const QColor LineProfileWidget::line_with_parent_color = QColor(0, 102, 101);
+#include <iostream>
+
+const QColor LineProfileWidget::start_point_color = QColor(255, 99, 49);
+const QColor LineProfileWidget::end_point_color = QColor(0, 102, 101);
+
+const QColor LineProfileWidget::line_with_parent_color = QColor(202, 0, 50);
 const QColor LineProfileWidget::line_color = QColor(0, 51, 153);
-const QColor LineProfileWidget::cursor_color = QColor(255, 99, 49);
-const QColor LineProfileWidget::start_point_color = QColor(202, 0, 50);
-const QColor LineProfileWidget::end_point_color = QColor(255, 204, 51);
+
+const QColor LineProfileWidget::cursor_color = QColor(255, 173, 4);
+const QColor LineProfileWidget::line_with_parent_cursor_color = QColor(0, 154, 66);
+
 
 LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -20,9 +27,10 @@ LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->ui->custom_plot_widget->setMouseTracking(true);
-    connect(this->ui->custom_plot_widget, &QCustomPlot::mouseMove,
+
+    connect(this->ui->chart_widget, &ChartWidget::chart_mouse_move,
             this, &LineProfileWidget::line_profile_mouse_move);
+    this->ui->chart_widget->setAxisTitles("distance", "intensity");
 }
 
 LineProfileWidget::~LineProfileWidget()
@@ -36,7 +44,7 @@ void LineProfileWidget::line_profile_mouse_move(QMouseEvent* event)
         return;
 
     QPoint position = event->pos();
-    double pixel_value = this->ui->custom_plot_widget->yAxis->pixelToCoord(position.y());
+    double pixel_value = this->ui->chart_widget->getYAxisValue(position.y());
 
     QString text = QString("pixel value at ") +
             QString::number(position.x()) +
@@ -50,8 +58,6 @@ void LineProfileWidget::line_profile_mouse_move(QMouseEvent* event)
 
 void LineProfileWidget::paintSelectedProfileLine()
 {
-    this->ui->custom_plot_widget->clearGraphs();
-
     auto image = this->getSourceImage();
     if(image.isNull())
         return;
@@ -77,29 +83,20 @@ void LineProfileWidget::paintSelectedProfileLine()
                                             intensities,
                                             distances);
 
-    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
-    {
-        QCPGraph *parent_graph = this->ui->custom_plot_widget->addGraph();
-        parent_graph->setData(this->profile_line_parent->distancesQ,
-                              this->profile_line_parent->intensitiesQ);
-        parent_graph->setPen(QPen(line_color,1));
-        parent_graph->setLineStyle(QCPGraph::lsLine);
-        parent_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
-    }
-
-    QCPGraph *graph = this->ui->custom_plot_widget->addGraph();
-
     this->intensitiesQ = QVector<double>::fromStdVector(intensities);
     this->distancesQ = QVector<double>::fromStdVector(distances);
-    graph->setData(distancesQ, intensitiesQ);
 
     auto pen_color = this->profile_line_parent == nullptr ? line_color : line_with_parent_color;
-    graph->setPen(QPen(pen_color));
-    graph->setLineStyle(QCPGraph::lsLine);
-    graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
 
-    this->ui->custom_plot_widget->xAxis->setLabel("distance");
-    this->ui->custom_plot_widget->yAxis->setLabel("intensity");
+    this->ui->chart_widget->clearData();
+    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
+    {
+        this->ui->chart_widget->addData(this->profile_line_parent->distancesQ,
+                                    this->profile_line_parent->intensitiesQ, "Image 1", line_color);
+    }
+
+    this->ui->chart_widget->addData(QVector<double>::fromStdVector(distances),
+                                QVector<double>::fromStdVector(intensities), "Image 2", pen_color);
 
     // cursor position ...
 
@@ -112,20 +109,20 @@ void LineProfileWidget::paintSelectedProfileLine()
     if(cursor_factor >= 0 && cursor_factor <= 1 && distancesQ.size() > 0)
     {
         uint cursor_index = (distancesQ.size()-1) * cursor_factor;
-
         double cursor_distance = distancesQ[cursor_index];
         double cursor_intensity = intensitiesQ[cursor_index];
-        QVector<double> cursor_distance_vector;
-        cursor_distance_vector.push_back(cursor_distance);
-        QVector<double> cursor_intensity_vector;
-        cursor_intensity_vector.push_back(cursor_intensity);
-        QCPGraph *graph2 = this->ui->custom_plot_widget->addGraph();
-        graph2->setPen(QPen(cursor_color, 2));
-        graph2->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
-        graph2->setData(cursor_distance_vector, cursor_intensity_vector);
+        auto color = this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked() ?
+                                cursor_color : line_with_parent_cursor_color;
+        this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor", color);
+
+        if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked()) {
+            cursor_distance = this->profile_line_parent->distancesQ[cursor_index];
+            cursor_intensity = this->profile_line_parent->intensitiesQ[cursor_index];
+            this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor2", line_with_parent_cursor_color);
+        }
     }
-    this->ui->custom_plot_widget->rescaleAxes();
-    this->ui->custom_plot_widget->replot();
+
+    this->ui->chart_widget->createDefaultAxes();
 }
 
 
@@ -303,7 +300,9 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
         if(projection >= 0 && projection <= 1)
         {
             this->projected_cursor_point = QPointF(point1) + line_direction * (1 - projection);
-            painter.setPen(QPen(cursor_color,2));
+            auto color = this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked() ?
+                        cursor_color : line_with_parent_cursor_color;
+            painter.setPen(QPen(color,2));
             painter.drawPoint(projected_cursor_point);
         }
     }
@@ -346,12 +345,7 @@ void LineProfileWidget::save_to_file(QString file_name)
     if(file_name.isNull())
         return;
 
-    bool saved = false;
-    if(file_name.endsWith("pdf"))
-        saved = this->ui->custom_plot_widget->savePdf(file_name);
-    if(file_name.endsWith("png"))
-        saved = this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
-
+    bool saved = this->ui->chart_widget->save(file_name);
     this->setStatusText( (saved ? "saved " : "(pdf,png supported) error while saving ") + file_name);
 }
 

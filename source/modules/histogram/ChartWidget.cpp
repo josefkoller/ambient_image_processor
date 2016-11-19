@@ -1,70 +1,128 @@
 #include "ChartWidget.h"
 #include "ui_ChartWidget.h"
 
-/*
-#include <QChart>
-#include <QBarSet>
-#include <QLineSeries>
-*/
+#include <QHBoxLayout>
+
+#include <QtCharts/QChart>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QScatterSeries>
+
+#include <QPdfWriter>
+#include <QImageWriter>
+
+#include <iostream>
 
 ChartWidget::ChartWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ChartWidget)
+    xAxisTitle("x"),
+    yAxisTitle("y")
 {
-    ui->setupUi(this);
+    QtCharts::QChart *chart = new QtCharts::QChart();
+    chart->legend()->hide();
+    chart->legend()->setAlignment(Qt::AlignBottom);
 
-    this->ui->custom_plot_widget->setMouseTracking(true);
-    connect(this->ui->custom_plot_widget, &QCustomPlot::mouseMove,
+    this->chart_view = new MouseHandlingChartView(chart, this);
+    this->chart_view->setRenderHint(QPainter::Antialiasing);
+
+    connect(this->chart_view, &MouseHandlingChartView::mouseMove,
             this, &ChartWidget::chart_mouse_move);
 
-    this->ui->custom_plot_widget->xAxis->setNumberPrecision(8);
-    this->ui->custom_plot_widget->xAxis->setOffset(0);
-    this->ui->custom_plot_widget->xAxis->setPadding(0);
-    this->ui->custom_plot_widget->xAxis->setAntialiased(true);
-
-    this->ui->custom_plot_widget->yAxis->setOffset(0);
-    this->ui->custom_plot_widget->yAxis->setPadding(0);
-    this->ui->custom_plot_widget->yAxis->setAntialiased(true);
-
+    this->setLayout(new QHBoxLayout());
+    this->layout()->addWidget(this->chart_view);
 }
 
 ChartWidget::~ChartWidget()
 {
-    delete ui;
 }
 
-void ChartWidget::setAxisTitles(const QString xAxis, const QString yAxis)
+void ChartWidget::setAxisTitles(const QString xAxisTitle, const QString yAxisTitle)
 {
-    this->ui->custom_plot_widget->xAxis->setLabel(xAxis);
-    this->ui->custom_plot_widget->yAxis->setLabel(yAxis);
+    this->xAxisTitle = xAxisTitle;
+    this->yAxisTitle = yAxisTitle;
 }
 
 double ChartWidget::getXAxisValue(int x)
 {
-    return this->ui->custom_plot_widget->xAxis->pixelToCoord(x);
+    return this->chart_view->chart()->mapToValue(QPointF(x,0)).x();
 }
 
-void ChartWidget::setData(const QVector<double> xData,
-                          const QVector<double> yData) {
-    this->ui->custom_plot_widget->clearGraphs();
-    QCPGraph* graph = this->ui->custom_plot_widget->addGraph();
-    graph->setPen(QPen(QColor(116,205,122)));
-    graph->setLineStyle(QCPGraph::lsStepCenter);
-    graph->setErrorType(QCPGraph::etValue);
+double ChartWidget::getYAxisValue(int y)
+{
+    return this->chart_view->chart()->mapToValue(QPointF(0,y)).y();
+}
 
-    graph->setData(xData, yData);
+void ChartWidget::clearData()
+{
+    this->chart_view->chart()->removeAllSeries();
+}
 
-    this->ui->custom_plot_widget->rescaleAxes();
-    this->ui->custom_plot_widget->replot();
+void ChartWidget::addData(const QVector<double> xData,
+                          const QVector<double> yData,
+                          QString series_title,
+                          QColor series_color) {
+    QtCharts::QChart* chart = this->chart_view->chart();
+
+    QtCharts::QLineSeries* line_series = new QtCharts::QLineSeries();
+
+    for(int i = 0; i < xData.size(); i++) {
+        line_series->append(xData[i], yData[i]);
+    }
+    line_series->setName(series_title);
+
+    QPen pen(series_color);
+    pen.setWidth(2);
+    line_series->setPen(pen);
+
+    chart->addSeries(line_series);
+
+    /*
+    if(chart->series().length() > 1)
+        chart->legend()->show();
+    */
+}
+
+void ChartWidget::addPoint(const double xData,
+                          const double yData,
+                          QString series_title,
+                          QColor series_color) {
+    QtCharts::QScatterSeries* series = new QtCharts::QScatterSeries();
+    series->setName(series_title);
+    series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+    series->setMarkerSize(6);
+    series->setPen(QPen(series_color));
+    series->setBrush(QBrush(series_color));
+    series->append(xData, yData);
+    this->chart_view->chart()->addSeries(series);
+}
+
+void ChartWidget::createDefaultAxes()
+{
+    QtCharts::QChart* chart = this->chart_view->chart();
+    chart->createDefaultAxes();
+    chart->axisX()->setTitleText(this->xAxisTitle);
+    chart->axisY()->setTitleText(this->yAxisTitle);
 }
 
 bool ChartWidget::save(const QString file_name)
 {
-    if(file_name.endsWith("pdf"))
-        return this->ui->custom_plot_widget->savePdf(file_name);
-    if(file_name.endsWith("png"))
-        return this->ui->custom_plot_widget->savePng(file_name,0,0,1.0, 100);  // 100 ... uncompressed
+    if(file_name.endsWith("pdf")) {
+        QPdfWriter writer(file_name);
+        writer.setCreator("ambient_image_processor");
+        QPainter painter(&writer);
+        this->chart_view->render(&painter);
+        return painter.end();
+    } else {
+        QImageWriter writer(file_name);
+        writer.setQuality(100); // best
+        writer.setCompression(0); // no compression
+        QImage image(this->chart_view->size(), QImage::Format_RGB32);
+        QPainter painter(&image);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.fillRect(this->chart_view->rect(), Qt::white);
+        this->chart_view->render(&painter);
+        painter.end();
+        return writer.write(image);
+    }
 
     return false;
 }
-
