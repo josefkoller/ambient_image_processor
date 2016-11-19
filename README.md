@@ -29,7 +29,7 @@ A tool to perform several **imaging** tasks.
  - TGV-DCT Image Shading Correction
 
 # Dependencies
-- Qt 5.5.0, installed from source, [qt.io](https://www.qt.io/)
+- Qt 5.7.0 (Qt5Core, Qt5Widgets, Qt5Charts), installed from source, [qt.io](https://www.qt.io/)
 - Cuda 8.0, package cuda-8-0
 - ITK 4.8.1, installed from source, [itk.org](https://itk.org/)
 - OpenCV 3.1.0, installed from source, [opencv.org](http://opencv.org/)
