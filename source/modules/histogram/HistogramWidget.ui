@@ -27,7 +27,19 @@
        <widget class="ChartWidget" name="chart_widget" native="true">
         <property name="minimumSize">
          <size>
-          <width>256</width>
+          <width>360</width>
+          <height>320</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>360</width>
           <height>320</height>
          </size>
         </property>

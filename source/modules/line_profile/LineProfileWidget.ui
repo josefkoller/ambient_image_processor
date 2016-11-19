@@ -40,6 +40,12 @@
        <height>320</height>
       </size>
      </property>
+     <property name="baseSize">
+      <size>
+       <width>360</width>
+       <height>320</height>
+      </size>
+     </property>
      <property name="cursor">
       <cursorShape>UpArrowCursor</cursorShape>
      </property>

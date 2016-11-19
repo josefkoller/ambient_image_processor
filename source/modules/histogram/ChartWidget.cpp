@@ -29,6 +29,9 @@ ChartWidget::ChartWidget(QWidget *parent) :
 
     this->setLayout(new QHBoxLayout());
     this->layout()->addWidget(this->chart_view);
+    this->chart_view->setMinimumSize(360, 320); // for file writing without a gui
+    this->chart_view->setBackgroundBrush(QBrush(Qt::white));
+    this->chart_view->setContentsMargins(0,0,0,0);
 }
 
 ChartWidget::~ChartWidget()
@@ -112,16 +115,10 @@ bool ChartWidget::save(const QString file_name)
         this->chart_view->render(&painter);
         return painter.end();
     } else {
-        QImageWriter writer(file_name);
-        writer.setQuality(100); // best
-        writer.setCompression(0); // no compression
-        QImage image(this->chart_view->size(), QImage::Format_RGB32);
-        QPainter painter(&image);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.fillRect(this->chart_view->rect(), Qt::white);
-        this->chart_view->render(&painter);
-        painter.end();
-        return writer.write(image);
+        auto pixmap = this->chart_view->grab();
+        const char* format = 0; // choose by the filename
+        const int quality = 100; // best quality
+        return pixmap.save(file_name, format, quality);
     }
 
     return false;
