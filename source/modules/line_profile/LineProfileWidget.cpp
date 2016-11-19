@@ -23,7 +23,9 @@ LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     ui(new Ui::LineProfileWidget),
     profile_line_parent(nullptr),
     setting_line_point(false),
-    image(ITKImage::Null)
+    image(ITKImage::Null),
+    cursor_position({-1, -1, -1}),
+    projected_cursor_point(-1,-1)
 {
     ui->setupUi(this);
 
@@ -99,26 +101,27 @@ void LineProfileWidget::paintSelectedProfileLine()
                                 QVector<double>::fromStdVector(intensities), "Image 2", pen_color);
 
     // cursor position ...
+    if(this->projected_cursor_point.x() >= 0) {
+        QPoint line_direction = ITKImage::pointFromIndex(line.position2()) -
+                                ITKImage::pointFromIndex(line.position1());
+        double line_length = std::sqrt(QPoint::dotProduct(line_direction, line_direction));
+        QPointF point1_to_cursor = this->projected_cursor_point - ITKImage::pointFromIndex(line.position1());
+        double point1_to_cursor_length = std::sqrt(QPointF::dotProduct(point1_to_cursor, point1_to_cursor));
+        double cursor_factor = point1_to_cursor_length / line_length;
+        if(cursor_factor >= 0 && cursor_factor <= 1 && distancesQ.size() > 0)
+        {
+            uint cursor_index = (distancesQ.size()-1) * cursor_factor;
+            double cursor_distance = distancesQ[cursor_index];
+            double cursor_intensity = intensitiesQ[cursor_index];
+            auto color = this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked() ?
+                                    cursor_color : line_with_parent_cursor_color;
+            this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor", color);
 
-    QPoint line_direction = ITKImage::pointFromIndex(line.position2()) -
-                            ITKImage::pointFromIndex(line.position1());
-    double line_length = std::sqrt(QPoint::dotProduct(line_direction, line_direction));
-    QPointF point1_to_cursor = this->projected_cursor_point - ITKImage::pointFromIndex(line.position1());
-    double point1_to_cursor_length = std::sqrt(QPointF::dotProduct(point1_to_cursor, point1_to_cursor));
-    double cursor_factor = point1_to_cursor_length / line_length;
-    if(cursor_factor >= 0 && cursor_factor <= 1 && distancesQ.size() > 0)
-    {
-        uint cursor_index = (distancesQ.size()-1) * cursor_factor;
-        double cursor_distance = distancesQ[cursor_index];
-        double cursor_intensity = intensitiesQ[cursor_index];
-        auto color = this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked() ?
-                                cursor_color : line_with_parent_cursor_color;
-        this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor", color);
-
-        if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked()) {
-            cursor_distance = this->profile_line_parent->distancesQ[cursor_index];
-            cursor_intensity = this->profile_line_parent->intensitiesQ[cursor_index];
-            this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor2", line_with_parent_cursor_color);
+            if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked()) {
+                cursor_distance = this->profile_line_parent->distancesQ[cursor_index];
+                cursor_intensity = this->profile_line_parent->intensitiesQ[cursor_index];
+                this->ui->chart_widget->addPoint(cursor_distance, cursor_intensity, "Cursor2", line_with_parent_cursor_color);
+            }
         }
     }
 
@@ -287,7 +290,7 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
     painter.setPen(QPen(end_point_color,2));
     painter.drawPoint(point2);
 
-    if(this->image.contains(cursor_position))
+    if(cursor_position[0] >= 0 && this->image.contains(cursor_position))
     {
         QPointF cursor_point = ITKImage::pointFromIndex(cursor_position);
         QPointF cursor_direction = QPointF(point2.x() - cursor_point.x(),
