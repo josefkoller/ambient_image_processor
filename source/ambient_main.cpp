@@ -12,16 +12,24 @@ int main(int argc, char *argv[])
     if(argc > 1)
     {
         image_path = argv[1];
- //       std::cout << "image file path: " << image_path << std::endl;
     }
-
     if(!QFile(QString::fromStdString(image_path)).exists())
     {
-        std::cout << "image file does not exist" << std::endl;
+        std::cout << "image file does not exist: " << image_path << std::endl;
+    }
+
+    std::string image_path2 = "";
+    if(argc > 2)
+    {
+        image_path2 = argv[2];
+    }
+    if(!QFile(QString::fromStdString(image_path2)).exists())
+    {
+        std::cout << "image file does not exist: " << image_path2 << std::endl;
     }
 
     QApplication application(argc, argv);
-    MainWindow window(image_path);
+    MainWindow window(image_path, image_path2);
     window.show();
 
     application.exec();

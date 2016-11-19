@@ -6,7 +6,7 @@
 
 #include "ITKImage.h"
 
-MainWindow::MainWindow(std::string image_path) :
+MainWindow::MainWindow(std::string image_path, std::string image_path2) :
     QMainWindow(NULL),
     ui(new Ui::MainWindow),
     source_image_path(image_path)
@@ -16,6 +16,11 @@ MainWindow::MainWindow(std::string image_path) :
     if(QFile(QString::fromStdString(image_path)).exists())
     {
         this->ui->image_widget->setImage(ITKImage::read(image_path));
+    }
+
+    if(QFile(QString::fromStdString(image_path2)).exists())
+    {
+        this->ui->output_widget->setImage(ITKImage::read(image_path2));
     }
 
     this->ui->image_widget->setOutputWidget(this->ui->output_widget);

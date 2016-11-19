@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(std::string image_path);
+    MainWindow(std::string image_path, std::string image_path2);
     ~MainWindow();
 
 private slots:
