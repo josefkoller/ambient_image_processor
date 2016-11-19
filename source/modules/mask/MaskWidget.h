@@ -32,7 +32,9 @@ private:
     Ui::MaskWidget *ui;
     ImageViewWidget* mask_view;
 
-    ITKImage getMask() const;
+    ITKImage image;
+
+    ITKImage getMask();
 
 signals:
     void maskChanged(ITKImage mask);

@@ -2,6 +2,7 @@
 #include "ui_MaskWidget.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 MaskWidget::MaskWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -27,15 +28,31 @@ void MaskWidget::on_load_mask_button_clicked()
     if(file_name == QString::null || !QFile(file_name).exists())
         return;
 
+    auto mask = ITKImage::read(file_name.toStdString());
+    this->mask_view->setImage(mask);
+
+    if(!mask.hasSameSize(this->image)) {
+        this->ui->enabled_checkbox->setChecked(false);
+
+        this->setStatusText("mask module deactivated, mask and image have different size");
+        QMessageBox::information(this, "Info", "mask module deactivated, mask and image have different size");
+        return;
+    }
+
     this->ui->enabled_checkbox->setChecked(true);
-    this->mask_view->setImage(ITKImage::read(file_name.toStdString()));
 }
 
-ITKImage MaskWidget::getMask() const {
+ITKImage MaskWidget::getMask() {
     if(!this->ui->enabled_checkbox->isChecked())
         return ITKImage();
 
-    return this->mask_view->getImage();
+    auto mask = this->mask_view->getImage();
+    if(!mask.hasSameSize(this->image)) {
+        this->setStatusText("mask module deactivated, mask and image have different size");
+        return ITKImage();
+    }
+
+    return mask;
 }
 
 void MaskWidget::registerModule(ImageWidget *image_widget)
@@ -49,9 +66,12 @@ void MaskWidget::registerModule(ImageWidget *image_widget)
     // disable mask, if it has the wrong dimensions...
     connect(image_widget, &ImageWidget::imageChanged,
             this, [this](ITKImage image) {
+        this->image = image;
         auto mask = this->getMask();
-        if(!mask.hasSameSize(image))
+        if(!mask.hasSameSize(image)) {
             this->ui->enabled_checkbox->setChecked(false);
+            this->setStatusText("mask module deactivated, mask and image have different size");
+        }
     });
 }
 
