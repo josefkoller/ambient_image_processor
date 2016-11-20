@@ -29,6 +29,12 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
                              ITKImage& div_v_image,
                              const bool calculate_div_v)
 {
+    ITKImage background;
+    if(add_background_back && !mask.isNull())
+    {
+        auto background_mask = CudaImageOperationsProcessor::invert(mask);
+        background = CudaImageOperationsProcessor::multiply(input_image, background_mask);
+    }
 
     if(!mask.isNull())
         input_image = CudaImageOperationsProcessor::multiply(input_image, mask);
@@ -92,12 +98,7 @@ void TGVKDeshadeDownsampledProcessor::processTGVKL1Cuda(ITKImage input_image,
     }
 
     if(add_background_back && !mask.isNull())
-    {
-        auto background_mask = CudaImageOperationsProcessor::invert(mask);
-        auto background = CudaImageOperationsProcessor::multiply(input_image, background_mask);
         deshaded_image = CudaImageOperationsProcessor::add(deshaded_image, background);
-    }
-
 
     if(set_negative_values_to_zero)
         deshaded_image = CudaImageOperationsProcessor::clamp_negative_values(deshaded_image, 0);
