@@ -36,6 +36,7 @@ list(APPEND CUDA_CPP_FILES
   ${CMAKE_CURRENT_LIST_DIR}/exp.cu
   ${CMAKE_CURRENT_LIST_DIR}/div_grad.cu
   ${CMAKE_CURRENT_LIST_DIR}/div_grad_2d.cu
+  ${CMAKE_CURRENT_LIST_DIR}/rotate_180_in_plane.cu
   )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})

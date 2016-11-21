@@ -85,6 +85,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QRadioButton" name="rotate180_in_plane_checkbox">
+        <property name="text">
+         <string>rotate 180° in plane</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

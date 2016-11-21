@@ -53,6 +53,9 @@ ITKImage UnaryOperationsWidget::processImage(ITKImage image)
 
     if(this->ui->remove_zero_frequency_checkbox->isChecked())
         return CudaImageOperationsProcessor::remove_zero_frequency(image);
+
+    if(this->ui->rotate180_in_plane_checkbox->isChecked())
+        return CudaImageOperationsProcessor::rotate180InPlane(image);
 }
 
 void UnaryOperationsWidget::on_perform_button_clicked()

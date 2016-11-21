@@ -81,6 +81,9 @@ Pixel* div_grad_kernel_launch(Pixel* image, uint width, uint height, uint depth)
 template<typename Pixel>
 Pixel* div_grad_2d_kernel_launch(Pixel* image, uint width, uint height);
 
+template<typename Pixel>
+Pixel* rotate_180_in_plane_kernel_launch(Pixel* image, uint width, uint height, uint depth);
+
 CudaImageOperationsProcessor::CudaImageOperationsProcessor()
 {
 }
@@ -204,6 +207,13 @@ ITKImage CudaImageOperationsProcessor::remove_zero_frequency(ITKImage image)
     auto dct_image = cosineTransform(image);
     dct_image.setPixel(0,0,0, 0);
     return inverseCosineTransform(dct_image);
+}
+
+ITKImage CudaImageOperationsProcessor::rotate180InPlane(ITKImage image)
+{
+    return perform(image, [&image](Pixels image_pixels) {
+        return rotate_180_in_plane_kernel_launch(image_pixels, image.width, image.height, image.depth);
+    });
 }
 
 ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
