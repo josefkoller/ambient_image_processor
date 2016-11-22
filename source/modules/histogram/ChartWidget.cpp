@@ -116,6 +116,11 @@ bool ChartWidget::save(const QString file_name)
         return painter.end();
     } else {
         auto pixmap = this->chart_view->grab();
+        const int margin = 24;
+        pixmap = pixmap.copy(margin, margin,
+                             pixmap.rect().width() - margin*2,
+                             pixmap.rect().height() - margin*2); // crop
+
         const char* format = 0; // choose by the filename
         const int quality = 100; // best quality
         return pixmap.save(file_name, format, quality);
