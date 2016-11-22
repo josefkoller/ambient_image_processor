@@ -17,8 +17,8 @@ __global__ void rotate_180_in_plane_kernel(
     index_rest = index_rest - y * width;
     const int x = index_rest;
 
-    const int y2 = height - y;
-    const int x2 = width - x;
+    const int y2 = height - y - 1;
+    const int x2 = width - x - 1;
 
     const int index2 = x2 + y2 * width + z * width*height;
     result[index2] = image[index];
