@@ -1,6 +1,6 @@
 #include "CudaImageOperationsProcessor.h"
 
-//#include <fftw3.h>
+//#include <fftw3.h> this was used as a reference implementation
 
 template<typename Pixel>
 Pixel* multiply_kernel_launch(Pixel* image1, Pixel* image2,
@@ -221,7 +221,7 @@ ITKImage CudaImageOperationsProcessor::cosineTransform(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
         return cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
 
-        /*
+        /* reference implementation:
         Pixels result = new Pixel[image.width * image.height * image.depth];
         fftw_plan plan = fftw_plan_r2r_3d((int)image.depth, (int) image.height, (int) image.width,
                                    image_pixels, result,
@@ -242,7 +242,7 @@ ITKImage CudaImageOperationsProcessor::inverseCosineTransform(ITKImage image)
     return perform(image, [&image](Pixels image_pixels) {
         return inverse_cosine_transform_kernel_launch(image_pixels, image.width, image.height, image.depth);
 
-        /*
+        /* reference implementation
         Pixels result = new Pixel[image.width * image.height * image.depth];
         fftw_plan plan = fftw_plan_r2r_3d((int)image.depth, (int) image.height, (int) image.width,
                                    image_pixels, result,

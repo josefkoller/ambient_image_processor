@@ -33,7 +33,6 @@ A tool to perform several **imaging** tasks.
 - Cuda 8.0, package cuda-8-0
 - ITK 4.8.1, installed from source, [itk.org](https://itk.org/)
 - OpenCV 3.1.0, installed from source, [opencv.org](http://opencv.org/)
-- FFTW 3, package fftw3-dev
 - SQLite 3, package libsqlite3-dev
 
 # Build
