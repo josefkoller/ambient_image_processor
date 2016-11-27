@@ -29,6 +29,16 @@
          <string>Region</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>from x:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="4">
           <widget class="QLabel" name="label_18">
            <property name="text">
@@ -54,16 +64,6 @@
          </item>
          <item row="0" column="2">
           <widget class="QSpinBox" name="from_x_spinbox"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>from x:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
          </item>
          <item row="1" column="4">
           <widget class="QLabel" name="label_20">
@@ -178,6 +178,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>from_x_spinbox</tabstop>
+  <tabstop>to_x_spinbox</tabstop>
+  <tabstop>from_y_spinbox</tabstop>
+  <tabstop>to_y_spinbox</tabstop>
+  <tabstop>from_z_spinbox</tabstop>
+  <tabstop>to_z_spinbox</tabstop>
+  <tabstop>extract_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

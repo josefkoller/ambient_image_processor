@@ -1,5 +1,4 @@
 #include "ChartWidget.h"
-#include "ui_ChartWidget.h"
 
 #include <QHBoxLayout>
 

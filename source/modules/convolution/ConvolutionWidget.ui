@@ -57,12 +57,18 @@
         <property name="minimum">
          <double>-999.000000000000000</double>
         </property>
+        <property name="decimals">
+         <number>5</number>
+        </property>
        </widget>
       </item>
       <item row="0" column="0" alignment="Qt::AlignLeft">
        <widget class="QDoubleSpinBox" name="k11">
         <property name="minimum">
          <double>-999.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>5</number>
         </property>
        </widget>
       </item>
@@ -114,6 +120,9 @@
         </property>
         <property name="minimum">
          <double>-999.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>5</number>
         </property>
        </widget>
       </item>
