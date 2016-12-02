@@ -29,7 +29,7 @@ A tool to perform several **imaging** tasks.
 
 # Screenshot
 ![Ambient Image Processor Screenshot](https://github.com/josefkoller/ambient_image_processor/raw/master/screenshot.jpg?size=512x)
-On this screenshot you can see the ambient_image_processor application. The input on the left side is an artificial piecewise constant image with an simulated additive bias. In the line profile plot on the right side the estimated bias corrected image contains perfectly straight lines.
+In this screenshot you can see the ambient_image_processor application. The input on the left side is an artificial piecewise constant image with a simulated additive bias. In the line profile plot on the right side the estimated bias corrected image contains perfectly straight lines.
 
 # Dependencies
 - Qt 5.7.0 (Qt5Core, Qt5Widgets, Qt5Charts), installed from source, [qt.io](https://www.qt.io/)
