@@ -59,15 +59,14 @@ void ImageInformationWidget::getCVAndTV(ITKImage::PixelType& cv, ITKImage::Pixel
 void ImageInformationWidget::on_copy_to_clipboard_button_clicked()
 {
     auto text =
-            this->ui->coefficient_of_variation->text() + ": " +
-            this->ui->coefficient_of_variation_label->text() + ", " +
-            this->ui->tv_per_voxel_text_label->text() + ": " +
-            this->ui->tv_per_voxel_label->text() + ", " +
-            this->ui->sum_of_absolute_values->text() + ": " +
-            this->ui->sum_of_absolute_values_label->text() + ", " +
-            this->ui->sum_of_squared_values->text() + ": " +
+            this->ui->coefficient_of_variation_label->text() + " " +
+            this->ui->coefficient_of_variation->text() + "\n" +
+            this->ui->tv_per_voxel_text_label->text() + " " +
+            this->ui->tv_per_voxel_label->text() + "\n" +
+            this->ui->sum_of_absolute_values->text() + " " +
+            this->ui->sum_of_absolute_values_label->text() + "\n" +
+            this->ui->sum_of_squared_values->text() + " " +
             this->ui->sum_of_squared_values_label->text();
 
     QApplication::clipboard()->setText(text);
-
 }
