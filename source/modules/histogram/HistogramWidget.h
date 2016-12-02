@@ -23,8 +23,10 @@ private:
     Ui::HistogramWidget *ui;
 
     ITKImage image;
-
     MaskWidget::MaskFetcher mask_fetcher;
+
+    static const uint line_width;
+    static const QColor line_color;
 private slots:
     void histogram_mouse_move(QMouseEvent* position);
     void handleImageChanged(ITKImage image);

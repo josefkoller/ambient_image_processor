@@ -11,12 +11,13 @@
 const QColor LineProfileWidget::start_point_color = QColor(255, 99, 49);
 const QColor LineProfileWidget::end_point_color = QColor(0, 102, 101);
 
-const QColor LineProfileWidget::line_with_parent_color = QColor(0, 154, 66);
+const QColor LineProfileWidget::second_line_color = QColor(0, 154, 66);
 const QColor LineProfileWidget::line_color = QColor(0, 51, 153);
 
 const QColor LineProfileWidget::cursor_color = QColor(255, 173, 4);
 const QColor LineProfileWidget::line_with_parent_cursor_color = QColor(202, 0, 50);
 
+const uint LineProfileWidget::line_profile_width = 2;
 
 LineProfileWidget::LineProfileWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
@@ -88,17 +89,26 @@ void LineProfileWidget::paintSelectedProfileLine()
     this->intensitiesQ = QVector<double>::fromStdVector(intensities);
     this->distancesQ = QVector<double>::fromStdVector(distances);
 
-    auto pen_color = this->profile_line_parent == nullptr ? line_color : line_with_parent_color;
+    QPen pen;
+    pen.setWidth(line_profile_width);
+    const bool is_connected = this->profile_line_parent != nullptr;
+    pen.setColor(is_connected ? second_line_color : line_color);
 
     this->ui->chart_widget->clearData();
-    if(this->profile_line_parent != nullptr && this->ui->connected_to_parent_checkbox->isChecked())
+    if(is_connected && this->ui->connected_to_parent_checkbox->isChecked())
     {
+        pen.setColor(line_color);
         this->ui->chart_widget->addData(this->profile_line_parent->distancesQ,
-                                    this->profile_line_parent->intensitiesQ, "Image 1", line_color);
+                                    this->profile_line_parent->intensitiesQ, "Image 1", pen);
+
+        pen.setColor(second_line_color);
+        QVector<qreal> dashPattern;
+        dashPattern << line_profile_width*2 << line_profile_width;
+        pen.setDashPattern(dashPattern);
     }
 
     this->ui->chart_widget->addData(QVector<double>::fromStdVector(distances),
-                                QVector<double>::fromStdVector(intensities), "Image 2", pen_color);
+                                QVector<double>::fromStdVector(intensities), "Image 2", pen);
 
     // cursor position ...
     if(this->projected_cursor_point.x() >= 0) {
@@ -275,7 +285,7 @@ void LineProfileWidget::paintSelectedProfileLineInImage(QPixmap* pixmap)
 
     QPainter painter(pixmap);
 
-    auto pen_color = this->profile_line_parent == nullptr ? line_color : line_with_parent_color;
+    auto pen_color = this->profile_line_parent == nullptr ? line_color : second_line_color;
     QPen pen(pen_color);
     pen.setWidth(1);
     painter.setPen(pen);

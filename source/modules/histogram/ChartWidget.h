@@ -35,7 +35,7 @@ public:
     void clearData();
     void addData(const QVector<double> xData, const QVector<double> yData,
                  QString series_title,
-                 QColor series_color);
+                 QPen series_pen);
     void createDefaultAxes();
     double getXAxisValue(int x);
     double getYAxisValue(int y);

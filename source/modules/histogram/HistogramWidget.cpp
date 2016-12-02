@@ -8,6 +8,9 @@
 #include <QClipboard>
 #include <QFileDialog>
 
+const uint HistogramWidget::line_width = 2;
+const QColor HistogramWidget::line_color = QColor(116,205,122);
+
 HistogramWidget::HistogramWidget(QString title, QWidget *parent) :
     BaseModuleWidget(title, parent),
     ui(new Ui::HistogramWidget),
@@ -132,7 +135,11 @@ void HistogramWidget::handleHistogramChanged(
     auto intensitiesQ = QVector<double>::fromStdVector(intensities);
     auto probabilitiesQ = QVector<double>::fromStdVector(probabilities);
     this->ui->chart_widget->clearData();
-    this->ui->chart_widget->addData(intensitiesQ, probabilitiesQ, "Histogram Series", QColor(116,205,122));
+
+    QPen pen;
+    pen.setWidth(line_width);
+    pen.setColor(line_color);
+    this->ui->chart_widget->addData(intensitiesQ, probabilitiesQ, "Histogram Series", pen);
     this->ui->chart_widget->createDefaultAxes();
 
     calculateEntropy(probabilities);

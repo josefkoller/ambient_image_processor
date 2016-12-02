@@ -65,11 +65,12 @@ public:
     void clearLineProfiles();
 private:
     static const QColor line_color;
-    static const QColor line_with_parent_color;
+    static const QColor second_line_color;
     static const QColor cursor_color;
     static const QColor start_point_color;
     static const QColor end_point_color;
     static const QColor line_with_parent_cursor_color;
+    static const uint line_profile_width;
 
 public:
     void save_to_file(QString file_name = "");

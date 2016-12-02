@@ -61,7 +61,7 @@ void ChartWidget::clearData()
 void ChartWidget::addData(const QVector<double> xData,
                           const QVector<double> yData,
                           QString series_title,
-                          QColor series_color) {
+                          QPen series_pen) {
     QtCharts::QChart* chart = this->chart_view->chart();
 
     QtCharts::QLineSeries* line_series = new QtCharts::QLineSeries();
@@ -70,10 +70,7 @@ void ChartWidget::addData(const QVector<double> xData,
         line_series->append(xData[i], yData[i]);
     }
     line_series->setName(series_title);
-
-    QPen pen(series_color);
-    pen.setWidth(2);
-    line_series->setPen(pen);
+    line_series->setPen(series_pen);
 
     chart->addSeries(line_series);
 
