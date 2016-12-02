@@ -56,6 +56,8 @@ ITKImage BinaryOperationsWidget::processImage(ITKImage image1)
         });
     }
 
+    if(!image1.hasSameSize(image2))
+        throw std::runtime_error("second image has different size");
 
     if(this->ui->divide_checkbox->isChecked())
         return CudaImageOperationsProcessor::divide(image1, image2);
