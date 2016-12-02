@@ -28,7 +28,7 @@ A tool to perform several **imaging** tasks.
  - TGV-DCT Image Shading Correction
 
 # Screenshot
-![Ambient Image Processor Screenshot](https://github.com/josefkoller/ambient_image_processor/raw/master/screenshot.jpg?size=512x)
+![Ambient Image Processor Screenshot](https://github.com/josefkoller/ambient_image_processor/raw/master/screenshot.png)
 In this screenshot you can see the ambient_image_processor application. The input on the left side is an artificial piecewise constant image with a simulated additive bias. In the line profile plot on the right side the estimated bias corrected image contains perfectly straight lines.
 
 # Dependencies

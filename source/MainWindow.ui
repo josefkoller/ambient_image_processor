@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Image Viewer</string>
+   <string>Ambient Image Processor</string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
