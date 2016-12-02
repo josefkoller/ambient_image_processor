@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>652</width>
     <height>300</height>
    </rect>
   </property>
@@ -30,6 +30,9 @@
        <widget class="QRadioButton" name="binary_dilate_checkbox">
         <property name="text">
          <string>Binary Dilate</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

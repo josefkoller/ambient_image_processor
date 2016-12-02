@@ -24,4 +24,6 @@ ITKImage MorphologicalFilterWidget::processImage(ITKImage image)
 {
     if(this->ui->binary_dilate_checkbox->isChecked())
         return CudaImageOperationsProcessor::binary_dilate(image);
+
+    return ITKImage();
 }
