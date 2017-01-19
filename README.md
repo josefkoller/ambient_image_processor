@@ -62,7 +62,7 @@ the gui is executed by running
 build/output/ambient_application
 ```
 
-# Feature work/ideas
+# Future work/ideas
 - easier disabling/enabling of modules
 - module template, creator script
 - add more imaging filters
