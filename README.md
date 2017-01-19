@@ -51,18 +51,18 @@ The generated binaries are located in the build/output directory.
 ```
 build/output/tgv2_deshade_application
 ```
-outputs the list of parameters.
+calling the binaries with invalid parameters usually shows a help text containing a list of the possible parameters.
 Batch processing can be done by using the 
 - bash script bash/tgvk_deshade_downsampled_batch.sh
 - ruby scripts in the folder ruby
 - octave/matlab script octave/tgv2_deshade.m
 
-the gui in executed by running 
+the gui is executed by running 
 ```
 build/output/ambient_application
 ```
 
-# TODO
+# Feature work/ideas
 - easier disabling/enabling of modules
 - module template, creator script
 - add more imaging filters
@@ -70,4 +70,4 @@ build/output/ambient_application
  - image zoom for view only
  - load volume of multiple single files using the itk dicom reader, sustain meta info
  - load/scan all files of an directory, use dicom reader, group by date, serie, listview, load-button, do not load all data - only the file-paths for each volume, sustain meta info
-
+- feedback/folk of a brave windows user
